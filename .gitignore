@@ -11,3 +11,5 @@ npm-debug.log
 dist
 
 package-lock.json
+
+.env
