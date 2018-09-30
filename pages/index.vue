@@ -1,65 +1,52 @@
-<template>
+<template lang="html">
   <section class="container">
     <div>
-      <app-logo/>
-      <h1 class="title">
-        wordwolf
-      </h1>
-      <h2 class="subtitle">
-        WordWolf project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
+      <h1 class="title">Nuxtapp</h1>
+      <div class="games">
+        <ul>
+          <li 
+            v-for="game in games" 
+            :key="game['key']">
+            {{ game['name'] }}
+            <button @click="removeGame(game['key'])">X</button>
+          </li>
+        </ul>
       </div>
+      <input 
+        v-model="gameName" 
+        type="text" 
+        @keyup.enter="addGame">
     </div>
   </section>
 </template>
 
 <script>
-import AppLogo from '~/components/AppLogo.vue'
-
+import { INIT_GAME, ADD_GAME, REMOVE_GAME } from '../store/action-types'
 export default {
-  components: {
-    AppLogo
+  data() {
+    return {
+      gameName: ''
+    }
+  },
+  computed: {
+    games() {
+      return this.$store.getters.getGames
+    }
+  },
+  async fetch({ store }) {
+    return await store.dispatch(INIT_GAME)
+  },
+  methods: {
+    addGame() {
+      this.$store.dispatch(ADD_GAME, this.gameName)
+      this.gameName = ''
+    },
+    removeGame(key) {
+      this.$store.dispatch(REMOVE_GAME, key)
+    }
   }
 }
 </script>
 
-<style>
-.container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 1 */
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
+<style lang="css">
 </style>
-
