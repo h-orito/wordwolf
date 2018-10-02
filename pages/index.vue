@@ -2,47 +2,47 @@
   <section class="container">
     <div>
       <h1 class="title">Nuxtapp</h1>
-      <div class="games">
+      <div class="rooms">
         <ul>
           <li 
-            v-for="game in games" 
-            :key="game['key']">
-            {{ game['name'] }}
-            <button @click="removeGame(game['key'])">X</button>
+            v-for="room in rooms" 
+            :key="room['key']">
+            {{ room['name'] }}
+            <button @click="removeRoom(room['key'])">X</button>
           </li>
         </ul>
       </div>
       <input 
-        v-model="gameName" 
+        v-model="roomName" 
         type="text" 
-        @keyup.enter="addGame">
+        @keyup.enter="addRoom">
     </div>
   </section>
 </template>
 
 <script>
-import { INIT_GAME, ADD_GAME, REMOVE_GAME } from '../store/action-types'
+import { INIT_ROOM, ADD_ROOM, REMOVE_ROOM } from '../store/action-types'
 export default {
   data() {
     return {
-      gameName: ''
+      roomName: ''
     }
   },
   computed: {
-    games() {
-      return this.$store.getters.getGames
+    rooms() {
+      return this.$store.getters.getRooms
     }
   },
   async fetch({ store }) {
-    return await store.dispatch(INIT_GAME)
+    return await store.dispatch(INIT_ROOM)
   },
   methods: {
-    addGame() {
-      this.$store.dispatch(ADD_GAME, this.gameName)
-      this.gameName = ''
+    addRoom() {
+      this.$store.dispatch(ADD_ROOM, this.roomName)
+      this.roomName = ''
     },
-    removeGame(key) {
-      this.$store.dispatch(REMOVE_GAME, key)
+    removeRoom(key) {
+      this.$store.dispatch(REMOVE_ROOM, key)
     }
   }
 }
