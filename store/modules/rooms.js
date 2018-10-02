@@ -60,7 +60,7 @@ const actions = {
         commit('initRoom', rooms)
       })
   },
-  [ADD_ROOM](context, roomName) {
+  [ADD_ROOM](context, { roomName, userId }) {
     // 部屋を追加
     const key = Math.random()
       .toString(36)
@@ -69,6 +69,7 @@ const actions = {
       name: roomName,
       key: key,
       membersRef: [],
+      creatorRef: userId,
       created_at: new Date()
     })
   },
