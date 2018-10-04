@@ -1,14 +1,16 @@
 import Vuex from 'vuex'
-import games from './modules/games'
 import rooms from './modules/rooms'
 import members from './modules/members'
+import messages from './modules/messages'
+import auth from './modules/auth'
 
 const store = () =>
   new Vuex.Store({
     modules: {
-      games,
       rooms,
-      members
+      members,
+      messages,
+      auth
     }
   })
 export default store

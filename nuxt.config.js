@@ -8,15 +8,21 @@ module.exports = {
     FIREBASE_MESSAGINGSENDERID: process.env.FIREBASE_MESSAGINGSENDERID
   },
 
+  devtool: 'source-map',
+
   /*
   ** Headers of the page
   */
   head: {
-    title: 'wordwolf',
+    titleTemplate: 'ワードウルフオンライン | %s',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: 'WordWolf project' }
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'ワードウルフ、ワード人狼をオンラインで遊べるサービスです。'
+      }
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
@@ -28,7 +34,15 @@ module.exports = {
   modules: [
     '@nuxtjs/dotenv',
     '@nuxtjs/bulma', // css framework
-    '@nuxtjs/font-awesome'
+    // '@nuxtjs/font-awesome'
+    ['nuxt-sass-resources-loader', './assets/main.scss']
+  ],
+  css: [
+    { src: 'bulma/bulma.sass', lang: 'sass' }, // 2018/09/06 に更新しました
+    '@fortawesome/fontawesome-free-webfonts',
+    '@fortawesome/fontawesome-free-webfonts/css/fa-brands.css',
+    '@fortawesome/fontawesome-free-webfonts/css/fa-regular.css',
+    '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
   ],
 
   /*

@@ -8,29 +8,15 @@ firestore.settings({
 const gamesRef = firestore.collection('games')
 
 const state = {
-  games: [],
-  unsubscribe: null
+  game: null
 }
 
 const mutations = {
-  initGame(state, games) {
-    state.games = []
-    games.forEach(game => {
-      state.games.push(game.data())
-    })
+  initGame(state, game) {
+    state.game = game
   },
   addGame(state, game) {
     state.games.push(game)
-  },
-  updateGame(state, game) {
-    state.games.forEach(g => {
-      if (game.key === g.key) {
-        g = game
-      }
-    })
-  },
-  removeGame(state, game) {
-    state.games = state.games.filter(g => g.key !== game.key)
   }
 }
 

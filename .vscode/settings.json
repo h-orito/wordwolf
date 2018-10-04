@@ -1,8 +1,7 @@
 {
   "files.eol": "\n",
-  "prettier.eslintIntegration": true,
-  "prettier.semi": false,
-  "prettier.singleQuote": true,
+  "eslint.autoFixOnSave": true,
+  "editor.formatOnSave": true,
   "vetur.format.defaultFormatter.js": "vscode-typescript",
   "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
   "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
@@ -14,5 +13,7 @@
       "autoFix": true
     }
   ],
-  "eslint.autoFixOnSave": true
+  "emmet.includeLanguages": {
+    "vue-html": "html"
+  }
 }

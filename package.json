@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
+    "debug": "node --inspect-brk=9229 node_modules/nuxt/bin/nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
@@ -14,6 +15,10 @@
     "precommit": "npm run lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8",
+    "@fortawesome/fontawesome-free-brands": "^5.0.13",
+    "@fortawesome/fontawesome-free-solid": "^5.0.13",
+    "@fortawesome/fontawesome-free-webfonts": "^1.0.9",
     "@nuxtjs/bulma": "^1.2.0",
     "@nuxtjs/dotenv": "^1.1.1",
     "@nuxtjs/font-awesome": "^1.0.3",
@@ -29,7 +34,11 @@
     "eslint-loader": "^1.9.0",
     "eslint-plugin-prettier": "^2.7.0",
     "eslint-plugin-vue": "^4.7.1",
+    "node-sass": "^4.11.0",
+    "nuxt-sass-resources-loader": "^2.0.5",
     "prettier": "^1.14.3",
-    "prettier-eslint": "^8.8.2"
+    "prettier-eslint": "^8.8.2",
+    "sass-loader": "^7.1.0",
+    "vue-style-loader": "^4.1.2"
   }
 }
