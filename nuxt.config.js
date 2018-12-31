@@ -35,7 +35,13 @@ module.exports = {
     '@nuxtjs/dotenv',
     '@nuxtjs/bulma', // css framework
     // '@nuxtjs/font-awesome'
-    ['nuxt-sass-resources-loader', './assets/main.scss']
+    ['nuxt-sass-resources-loader', './assets/main.scss'],
+    [
+      '@nuxtjs/google-adsense',
+      {
+        id: 'ca-pub-0917187897820609'
+      }
+    ]
   ],
   css: [
     { src: 'bulma/bulma.sass', lang: 'sass' }, // 2018/09/06 に更新しました
