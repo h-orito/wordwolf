@@ -46,10 +46,6 @@
               :key="room['key']">
               <td>
                 <nuxt-link :to="{ path: 'room', query: { id: room.key }}">{{ room.name }}</nuxt-link>
-                <button
-                  v-if="isCreator(room['creatorRef'])"
-                  @click="removeRoom(room['key'])"
-                  class="button is-small is-danger">削除</button>
               </td>
               <td>{{ room['membersNum'] }}人</td>
               <td>{{ getStatusName(room['status']) }}</td>
@@ -120,7 +116,7 @@
 
 <script>
 import { LOGINOUT } from '~/store/action-types'
-import { INIT_ROOMS, REMOVE_ROOM } from '../store/action-types'
+import { INIT_ROOMS } from '../store/action-types'
 import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
 const auth = firebase.auth()
@@ -155,9 +151,6 @@ export default {
   methods: {
     isCreator(roomCreator) {
       return this.user != null && this.user.uid === roomCreator
-    },
-    removeRoom(roomKey) {
-      this.$store.dispatch(REMOVE_ROOM, roomKey)
     },
     openKampaModal() {
       var modal = document.querySelector('#kampa-modal')

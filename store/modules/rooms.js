@@ -2,7 +2,6 @@ import {
   INIT_ROOMS,
   INIT_ROOM,
   ADD_ROOM,
-  REMOVE_ROOM,
   TO_PREPARE_ROOM,
   TO_PROGRESS_ROOM,
   VOTE_ROOM,
@@ -61,9 +60,6 @@ const actions = {
       .then(function() {
         callback(key)
       })
-  },
-  [REMOVE_ROOM](context, key) {
-    roomsRef.doc(key).delete()
   },
   // 開始前→準備
   [TO_PREPARE_ROOM](context, { roomKey, members, talkMinutes }) {
