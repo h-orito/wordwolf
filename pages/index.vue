@@ -5,7 +5,8 @@
         <h1 class="title is-5">必要なのはブラウザだけ</h1>
         <div class="columns">
           <div class="column">
-            <p>ワードウルフオンラインはワードウルフが無料・専用アプリ不要で気軽に遊べるサービスです。</p>
+            <p class="content">ワードウルフオンラインはワードウルフが無料・専用アプリ不要で気軽に遊べるサービスです。</p>
+            <nuxt-link class="button is-primary" :to="{ path: 'intro' }">ワードウルフとは</nuxt-link>
           </div>
         </div>
       </div>
