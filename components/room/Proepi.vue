@@ -164,7 +164,7 @@ export default {
       )
     },
     canGameStart() {
-      return this.members.length >= 3 && this.isNotProgress && this.isOwner
+      return this.members.length >= 4 && this.isNotProgress && this.isOwner
     }
   },
   created: function() {},
