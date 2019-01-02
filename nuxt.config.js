@@ -36,12 +36,12 @@ module.exports = {
     '@nuxtjs/bulma', // css framework
     // '@nuxtjs/font-awesome'
     ['nuxt-sass-resources-loader', './assets/main.scss'],
-    [
-      '@nuxtjs/google-adsense',
-      {
-        id: 'ca-pub-0917187897820609'
-      }
-    ],
+    // [
+    //   '@nuxtjs/google-adsense',
+    //   {
+    //     id: 'ca-pub-0917187897820609'
+    //   }
+    // ],
     [
       '@nuxtjs/google-analytics',
       {
@@ -50,7 +50,7 @@ module.exports = {
     ]
   ],
   css: [
-    { src: 'bulma/bulma.sass', lang: 'sass' }, // 2018/09/06 に更新しました
+    { src: 'bulma/bulma.sass', lang: 'sass' },
     '@fortawesome/fontawesome-free-webfonts',
     '@fortawesome/fontawesome-free-webfonts/css/fa-brands.css',
     '@fortawesome/fontawesome-free-webfonts/css/fa-regular.css',

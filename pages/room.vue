@@ -12,7 +12,7 @@
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
-          <adsbygoogle ad-slot="8069267370" ad-format="link" />
+          <!-- <adsbygoogle ad-slot="8069267370" ad-format="link" /> -->
         </div>
         <!-- end left tab -->
         <!-- right tab -->
@@ -20,11 +20,6 @@
           <Chat :room="room" :members="members" :user="user" :messages="messages" :leftTime="leftTime" @say="say"></Chat>
         </div>
         <!-- end right tab -->
-      </div>
-      <div class="columns">
-        <div class="column">
-          <adsbygoogle ad-slot="1231685842" />
-        </div>
       </div>
     </div>
   </section>
