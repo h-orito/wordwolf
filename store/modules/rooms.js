@@ -21,6 +21,7 @@ firestore.settings({
 
 const roomsRef = firestore.collection('rooms')
 const messagesRef = firestore.collection('messages')
+const wordsRef = firestore.collection('words')
 
 const state = {
   rooms: [],
@@ -102,6 +103,7 @@ const actions = {
       })
       .then(() => {
         addMessage(roomKey, PERSON_SYSTEM, makeProgressMessage())
+        addWord(villagersWord, wolfWord)
         callback()
       })
   },
@@ -234,6 +236,14 @@ function addMessage(roomKey, name, message) {
     message: message,
     roomKey: roomKey,
     createdAt: new Date()
+  })
+}
+
+function addWord(villagersWord, wolfWord) {
+  const key = generateKey()
+  return wordsRef.doc(key).set({
+    villagersWord: villagersWord,
+    wolfWord: wolfWord
   })
 }
 
