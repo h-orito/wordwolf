@@ -41,6 +41,12 @@ module.exports = {
       {
         id: 'ca-pub-0917187897820609'
       }
+    ],
+    [
+      '@nuxtjs/google-analytics',
+      {
+        id: 'UA-131610270-1'
+      }
     ]
   ],
   css: [
