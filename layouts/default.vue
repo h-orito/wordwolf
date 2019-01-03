@@ -4,7 +4,7 @@
     <div class="siteContent">
       <nuxt class="has-text-centered"/>
     </div>
-    <!-- <Footer/> -->
+    <Footer/>
   </div>
 </template>
 

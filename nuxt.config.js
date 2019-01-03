@@ -36,12 +36,12 @@ module.exports = {
     '@nuxtjs/bulma', // css framework
     // '@nuxtjs/font-awesome'
     ['nuxt-sass-resources-loader', './assets/main.scss'],
-    // [
-    //   '@nuxtjs/google-adsense',
-    //   {
-    //     id: 'ca-pub-0917187897820609'
-    //   }
-    // ],
+    [
+      '@nuxtjs/google-adsense',
+      {
+        id: 'ca-pub-0917187897820609'
+      }
+    ],
     [
       '@nuxtjs/google-analytics',
       {
