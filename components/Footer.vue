@@ -1,7 +1,7 @@
 <template>
   <div class="columns">
     <div class="column">
-      <adsbygoogle :ad-slot="1231685842"/>
+      <adsbygoogle :ad-slot="'1231685842'"/>
     </div>
   </div>
 </template>

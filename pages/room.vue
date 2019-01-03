@@ -12,7 +12,7 @@
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
-          <div class="is-hidden-mobile"><adsbygoogle :ad-slot="8069267370" :ad-format="link" /></div>
+          <adsbygoogle :ad-slot="'8069267370'" :ad-format="'link'" />
         </div>
         <!-- end left tab -->
         <!-- right tab -->
