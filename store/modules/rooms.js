@@ -222,6 +222,7 @@ function isWolfWin(votes, wolfKey) {
       count: votes.filter(vt => vt.target === v.key).length
     })
   })
+
   // 人狼の得票数
   const wolfCount = voteCounts.filter(vc => vc.key === wolfKey)[0].count
   // 人狼と同じか、それ以上に得票数が多い人がいるか
@@ -301,7 +302,7 @@ function makeVoteCompleteMessage(room, votes, members) {
   const msgs = [HR, '投票結果']
   votes.forEach(v => {
     const fromName = members.find(m => m.key === v.uid).name
-    const isVillagers = room.wolfs.some(w => w.key === v.uid)
+    const isVillagers = !room.wolfs.some(w => w.key === v.uid)
     const campName = isVillagers ? '（村人）' : '（人狼）'
     const toName = members.find(m => m.key === v.target).name
     msgs.push(fromName + campName + ' → ' + toName)
