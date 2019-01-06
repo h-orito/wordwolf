@@ -12,7 +12,6 @@
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
-          <AmazonAd />
         </div>
         <!-- end left tab -->
         <!-- right tab -->
@@ -48,7 +47,6 @@ import Prepare from '~/components/room/Prepare'
 import Progress from '~/components/room/Progress'
 import Counter from '~/components/room/Counter'
 import Chat from '~/components/room/Chat'
-import AmazonAd from '~/components/room/AmazonAd'
 import Footer from '~/components/Footer'
 const auth = firebase.auth()
 export default {
@@ -62,7 +60,6 @@ export default {
     Progress,
     Counter,
     Chat,
-    AmazonAd,
     Footer
   },
   data() {

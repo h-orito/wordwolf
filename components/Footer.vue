@@ -1,7 +1,7 @@
 <template>
   <div class="columns">
     <div class="column">
-      <adsbygoogle :ad-slot="'1231685842'"/>
+      <Adsense data-ad-client="ca-pub-0917187897820609" data-ad-slot="1231685842"/>
     </div>
   </div>
 </template>
