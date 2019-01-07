@@ -55,7 +55,7 @@ export default {
         return false
       }
       if (this.roomStatus === consts.STATUS_PREPARE) {
-        return this.isGameMaster
+        return true
       }
       if (this.roomStatus === consts.STATUS_PROGRESS) {
         return this.leftTime > 0
