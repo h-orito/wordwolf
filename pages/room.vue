@@ -6,7 +6,7 @@
       <div class="columns is-tablet">
         <!-- left tab -->
         <div class="column is-one-thirds-tablet">
-          <Members :room="room" :members="members" :user="user"></Members>
+          <Members :room="room" :members="members" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
@@ -86,6 +86,13 @@ export default {
         this.user != null && this.members.some(mem => mem.key === this.user.uid)
       )
     },
+    isOwner: function() {
+      return (
+        this.user != null &&
+        this.room != null &&
+        this.room.creatorRef === this.user.uid
+      )
+    },
     messages() {
       return this.$store.getters.getMessages
     }
@@ -129,6 +136,21 @@ export default {
       leave(
         this.user.uid,
         this.user.displayName,
+        this.room.key,
+        this.$store,
+        this.room.creatorRef
+      )
+    },
+    kick: function({ memberKey, memberName }) {
+      if (!window.confirm('本当に強制退出させますか？')) {
+        return
+      }
+      if (!this.isOwner) {
+        return // 何もしない
+      }
+      leave(
+        memberKey,
+        memberName,
         this.room.key,
         this.$store,
         this.room.creatorRef

@@ -15,10 +15,19 @@
         class="membername"
         :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
       >{{ member.name }}</span>
-      <span v-if="isNotProgress && isCreator(member)" class="tag is-success is-pulled-right">部屋主</span>
-      <span v-if="isGameMaster(member)" class="tag is-success is-pulled-right">GM</span>
-      <span v-if="allowOpenSkill && isVillagers(member)" class="tag is-info is-pulled-right">村人</span>
-      <span v-if="allowOpenSkill && isWolfs(member)" class="tag is-danger is-pulled-right">人狼</span>
+      <button
+        v-if="!isCreator(member) && canKick"
+        class="tag is-danger is-small is-pulled-right"
+        style="cursor: pointer;"
+        @click="$emit('kick', { memberKey: member.key, memberName: member.name })"
+      >強制退出</button>
+      <span v-if="isGameMaster(member)" class="tag reverse-success is-pulled-right">GM</span>
+      <span v-if="allowOpenSkill && isVillagers(member)" class="tag reverse-info is-pulled-right">村人</span>
+      <span v-if="allowOpenSkill && isWolfs(member)" class="tag reverse-danger is-pulled-right">人狼</span>
+      <span
+        v-if="isNotProgress && isCreator(member)"
+        class="tag reverse-success is-pulled-right"
+      >部屋主</span>
     </div>
   </div>
 </template>
@@ -47,6 +56,13 @@ export default {
         this.room != null &&
         (this.roomStatus === consts.STATUS_EPILOGUE ||
           this.roomStatus === consts.STATUS_COUNTER)
+      )
+    },
+    canKick: function() {
+      return (
+        this.room != null &&
+        this.user != null &&
+        this.room.creatorRef === this.user.uid
       )
     }
   },
@@ -85,5 +101,23 @@ export default {
 
 #room-member .tag {
   margin-left: 3px;
+}
+
+#room-member .reverse-success {
+  border: 1px solid #23d160;
+  color: #23d160;
+  background-color: #ffffff;
+}
+
+#room-member .reverse-info {
+  border: 1px solid #209cee;
+  color: #209cee;
+  background-color: #ffffff;
+}
+
+#room-member .reverse-danger {
+  border: 1px solid #ff3860;
+  color: #ff3860;
+  background-color: #ffffff;
 }
 </style>
