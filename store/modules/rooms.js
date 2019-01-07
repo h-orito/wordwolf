@@ -114,22 +114,21 @@ const actions = {
       uid: uid,
       target: targetKey
     })
+    const query = {
+      votes: votes
+    }
     const allVote = votes.length >= members.length - 1
-    let status = consts.STATUS_PROGRESS
     if (allVote) {
       if (isWolfWin(votes, state.room.wolfs[0].key)) {
-        status = consts.STATUS_EPILOGUE
+        query['status'] = consts.STATUS_EPILOGUE
+        query['winCamp'] = 'wolfs'
       } else {
-        status = consts.STATUS_COUNTER
+        query['status'] = consts.STATUS_COUNTER
       }
     }
     roomsRef
       .doc(roomKey)
-      .update({
-        votes: votes,
-        status: status,
-        winCamp: status === consts.STATUS_EPILOGUE ? 'wolfs' : null
-      })
+      .update(query)
       .then(() => {
         if (!allVote) {
           return
@@ -219,7 +218,7 @@ function isWolfWin(votes, wolfKey) {
     }
     voteCounts.push({
       key: v.target,
-      count: votes.filter(vt => vt.target === v.key).length
+      count: votes.filter(vt => vt.target === v.target).length
     })
   })
 
