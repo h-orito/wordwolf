@@ -20,7 +20,7 @@
         </div>
         <!-- end right tab -->
       </div>
-      <Footer/>
+      <!-- <Footer/> -->
     </div>
   </section>
 </template>
