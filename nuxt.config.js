@@ -25,6 +25,7 @@ module.exports = {
       }
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    __dangerouslyDisableSanitizers: ['script'],
     script: [
       {
         src: '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
