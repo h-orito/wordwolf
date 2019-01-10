@@ -1,5 +1,6 @@
 import {
   INIT_ROOMS,
+  INIT_OLD_ROOMS,
   INIT_ROOM,
   ADD_ROOM,
   TO_PREPARE_ROOM,
@@ -25,12 +26,16 @@ const database = firebase.database()
 
 const state = {
   rooms: [],
+  oldRooms: [],
   room: null
 }
 
 const mutations = {
   initRooms(state, rooms) {
     state.rooms = rooms
+  },
+  initOldRooms(state, rooms) {
+    state.oldRooms = rooms
   },
   initRoom(state, room) {
     state.room = room
@@ -40,7 +45,8 @@ const mutations = {
 const actions = {
   async [INIT_ROOMS]({ commit }) {
     await roomsRef
-      .orderBy('createdAt')
+      .where('isComplete', '==', false)
+      .orderBy('createdAt', 'desc')
       .get()
       .then(function(querySnapshot) {
         let rooms = []
@@ -48,6 +54,19 @@ const actions = {
           rooms.push(doc.data())
         })
         commit('initRooms', rooms)
+      })
+  },
+  async [INIT_OLD_ROOMS]({ commit }) {
+    await roomsRef
+      .where('isComplete', '==', true)
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then(function(querySnapshot) {
+        let rooms = []
+        querySnapshot.forEach(function(doc) {
+          rooms.push(doc.data())
+        })
+        commit('initOldRooms', rooms)
       })
   },
   async [INIT_ROOM]({ commit }, { roomKey, isComplete }) {
@@ -197,6 +216,7 @@ const actions = {
 
 const getters = {
   getRooms: state => state.rooms,
+  getOldRooms: state => state.oldRooms,
   getRoom: state => state.room,
   getRoomMembers: state => state.members
 }
@@ -271,6 +291,7 @@ function generateKey() {
 
 function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
   return {
+    isComplete: false,
     name: roomName,
     key: roomKey,
     creatorRef: userId,
