@@ -9,7 +9,7 @@
           type="text"
           class="input is-small"
           @keyup.enter="say"
-          @keypress="setCanMessageSubmit"
+          @keypress.enter="setCanMessageSubmit()"
         >
         <span class="icon is-small is-right">
           <i class="fas fa-comment"></i>
