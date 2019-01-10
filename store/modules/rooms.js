@@ -50,10 +50,20 @@ const actions = {
         commit('initRooms', rooms)
       })
   },
-  async [INIT_ROOM]({ commit }, { roomKey }) {
-    await roomsRef.doc(roomKey).onSnapshot(doc => {
-      commit('initRoom', doc.data())
-    })
+  async [INIT_ROOM]({ commit }, { roomKey, isComplete }) {
+    // 終了している場合は1回だけ読み込む
+    if (isComplete) {
+      await roomsRef
+        .doc(roomKey)
+        .get()
+        .then(doc => {
+          commit('initRoom', doc.data())
+        })
+    } else {
+      await roomsRef.doc(roomKey).onSnapshot(doc => {
+        commit('initRoom', doc.data())
+      })
+    }
   },
   [ADD_ROOM](context, { roomName, userId, callback, roomPassword }) {
     // 部屋を追加

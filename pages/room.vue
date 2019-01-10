@@ -98,15 +98,13 @@ export default {
     }
   },
   async fetch({ store, query }) {
-    await store.dispatch(INIT_ROOM, {
-      roomKey: query.id
-    })
-    await store.dispatch(INIT_MEMBER, {
-      roomKey: query.id
-    })
-    return await store.dispatch(INIT_MESSAGE, {
-      roomKey: query.id
-    })
+    const fetchQuery = {
+      roomKey: query.id,
+      isComplete: query.complete === 'true'
+    }
+    await store.dispatch(INIT_ROOM, fetchQuery)
+    await store.dispatch(INIT_MEMBER, fetchQuery)
+    return await store.dispatch(INIT_MESSAGE, fetchQuery)
   },
   created() {
     const self = this

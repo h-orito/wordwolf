@@ -14,30 +14,43 @@ const mutations = {
 }
 
 const actions = {
-  async [INIT_MESSAGE]({ commit }, { roomKey }) {
+  async [INIT_MESSAGE]({ commit }, { roomKey, isComplete }) {
     const messages = []
     const ref = dbMessagesRef(database, roomKey)
-    await ref
-      .orderByChild('createdAt')
-      .limitToLast(100)
-      .once('value')
-      .then(function(snapshots) {
-        snapshots.forEach(snapshot => {
-          messages.unshift(snapshot.val())
+    // 終了している村では全てを1回だけ取得する
+    if (isComplete) {
+      await ref
+        .orderByChild('createdAt')
+        .once('value')
+        .then(function(snapshots) {
+          snapshots.forEach(snapshot => {
+            messages.unshift(snapshot.val())
+          })
         })
-      })
-    await ref
-      .orderByChild('createdAt')
-      .limitToLast(1)
-      .on('value', function(snapshots) {
-        snapshots.forEach(snapshot => {
-          const newMessage = snapshot.val()
-          if (messages[0].key !== newMessage.key) {
-            messages.unshift(newMessage)
-          }
+      commit('initMessage', messages)
+    } else {
+      await ref
+        .orderByChild('createdAt')
+        .limitToLast(100)
+        .once('value')
+        .then(function(snapshots) {
+          snapshots.forEach(snapshot => {
+            messages.unshift(snapshot.val())
+          })
         })
-      })
-    commit('initMessage', messages)
+      await ref
+        .orderByChild('createdAt')
+        .limitToLast(1)
+        .on('value', function(snapshots) {
+          snapshots.forEach(snapshot => {
+            const newMessage = snapshot.val()
+            if (messages[0].key !== newMessage.key) {
+              messages.unshift(newMessage)
+            }
+          })
+        })
+      commit('initMessage', messages)
+    }
   },
   [ADD_MESSAGE](context, { name, roomKey, color, message, callback }) {
     const key = Math.random()
