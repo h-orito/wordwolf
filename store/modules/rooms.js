@@ -18,10 +18,10 @@ const firestore = firebase.firestore()
 firestore.settings({
   timestampsInSnapshots: true
 })
-
 const roomsRef = firestore.collection('rooms')
-const messagesRef = firestore.collection('messages')
 const wordsRef = firestore.collection('words')
+
+const database = firebase.database()
 
 const state = {
   rooms: [],
@@ -233,13 +233,16 @@ function isWolfWin(votes, wolfKey) {
 
 function addMessage(roomKey, name, message) {
   const key = generateKey()
-  return messagesRef.doc(key).set({
+  return dbMessagesRef(database, roomKey).push({
     name: name,
     key: key,
     message: message,
-    roomKey: roomKey,
-    createdAt: new Date()
+    createdAt: Date.now()
   })
+}
+
+function dbMessagesRef(database, roomKey) {
+  return database.ref('messages/' + roomKey + '/')
 }
 
 function addWord(villagersWord, wolfWord) {

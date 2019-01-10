@@ -1,11 +1,7 @@
 import { INIT_MESSAGE, ADD_MESSAGE } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
-const firestore = firebase.firestore()
-firestore.settings({
-  timestampsInSnapshots: true
-})
-const messagesRef = firestore.collection('messages')
+const database = firebase.database()
 
 const state = {
   messages: []
@@ -20,44 +16,40 @@ const mutations = {
 const actions = {
   async [INIT_MESSAGE]({ commit }, { roomKey }) {
     const messages = []
-    await messagesRef
-      .where('roomKey', '==', roomKey)
-      .orderBy('createdAt', 'desc')
-      .limit(100)
-      .get()
-      .then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-          messages.push(doc.data())
+    const ref = dbMessagesRef(database, roomKey)
+    await ref
+      .orderByChild('createdAt')
+      .limitToLast(100)
+      .once('value')
+      .then(function(snapshots) {
+        snapshots.forEach(snapshot => {
+          messages.unshift(snapshot.val())
         })
       })
-
-    await messagesRef
-      .where('roomKey', '==', roomKey)
-      .orderBy('createdAt', 'desc')
-      .limit(1)
-      .onSnapshot(snapshot => {
-        snapshot.forEach(function(doc) {
-          const newMessage = doc.data()
+    await ref
+      .orderByChild('createdAt')
+      .limitToLast(1)
+      .on('value', function(snapshots) {
+        snapshots.forEach(snapshot => {
+          const newMessage = snapshot.val()
           if (messages[0].key !== newMessage.key) {
             messages.unshift(newMessage)
           }
         })
-        commit('initMessage', messages)
       })
+    commit('initMessage', messages)
   },
   [ADD_MESSAGE](context, { name, roomKey, color, message, callback }) {
     const key = Math.random()
       .toString(36)
       .slice(-8)
-    messagesRef
-      .doc(key)
-      .set({
+    dbMessagesRef(database, roomKey)
+      .push({
         name: name,
         color: color,
         key: key,
         message: message,
-        roomKey: roomKey,
-        createdAt: new Date()
+        createdAt: Date.now()
       })
       .then(function() {
         if (callback != null) {
@@ -76,4 +68,8 @@ export default {
   mutations,
   actions,
   getters
+}
+
+function dbMessagesRef(database, roomKey) {
+  return database.ref('messages/' + roomKey + '/')
 }

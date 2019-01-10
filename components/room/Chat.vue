@@ -105,7 +105,7 @@ export default {
 }
 
 const makeDatetimeStr = createdAt => {
-  const datetime = createdAt.toDate()
+  const datetime = new Date(createdAt)
   // const year = datetime.getFullYear()
   // const month = rightZeroPad(datetime.getMonth() + 1)
   // const date = rightZeroPad(datetime.getDate())
