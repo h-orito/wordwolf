@@ -19,16 +19,28 @@ const mutations = {
 
 const actions = {
   async [INIT_MESSAGE]({ commit }, { roomKey }) {
+    const messages = []
     await messagesRef
       .where('roomKey', '==', roomKey)
       .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        let messages = []
-        let cnt = 0
-        snapshot.forEach(function(doc) {
-          if (cnt >= 100) return // 最新の100個だけ表示
+      .limit(100)
+      .get()
+      .then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
           messages.push(doc.data())
-          cnt++
+        })
+      })
+
+    await messagesRef
+      .where('roomKey', '==', roomKey)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .onSnapshot(snapshot => {
+        snapshot.forEach(function(doc) {
+          const newMessage = doc.data()
+          if (messages[0].key !== newMessage.key) {
+            messages.unshift(newMessage)
+          }
         })
         commit('initMessage', messages)
       })

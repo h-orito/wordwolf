@@ -39,13 +39,16 @@ const mutations = {
 
 const actions = {
   async [INIT_ROOMS]({ commit }) {
-    await roomsRef.orderBy('createdAt').onSnapshot(snapshot => {
-      let rooms = []
-      snapshot.forEach(doc => {
-        rooms.push(doc.data())
+    await roomsRef
+      .orderBy('createdAt')
+      .get()
+      .then(function(querySnapshot) {
+        let rooms = []
+        querySnapshot.forEach(function(doc) {
+          rooms.push(doc.data())
+        })
+        commit('initRooms', rooms)
       })
-      commit('initRooms', rooms)
-    })
   },
   async [INIT_ROOM]({ commit }, { roomKey }) {
     await roomsRef.doc(roomKey).onSnapshot(doc => {
