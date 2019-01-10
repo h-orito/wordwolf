@@ -24,25 +24,12 @@ module.exports = {
         content: 'ワードウルフ、ワード人狼をオンラインで遊べるサービスです。'
       }
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
-    __dangerouslyDisableSanitizers: ['script'],
-    script: [
-      {
-        src: '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
-        async: ''
-      },
-      {
-        innerHTML:
-          '(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-0917187897820609",enable_page_level_ads: true});'
-      }
-    ]
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   /*
   ** Customize the progress bar color
   */
   loading: { color: '#3B8070' },
-
-  // plugins: [{ src: '~/plugins/ads', ssr: false }],
 
   modules: [
     '@nuxtjs/dotenv',
@@ -52,6 +39,13 @@ module.exports = {
       '@nuxtjs/google-analytics',
       {
         id: 'UA-131610270-1'
+      }
+    ],
+    [
+      '@nuxtjs/google-adsense',
+      {
+        id: 'ca-pub-0917187897820609',
+        pageLevelAds: true
       }
     ]
   ],
