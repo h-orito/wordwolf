@@ -105,7 +105,7 @@ export default {
   async fetch({ store, query }) {
     const fetchQuery = {
       roomKey: query.id,
-      isComplete: query.complete === 'true'
+      isComplete: query.complete
     }
     await store.dispatch(INIT_ROOM, fetchQuery)
     await store.dispatch(INIT_MEMBER, fetchQuery)
