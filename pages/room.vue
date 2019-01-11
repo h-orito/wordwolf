@@ -5,7 +5,7 @@
       <h1 class="title is-6">{{ room != null ? room.name : '' }}</h1>
       <div class="columns is-tablet">
         <!-- left tab -->
-        <div class="column is-one-thirds-tablet">
+        <div class="column is-one-thirds-tablet" v-if="this.room != null && !this.room.isComplete">
           <Members :room="room" :members="members" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
@@ -15,10 +15,15 @@
         </div>
         <!-- end left tab -->
         <!-- right tab -->
-        <div class="column is-two-thirds-tablet">
+        <div class="column" :class="this.room == null || !this.room.isComplete ? 'is-two-thirds-tablet' : ''">
           <Chat :room="room" :members="members" :user="user" :messages="messages" :leftTime="leftTime" @say="say"></Chat>
         </div>
         <!-- end right tab -->
+      </div>
+      <div v-if="this.room != null && this.room.isComplete">
+        <nuxt-link
+          class="button is-primary is-small"
+          to="/room-list">終了した部屋一覧に戻る</nuxt-link>
       </div>
       <!-- <Footer/> -->
     </div>

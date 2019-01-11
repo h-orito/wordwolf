@@ -1,7 +1,9 @@
 <template>
   <div class="panel" id="room-chat">
-    <p class="is-size-7 has-text-left panel-heading">チャット</p>
-    <div class="panel-block">
+    <p
+      class="is-size-7 has-text-left panel-heading"
+    >{{ this.room != null && this.room.isComplete ? 'ログ' : 'チャット'}}</p>
+    <div v-if="this.room != null && !this.room.isComplete" class="panel-block">
       <div class="control has-icons-right" style="margin-bottom: 5px;">
         <input
           :disabled="!canChat"
