@@ -18,7 +18,10 @@
         </span>
       </div>
     </div>
-    <div class="panel-block chatarea">
+    <div
+      class="panel-block chatarea"
+      :class="this.room != null && this.room.isComplete ? 'chatlog' : ''"
+    >
       <div v-for="mes in messages" :key="mes.key" class="chatcontent">
         <span
           class="is-size-7 has-text-left chatmessage"
@@ -153,5 +156,9 @@ const rightZeroPad = function(str) {
   #room-chat .chatarea {
     max-height: 80vh;
   }
+}
+
+#room-chat .chatlog {
+  max-height: 80vh !important;
 }
 </style>
