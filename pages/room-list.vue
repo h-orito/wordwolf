@@ -14,7 +14,7 @@
             v-for="room in rooms" 
             :key="room['key']">
             <td>
-              <nuxt-link :to="{ path: 'room', query: { id: room.key, isComplete: true }}">{{ room.name }}</nuxt-link>
+              <nuxt-link :to="{ path: 'room', query: { id: room.key, complete: true }}">{{ room.name }}</nuxt-link>
             </td>
           </tr>
         </tbody>
