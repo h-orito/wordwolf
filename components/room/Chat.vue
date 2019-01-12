@@ -1,7 +1,9 @@
 <template>
   <div class="panel" id="room-chat">
-    <p class="is-size-7 has-text-left panel-heading">チャット</p>
-    <div class="panel-block">
+    <p
+      class="is-size-7 has-text-left panel-heading"
+    >{{ this.room != null && this.room.isComplete ? 'ログ' : 'チャット'}}</p>
+    <div v-if="this.room != null && !this.room.isComplete" class="panel-block">
       <div class="control has-icons-right" style="margin-bottom: 5px;">
         <input
           :disabled="!canChat"
@@ -16,7 +18,10 @@
         </span>
       </div>
     </div>
-    <div class="panel-block chatarea">
+    <div
+      class="panel-block chatarea"
+      :class="this.room != null && this.room.isComplete ? 'chatlog' : ''"
+    >
       <div v-for="mes in messages" :key="mes.key" class="chatcontent">
         <span
           class="is-size-7 has-text-left chatmessage"
@@ -144,5 +149,9 @@ const rightZeroPad = function(str) {
   #room-chat .chatarea {
     max-height: 80vh;
   }
+}
+
+#room-chat .chatlog {
+  max-height: 80vh !important;
 }
 </style>

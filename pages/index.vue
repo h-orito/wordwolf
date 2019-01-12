@@ -57,6 +57,10 @@
           class="button is-primary"
           v-if="isLogin && user.emailVerified" 
           to="/create-room">部屋を作成</nuxt-link>
+        <div style="margin-top: 15px;">
+          <nuxt-link
+            to="/room-list">終了した部屋を見る</nuxt-link>
+        </div>
       </div>
     </section>
     <section class="section has-background-light">

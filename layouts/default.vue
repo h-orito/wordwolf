@@ -1,5 +1,6 @@
 <template>
   <div class="site">
+    <GoogleAds/>
     <nav-bar/>
     <div class="siteContent">
       <nuxt class="has-text-centered"/>
@@ -11,11 +12,13 @@
 <script>
 import NavBar from '~/components/NavBar.vue'
 import Footer from '~/components/Footer.vue'
+import GoogleAds from '~/components/GoogleAds.vue'
 
 export default {
   components: {
     NavBar,
-    Footer
+    Footer,
+    GoogleAds
   }
 }
 </script>
