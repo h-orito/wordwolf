@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import * as consts from '~/store/consts'
 export default {
   props: ['room', 'members', 'user', 'messages', 'leftTime'],
   data: function() {
@@ -54,13 +53,7 @@ export default {
       if (this.room == null || !this.isMember) {
         return false
       }
-      if (this.roomStatus === consts.STATUS_PREPARE) {
-        return true
-      }
-      if (this.roomStatus === consts.STATUS_PROGRESS) {
-        return this.leftTime > 0
-      }
-      return this.roomStatus !== consts.STATUS_COUNTER
+      return true
     }
   },
   created: function() {},
