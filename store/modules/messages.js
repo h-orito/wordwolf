@@ -44,9 +44,11 @@ const actions = {
         .on('value', function(snapshots) {
           snapshots.forEach(snapshot => {
             const newMessage = snapshot.val()
-            if (messages[0].key !== newMessage.key) {
-              messages.unshift(newMessage)
+            const latestMessages = messages.slice(0, 3)
+            if (latestMessages.some(l => l.key === newMessage.key)) {
+              return
             }
+            messages.unshift(newMessage)
           })
         })
       commit('initMessage', messages)
