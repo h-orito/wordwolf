@@ -40,7 +40,7 @@ const actions = {
         })
       await ref
         .orderByChild('createdAt')
-        .limitToLast(1)
+        .limitToLast(3)
         .on('value', function(snapshots) {
           snapshots.forEach(snapshot => {
             const newMessage = snapshot.val()
