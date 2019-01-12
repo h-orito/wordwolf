@@ -256,7 +256,11 @@ function isWolfWin(votes, wolfKey) {
   })
 
   // 人狼の得票数
-  const wolfCount = voteCounts.filter(vc => vc.key === wolfKey)[0].count
+  const wolfVoteCount = voteCounts.filter(vc => vc.key === wolfKey)
+  const wolfCount =
+    wolfVoteCount.length === 0
+      ? 0
+      : voteCounts.filter(vc => vc.key === wolfKey)[0].count
   // 人狼と同じか、それ以上に得票数が多い人がいるか
   return voteCounts.some(vc => vc.key !== wolfKey && vc.count >= wolfCount)
 }
