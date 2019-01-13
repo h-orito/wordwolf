@@ -155,7 +155,7 @@ export default {
       }
     },
     validPlayerName(playerName) {
-      if (playerName.length < 3 || playerName.length > 10) {
+      if (playerName.length < 1 || playerName.length > 10) {
         return false
       }
       return true
