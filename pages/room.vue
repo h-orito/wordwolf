@@ -6,11 +6,11 @@
       <div class="columns is-tablet">
         <!-- left tab -->
         <div class="column is-one-thirds-tablet" v-if="this.room != null && !this.room.isComplete">
-          <Members :room="room" :members="members" :user="user" @kick="kick"></Members>
+          <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
-          <Progress :room="room" :members="members" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
+          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
         </div>
         <!-- end left tab -->
@@ -36,6 +36,8 @@ import {
   INIT_ROOM,
   INIT_MEMBER,
   INIT_MESSAGE,
+  INIT_VOTE,
+  DELETE_VOTE,
   ADD_MEMBER,
   REMOVE_MEMBER,
   ADD_MESSAGE,
@@ -83,6 +85,9 @@ export default {
     members() {
       return this.$store.getters.getMembers
     },
+    votes() {
+      return this.$store.getters.getVotes
+    },
     isLogin() {
       return this.$store.getters.isLogin
     },
@@ -109,6 +114,9 @@ export default {
     }
     await store.dispatch(INIT_ROOM, fetchQuery)
     await store.dispatch(INIT_MEMBER, fetchQuery)
+    if (!query.complete) {
+      await store.dispatch(INIT_VOTE, fetchQuery)
+    }
     return await store.dispatch(INIT_MESSAGE, fetchQuery)
   },
   created() {
@@ -160,11 +168,18 @@ export default {
       )
     },
     gameStart: function(talkMinutes) {
-      this.$store.dispatch(TO_PREPARE_ROOM, {
-        roomKey: this.room.key,
-        members: this.members,
-        talkMinutes: talkMinutes
-      })
+      const roomKey = this.room.key
+      this.$store
+        .dispatch(TO_PREPARE_ROOM, {
+          roomKey: roomKey,
+          members: this.members,
+          talkMinutes: talkMinutes
+        })
+        .then(() => {
+          this.$store.dispatch(DELETE_VOTE, {
+            roomKey: roomKey
+          })
+        })
     },
     setWord: function({ villagersWord, wolfWord }) {
       const self = this
@@ -187,8 +202,8 @@ export default {
       const leftTime = Math.floor((endTime.getTime() - now.getTime()) / 1000)
       this.leftTime = leftTime < 0 ? 0 : leftTime
     },
-    vote: function(key) {
-      this.$store.dispatch(VOTE_ROOM, {
+    vote: async function(key) {
+      await this.$store.dispatch(VOTE_ROOM, {
         roomKey: this.room.key,
         uid: this.user.uid,
         targetKey: key,

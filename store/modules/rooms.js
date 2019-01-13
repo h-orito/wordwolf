@@ -112,7 +112,6 @@ const actions = {
         wolfWord: '',
         villagersWord: '',
         endingTime: null,
-        votes: [],
         winCamp: null,
         talkMinutes: talkMinutes != null ? talkMinutes : 2
       })
@@ -139,38 +138,28 @@ const actions = {
         callback()
       })
   },
-  [VOTE_ROOM](context, { roomKey, uid, targetKey, members }) {
-    let votes = state.room.votes.slice(0, state.room.votes.length)
-    votes = votes.filter(v => v.uid !== uid)
-    votes.push({
+  async [VOTE_ROOM](context, { roomKey, uid, targetKey, members }) {
+    const votesRef = dbVotesRef(database, roomKey)
+    // 投票
+    await votesRef.push({
       uid: uid,
-      target: targetKey
+      target: targetKey,
+      createdAt: Date.now()
     })
-    const query = {
-      votes: votes
-    }
-    const allVote = votes.length >= members.length - 1
-    if (allVote) {
-      if (isWolfWin(votes, state.room.wolfs[0].key)) {
-        query['status'] = consts.STATUS_EPILOGUE
-        query['winCamp'] = 'wolfs'
-      } else {
-        query['status'] = consts.STATUS_COUNTER
+    // 投票後の投票状態
+    const votesnapshots = await votesRef.orderByChild('createdAt').once('value')
+    const votes = []
+    votesnapshots.forEach(vs => {
+      const vote = vs.val()
+      if (!votes.some(v => v.uid === vote.uid)) {
+        votes.push(vote)
       }
+    })
+    const allVote = votes.length >= members.length - 1
+    const isLastVote = votes[votes.length - 1].uid === uid
+    if (allVote && isLastVote) {
+      await updateAllVoteRoom(state.room, members, votes, roomKey)
     }
-    roomsRef
-      .doc(roomKey)
-      .update(query)
-      .then(() => {
-        if (!allVote) {
-          return
-        }
-        addMessage(
-          roomKey,
-          PERSON_SYSTEM,
-          makeVoteCompleteMessage(state.room, votes, members)
-        )
-      })
   },
   [COUNTER_ROOM](context, { roomKey, counterWord }) {
     const collect = state.room.villagersWord === counterWord
@@ -242,29 +231,6 @@ function shuffle(array) {
   return array
 }
 
-function isWolfWin(votes, wolfKey) {
-  // それぞれの得票数を集計
-  let voteCounts = []
-  votes.forEach(v => {
-    if (voteCounts.some(vc => vc.key === v.target)) {
-      return true
-    }
-    voteCounts.push({
-      key: v.target,
-      count: votes.filter(vt => vt.target === v.target).length
-    })
-  })
-
-  // 人狼の得票数
-  const wolfVoteCount = voteCounts.filter(vc => vc.key === wolfKey)
-  const wolfCount =
-    wolfVoteCount.length === 0
-      ? 0
-      : voteCounts.filter(vc => vc.key === wolfKey)[0].count
-  // 人狼と同じか、それ以上に得票数が多い人がいるか
-  return voteCounts.some(vc => vc.key !== wolfKey && vc.count >= wolfCount)
-}
-
 function addMessage(roomKey, name, message) {
   const key = generateKey()
   return dbMessagesRef(database, roomKey).push({
@@ -277,6 +243,10 @@ function addMessage(roomKey, name, message) {
 
 function dbMessagesRef(database, roomKey) {
   return database.ref('messages/' + roomKey + '/')
+}
+
+function dbVotesRef(database, roomKey) {
+  return database.ref('votes/' + roomKey + '/')
 }
 
 function addWord(villagersWord, wolfWord) {
@@ -308,11 +278,53 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     villagersWord: '',
     wolfNum: 1,
     endingTime: null,
-    votes: [],
     winCamp: null,
     membersNum: 1,
     roomPassword: roomPassword
   }
+}
+
+function updateAllVoteRoom(room, members, votes, roomKey) {
+  const query = {}
+  if (isWolfWin(votes, room.wolfs[0].key)) {
+    query['status'] = consts.STATUS_EPILOGUE
+    query['winCamp'] = 'wolfs'
+  } else {
+    query['status'] = consts.STATUS_COUNTER
+  }
+  roomsRef
+    .doc(roomKey)
+    .update(query)
+    .then(() => {
+      addMessage(
+        roomKey,
+        PERSON_SYSTEM,
+        makeVoteCompleteMessage(state.room, votes, members)
+      )
+    })
+}
+
+function isWolfWin(votes, wolfKey) {
+  // それぞれの得票数を集計
+  let voteCounts = []
+  votes.forEach(v => {
+    if (voteCounts.some(vc => vc.key === v.target)) {
+      return true
+    }
+    voteCounts.push({
+      key: v.target,
+      count: votes.filter(vt => vt.target === v.target).length
+    })
+  })
+
+  // 人狼の得票数
+  const wolfVoteCount = voteCounts.filter(vc => vc.key === wolfKey)
+  const wolfCount =
+    wolfVoteCount.length === 0
+      ? 0
+      : voteCounts.filter(vc => vc.key === wolfKey)[0].count
+  // 人狼と同じか、それ以上に得票数が多い人がいるか
+  return voteCounts.some(vc => vc.key !== wolfKey && vc.count >= wolfCount)
 }
 
 // ------------------------------------------

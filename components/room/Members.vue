@@ -16,14 +16,17 @@
         :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
       >{{ member.name }}</span>
       <button
-        v-if="!isCreator(member) && canKick"
-        class="tag is-danger is-small is-pulled-right"
+        v-if="canKick"
+        class="tag is-small is-pulled-right"
+        :class="isCreator(member) ? 'is-default' : 'is-danger'"
         style="cursor: pointer;"
+        :disabled="isCreator(member)"
         @click="$emit('kick', { memberKey: member.key, memberName: member.name })"
-      >強制退出</button>
+      >×</button>
       <span v-if="isGameMaster(member)" class="tag reverse-success is-pulled-right">GM</span>
       <span v-if="allowOpenSkill && isVillagers(member)" class="tag reverse-info is-pulled-right">村人</span>
       <span v-if="allowOpenSkill && isWolfs(member)" class="tag reverse-danger is-pulled-right">人狼</span>
+      <span v-if="doneVote(member)" class="tag reverse-info is-pulled-right">投票済</span>
       <span
         v-if="isNotProgress && isCreator(member)"
         class="tag reverse-success is-pulled-right"
@@ -35,7 +38,7 @@
 <script>
 import * as consts from '~/store/consts'
 export default {
-  props: ['room', 'members', 'user'],
+  props: ['room', 'members', 'voteKeys', 'user'],
   data: () => ({}),
   computed: {
     roomStatus() {
@@ -62,6 +65,8 @@ export default {
       return (
         this.room != null &&
         this.user != null &&
+        (this.roomStatus === consts.STATUS_EPILOGUE ||
+          this.roomStatus === consts.STATUS_COUNTER) &&
         this.room.creatorRef === this.user.uid
       )
     }
@@ -86,6 +91,9 @@ export default {
     },
     isWolfs: function(member) {
       return this.room.wolfs.some(w => w.key === member.key)
+    },
+    doneVote: function(member) {
+      return this.voteKeys.some(v => v.uid === member.key)
     }
   }
 }

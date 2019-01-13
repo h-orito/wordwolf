@@ -2,6 +2,7 @@ import Vuex from 'vuex'
 import rooms from './modules/rooms'
 import members from './modules/members'
 import messages from './modules/messages'
+import votes from './modules/votes'
 import auth from './modules/auth'
 
 const store = () =>
@@ -10,6 +11,7 @@ const store = () =>
       rooms,
       members,
       messages,
+      votes,
       auth
     }
   })

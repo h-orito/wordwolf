@@ -61,7 +61,7 @@
 <script>
 import * as consts from '~/store/consts'
 export default {
-  props: ['room', 'members', 'user', 'leftTime'],
+  props: ['room', 'members', 'voteKeys', 'user', 'leftTime'],
   data: function() {
     return {}
   },
@@ -104,10 +104,10 @@ export default {
       )
     },
     votes() {
-      if (this.room == null) {
+      if (this.voteKeys == null) {
         return []
       }
-      return this.room.votes.map(v => {
+      return this.voteKeys.map(v => {
         return {
           from: this.members.filter(m => m.key === v.uid)[0],
           to: this.members.filter(m => m.key === v.target)[0]

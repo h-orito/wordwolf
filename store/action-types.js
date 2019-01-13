@@ -15,6 +15,9 @@ export const REMOVE_MEMBER = 'REMOVE_MEMBER'
 // messages
 export const INIT_MESSAGE = 'INIT_MESSAGE'
 export const ADD_MESSAGE = 'ADD_MESSAGE'
+// votes
+export const INIT_VOTE = 'INIT_VOTE'
+export const DELETE_VOTE = 'DELETE_VOTE'
 // auth
 export const LOGINOUT = 'LOGINOUT'
 export const UPDATE_USERNAME = 'UPDATE_USERNAME'
