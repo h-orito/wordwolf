@@ -19,7 +19,7 @@
             type="text"
             class="input is-small"
             :class="villagersWord == '' ? '' : villagersWordError != null ? 'is-danger': 'is-success'"
-            @keyup="validateVillagersWord"
+            @keyup="validateWord"
             placeholder="村人（多数派）のワード"
           >
           <br>
@@ -34,7 +34,7 @@
             type="text"
             class="input is-small"
             :class="wolfWord == '' ? '' : wolfWordError != null  ? 'is-danger': 'is-success'"
-            @keyup="validateWolfWord"
+            @keyup="validateWord"
             placeholder="人狼（少数派）のワード"
           >
           <br>
@@ -44,7 +44,7 @@
       <button
         class="button is-primary is-small"
         :disabled="!canSubmitSetWord"
-        @click="$emit('setWord', {villagersWord: villagersWord, wolfWord: wolfWord})"
+        @click="submitSetWord"
       >決定</button>
       <br>
     </div>
@@ -58,9 +58,9 @@ export default {
   data: function() {
     return {
       villagersWord: '',
-      villagersWordError: null,
+      villagersWordError: '',
       wolfWord: '',
-      wolfWordError: null
+      wolfWordError: ''
     }
   },
   computed: {
@@ -104,6 +104,10 @@ export default {
   },
   created: function() {},
   methods: {
+    validateWord: function() {
+      this.validateVillagersWord()
+      this.validateWolfWord()
+    },
     validateVillagersWord: function() {
       if (this.villagersWord == null || this.villagersWord === '') {
         return
@@ -128,6 +132,15 @@ export default {
         this.wolfWordError = '村人と別のワードを設定してください。'
       } else {
         this.wolfWordError = null
+      }
+    },
+    submitSetWord() {
+      this.validateWord()
+      if (this.canSubmitSetWord) {
+        this.$emit('setWord', {
+          villagersWord: this.villagersWord,
+          wolfWord: this.wolfWord
+        })
       }
     }
   }
