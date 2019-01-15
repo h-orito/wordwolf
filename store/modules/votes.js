@@ -2,6 +2,7 @@ import { INIT_VOTE, DELETE_VOTE } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const database = firebase.database()
+let votesRef = null
 
 const state = {
   votes: []
@@ -15,8 +16,12 @@ const mutations = {
 
 const actions = {
   async [INIT_VOTE]({ commit }, { roomKey }) {
-    const ref = dbVotesRef(database, roomKey)
-    await ref.on('value', function(snapshots) {
+    if (votesRef != null) {
+      votesRef.off()
+      commit('initVote', [])
+    }
+    votesRef = dbVotesRef(database, roomKey)
+    await votesRef.on('value', function(snapshots) {
       const votes = []
       snapshots.forEach(s => {
         votes.push(s.val())

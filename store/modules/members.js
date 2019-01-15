@@ -6,6 +6,7 @@ firestore.settings({
   timestampsInSnapshots: true
 })
 const membersRef = firestore.collection('members')
+let membersUnsubscribe = null
 const COLORS = [
   'color01',
   'color02',
@@ -31,13 +32,19 @@ const mutations = {
 
 const actions = {
   async [INIT_MEMBER]({ commit }, { roomKey }) {
-    await membersRef.where('roomKey', '==', roomKey).onSnapshot(snapshot => {
-      let members = []
-      snapshot.forEach(function(doc) {
-        members.push(doc.data())
+    if (membersUnsubscribe != null) {
+      membersUnsubscribe()
+      commit('initMember', [])
+    }
+    membersUnsubscribe = await membersRef
+      .where('roomKey', '==', roomKey)
+      .onSnapshot(snapshot => {
+        let members = []
+        snapshot.forEach(function(doc) {
+          members.push(doc.data())
+        })
+        commit('initMember', members)
       })
-      commit('initMember', members)
-    })
   },
   [ADD_MEMBER](context, { userName, userId, roomKey, callback }) {
     const leftColor = COLORS.filter(c => {

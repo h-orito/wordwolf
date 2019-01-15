@@ -104,12 +104,8 @@ export default {
 
 const makeDatetimeStr = createdAt => {
   const datetime = new Date(createdAt)
-  // const year = datetime.getFullYear()
-  // const month = rightZeroPad(datetime.getMonth() + 1)
-  // const date = rightZeroPad(datetime.getDate())
   const hour = rightZeroPad(datetime.getHours())
   const minute = rightZeroPad(datetime.getMinutes())
-  // const second = rightZeroPad(datetime.getSeconds())
 
   return hour + ':' + minute
 }

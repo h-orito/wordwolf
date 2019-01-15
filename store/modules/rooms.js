@@ -20,6 +20,7 @@ firestore.settings({
   timestampsInSnapshots: true
 })
 const roomsRef = firestore.collection('rooms')
+let roomsUnsubscribe = null
 const wordsRef = firestore.collection('words')
 
 const database = firebase.database()
@@ -79,7 +80,10 @@ const actions = {
           commit('initRoom', doc.data())
         })
     } else {
-      await roomsRef.doc(roomKey).onSnapshot(doc => {
+      if (roomsUnsubscribe != null) {
+        roomsUnsubscribe()
+      }
+      roomsUnsubscribe = await roomsRef.doc(roomKey).onSnapshot(doc => {
         commit('initRoom', doc.data())
       })
     }

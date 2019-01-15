@@ -2,6 +2,7 @@ import { INIT_MESSAGE, ADD_MESSAGE } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const database = firebase.database()
+let messagesRef = null
 
 const state = {
   messages: []
@@ -16,10 +17,14 @@ const mutations = {
 const actions = {
   async [INIT_MESSAGE]({ commit }, { roomKey, isComplete }) {
     const messages = []
-    const ref = dbMessagesRef(database, roomKey)
+    if (messagesRef != null) {
+      messagesRef.off()
+      commit('initMessage', [])
+    }
+    messagesRef = dbMessagesRef(database, roomKey)
     // 終了している村では全てを1回だけ取得する
     if (isComplete) {
-      await ref
+      await messagesRef
         .orderByChild('createdAt')
         .once('value')
         .then(function(snapshots) {
@@ -29,7 +34,7 @@ const actions = {
         })
       commit('initMessage', messages)
     } else {
-      await ref
+      await messagesRef
         .orderByChild('createdAt')
         .limitToLast(100)
         .once('value')
@@ -38,7 +43,7 @@ const actions = {
             messages.unshift(snapshot.val())
           })
         })
-      await ref
+      await messagesRef
         .orderByChild('createdAt')
         .limitToLast(3)
         .on('value', function(snapshots) {
@@ -58,7 +63,10 @@ const actions = {
     const key = Math.random()
       .toString(36)
       .slice(-8)
-    dbMessagesRef(database, roomKey)
+    if (messagesRef == null) {
+      messagesRef = dbMessagesRef(database, roomKey)
+    }
+    messagesRef
       .push({
         name: name,
         color: color,
