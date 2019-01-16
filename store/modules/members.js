@@ -38,6 +38,7 @@ const actions = {
     }
     membersUnsubscribe = await membersRef
       .where('roomKey', '==', roomKey)
+      .orderBy('createdAt')
       .onSnapshot(snapshot => {
         let members = []
         snapshot.forEach(function(doc) {

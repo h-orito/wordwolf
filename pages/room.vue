@@ -12,6 +12,7 @@
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
+          <Reset :room="room" :user="user" @submitRoomReset="submitRoomReset"></Reset>
         </div>
         <!-- end left tab -->
         <!-- right tab -->
@@ -45,7 +46,8 @@ import {
   TO_PROGRESS_ROOM,
   VOTE_ROOM,
   COUNTER_ROOM,
-  CHANGE_ROOM_MEMBER
+  CHANGE_ROOM_MEMBER,
+  RESET_ROOM
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
 import Members from '~/components/room/Members'
@@ -53,6 +55,7 @@ import Proepi from '~/components/room/Proepi'
 import Prepare from '~/components/room/Prepare'
 import Progress from '~/components/room/Progress'
 import Counter from '~/components/room/Counter'
+import Reset from '~/components/room/Reset'
 import Chat from '~/components/room/Chat'
 import Footer from '~/components/Footer'
 const auth = firebase.auth()
@@ -66,6 +69,7 @@ export default {
     Prepare,
     Progress,
     Counter,
+    Reset,
     Chat,
     Footer
   },
@@ -166,6 +170,22 @@ export default {
         this.$store,
         this.room.creatorRef
       )
+    },
+    submitRoomReset: function() {
+      if (
+        !window.confirm(
+          '進行不可能になった場合のみ使用してください。本当に開始前の状態に戻しますか？'
+        )
+      ) {
+        return
+      }
+      if (!this.isOwner) {
+        return // 何もしない
+      }
+      this.$store.dispatch(RESET_ROOM, {
+        roomKey: this.room.key,
+        members: this.members
+      })
     },
     gameStart: function(talkMinutes) {
       const roomKey = this.room.key

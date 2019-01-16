@@ -19,7 +19,10 @@
     </section>
     <section class="section">
       <div class="container">
-        <p class="content">ゲームが始まると、ランダムでゲームマスターが選ばれます。</p>
+        <p class="content">ゲームが始まると、ゲームマスターが一人選ばれます。
+          <br>ゲームマスターはこのゲームでは参加者ではなくお題を決める役割になります。
+          <br>（ゲームマスターは順々に回ってきます）
+        </p>
         <img src="~/assets/intro02.png" width="240" height="160"/>
       </div>
     </section>

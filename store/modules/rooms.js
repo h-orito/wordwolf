@@ -7,7 +7,8 @@ import {
   TO_PROGRESS_ROOM,
   VOTE_ROOM,
   COUNTER_ROOM,
-  CHANGE_ROOM_MEMBER
+  CHANGE_ROOM_MEMBER,
+  RESET_ROOM
 } from '~/store/action-types'
 import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
@@ -100,12 +101,12 @@ const actions = {
   },
   // 開始前→準備
   [TO_PREPARE_ROOM](context, { roomKey, members, talkMinutes }) {
-    // ランダムに並び替えてGMや人狼を決定
-    let mems = members.slice(0, members.length)
+    // GMは順番にする
+    const gm = detectGameMaster(state.room.gameMaster, members)
+    let mems = members.slice(0, members.length).filter(m => m.key !== gm.key)
     shuffle(mems)
-    const gm = mems[0]
-    const wolfs = mems.slice(1, 1 + state.room.wolfNum)
-    const villagers = mems.slice(1 + state.room.wolfNum, mems.length)
+    const wolfs = mems.slice(0, state.room.wolfNum)
+    const villagers = mems.slice(state.room.wolfNum, mems.length)
     roomsRef
       .doc(roomKey)
       .update({
@@ -117,7 +118,8 @@ const actions = {
         villagersWord: '',
         endingTime: null,
         winCamp: null,
-        talkMinutes: talkMinutes != null ? talkMinutes : 2
+        talkMinutes: talkMinutes != null ? talkMinutes : 2,
+        membersNum: members.length
       })
       .then(() => {
         addMessage(roomKey, PERSON_SYSTEM, makePrepareMessage(gm))
@@ -204,6 +206,22 @@ const actions = {
           addMessage(roomKey, PERSON_SYSTEM, 'ルームマスターが変更されました。')
         }
       })
+  },
+  [RESET_ROOM](context, { roomKey, members }) {
+    roomsRef.doc(roomKey).update({
+      key: roomKey,
+      createdAt: new Date(),
+      status: consts.STATUS_PROLOGUE,
+      gameMaster: null,
+      wolfs: [],
+      villagers: [],
+      wolfWord: '',
+      villagersWord: '',
+      wolfNum: 1,
+      endingTime: null,
+      winCamp: null,
+      membersNum: members.length
+    })
   }
 }
 
@@ -286,6 +304,20 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     membersNum: 1,
     roomPassword: roomPassword
   }
+}
+
+function detectGameMaster(gameMaster, members) {
+  if (gameMaster == null) {
+    return members[0] // 初回
+  }
+  const prevGMKey = gameMaster.key
+  let gm = members[0]
+  for (let idx = 0; idx < members.length - 1; idx++) {
+    if (members[idx].key === prevGMKey) {
+      gm = members[idx + 1]
+    }
+  }
+  return gm
 }
 
 function updateAllVoteRoom(room, members, votes, roomKey) {
