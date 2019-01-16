@@ -26,7 +26,7 @@
       <span v-if="isGameMaster(member)" class="tag reverse-success is-pulled-right">GM</span>
       <span v-if="allowOpenSkill && isVillagers(member)" class="tag reverse-info is-pulled-right">村人</span>
       <span v-if="allowOpenSkill && isWolfs(member)" class="tag reverse-danger is-pulled-right">人狼</span>
-      <span v-if="doneVote(member)" class="tag reverse-info is-pulled-right">投票済</span>
+      <span v-if="displayDoneVote(member)" class="tag reverse-info is-pulled-right">投票済</span>
       <span
         v-if="isNotProgress && isCreator(member)"
         class="tag reverse-success is-pulled-right"
@@ -94,6 +94,13 @@ export default {
     },
     doneVote: function(member) {
       return this.voteKeys.some(v => v.uid === member.key)
+    },
+    displayDoneVote: function(member) {
+      return (
+        this.doneVote(member) &&
+        this.room != null &&
+        this.roomStatus !== consts.STATUS_EPILOGUE
+      )
     }
   }
 }
