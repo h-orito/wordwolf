@@ -156,6 +156,8 @@ export default {
       return this.roomPasswordError != null
     },
     canJoinSubmit() {
+      this.validatePlayerName()
+      this.validateRoomPassword()
       return (
         this.hasPlayerName &&
         (this.room.roomPassword == null ||
