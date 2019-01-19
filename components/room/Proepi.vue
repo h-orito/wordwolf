@@ -158,7 +158,7 @@ export default {
         (this.room.roomPassword == null ||
           this.room.roomPassword === '' ||
           this.hasRoomPassword) &&
-        !this.hasPasswordError &&
+        !this.hasRoomPasswordError &&
         !this.hasPlayerNameError &&
         this.isLogin
       )
