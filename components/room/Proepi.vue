@@ -134,7 +134,10 @@ export default {
         this.isLogin &&
         !this.isMember &&
         this.user.emailVerified &&
-        this.isNotProgress
+        this.isNotProgress &&
+        this.room != null &&
+        (this.room.ban == null ||
+          !this.room.ban.some(target => target === this.user.uid))
       )
     },
     canLeave() {

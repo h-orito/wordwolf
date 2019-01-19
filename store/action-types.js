@@ -8,6 +8,7 @@ export const TO_PROGRESS_ROOM = 'TO_PROGRESS_ROOM'
 export const VOTE_ROOM = 'VOTE_ROOM'
 export const COUNTER_ROOM = 'COUNTER_ROOM'
 export const CHANGE_ROOM_MEMBER = 'CHANGE_ROOM_MEMBER'
+export const BAN_ROOM_MEMBER = 'BAN_ROOM_MEMBER'
 export const RESET_ROOM = 'RESET_ROOM'
 // members
 export const INIT_MEMBER = 'INIT_MEMBER'

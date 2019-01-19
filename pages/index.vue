@@ -69,11 +69,25 @@
     </section>
     <section class="section has-background-light">
       <div class="container">
+        <h1 class="title is-5">更新情報</h1>
+        <div class="columns">
+          <div class="column">
+            <ul class="content has-text-left is-size-7" style="list-style: inside;">
+              <li>2019/01/18 パスワードが合っていなくても入室できる不具合を修正</li>
+              <li>2019/01/18 一度もゲームを進行させていない部屋で強制退出させられない不具合を修正</li>
+              <li>2019/01/18 強制退出させた場合該当者はその部屋には入室できないように変更</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
         <h1 class="title is-5">その他情報</h1>
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
-              <li>ワードウルフは<a href="https://twitter.com/kawasakifactory" target="_blank">川崎晋</a>様が考案されたゲームです</li>
+              <li>ワードウルフは<a href="https://twitter.com/kawasakifactory" target="_blank">川崎晋</a>様が考案したゲームです</li>
               <li>要望、改善提案、不具合報告はTwitter<a href="https://twitter.com/ort_dev" target="_blank">@ort_dev</a>へお願いします</li>
               <li>投げ銭いただける方は<a href="javascript:void(0);" @click="openKampaModal">こちら</a>からお願いします</li>
             </ul>

@@ -8,6 +8,7 @@ import {
   VOTE_ROOM,
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
+  BAN_ROOM_MEMBER,
   RESET_ROOM
 } from '~/store/action-types'
 import * as consts from '~/store/consts'
@@ -222,6 +223,13 @@ const actions = {
       winCamp: null,
       membersNum: members.length
     })
+  },
+  [BAN_ROOM_MEMBER](context, { roomKey, target }) {
+    const banTargets = state.room.ban
+    banTargets.push(target)
+    roomsRef.doc(roomKey).update({
+      ban: banTargets
+    })
   }
 }
 
@@ -302,7 +310,8 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     endingTime: null,
     winCamp: null,
     membersNum: 1,
-    roomPassword: roomPassword
+    roomPassword: roomPassword,
+    ban: []
   }
 }
 

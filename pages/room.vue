@@ -47,6 +47,7 @@ import {
   VOTE_ROOM,
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
+  BAN_ROOM_MEMBER,
   RESET_ROOM
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
@@ -157,12 +158,20 @@ export default {
       )
     },
     kick: function({ memberKey, memberName }) {
-      if (!window.confirm('本当に強制退出させますか？')) {
+      if (
+        !window.confirm(
+          '本当に強制退出させますか？退出させた人はこの部屋に参加できなくなります。'
+        )
+      ) {
         return
       }
       if (!this.isOwner) {
         return // 何もしない
       }
+      this.$store.dispatch(BAN_ROOM_MEMBER, {
+        roomKey: this.room.key,
+        target: memberKey
+      })
       leave(
         memberKey,
         memberName,
@@ -281,7 +290,7 @@ const join = function(userId, userName, roomKey, store) {
     .catch(function() {})
 }
 
-const leave = function(userId, userName, roomKey, store, creator) {
+const leave = async function(userId, userName, roomKey, store, creator) {
   const message = userName + 'さんが退出しました。'
   store.dispatch(REMOVE_MEMBER, {
     key: userId,

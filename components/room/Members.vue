@@ -66,7 +66,7 @@ export default {
         this.room != null &&
         this.user != null &&
         (this.roomStatus === consts.STATUS_EPILOGUE ||
-          this.roomStatus === consts.STATUS_COUNTER) &&
+          this.roomStatus === consts.STATUS_PROLOGUE) &&
         this.room.creatorRef === this.user.uid
       )
     }
