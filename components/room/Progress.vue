@@ -55,6 +55,10 @@
         <br>全員が投票するまでお待ちください。
       </p>
     </div>
+    <div v-if="isOwner || isGameMaster" class="panel-block is-size-7 has-text-left">
+      <p style="margin-bottom: 5px;">強制的に投票を打ち切って進行させることもできます。</p>
+      <button class="button is-danger is-small" @click="$emit('endVote')">投票を打ち切る</button>
+    </div>
   </div>
 </template>
 
@@ -78,6 +82,13 @@ export default {
     isMember() {
       return (
         this.user != null && this.members.some(mem => mem.key === this.user.uid)
+      )
+    },
+    isOwner: function() {
+      return (
+        this.user != null &&
+        this.room != null &&
+        this.room.creatorRef === this.user.uid
       )
     },
     isGameMaster() {

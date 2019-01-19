@@ -10,7 +10,7 @@
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
-          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote"></Progress>
+          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @endVote="endVote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
           <Reset :room="room" :user="user" @submitRoomReset="submitRoomReset"></Reset>
         </div>
@@ -45,6 +45,7 @@ import {
   TO_PREPARE_ROOM,
   TO_PROGRESS_ROOM,
   VOTE_ROOM,
+  END_VOTE_ROOM,
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
@@ -106,6 +107,13 @@ export default {
         this.user != null &&
         this.room != null &&
         this.room.creatorRef === this.user.uid
+      )
+    },
+    isGameMaster() {
+      return (
+        this.room != null &&
+        this.user != null &&
+        this.room.gameMaster.key === this.user.uid
       )
     },
     messages() {
@@ -236,6 +244,18 @@ export default {
         roomKey: this.room.key,
         uid: this.user.uid,
         targetKey: key,
+        members: this.members
+      })
+    },
+    endVote: async function() {
+      if (!window.confirm('本当に投票を打ち切って進行させますか？')) {
+        return
+      }
+      if (!this.isOwner && !this.isGameMaster) {
+        return // 何もしない
+      }
+      await this.$store.dispatch(END_VOTE_ROOM, {
+        roomKey: this.room.key,
         members: this.members
       })
     },

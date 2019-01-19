@@ -6,6 +6,7 @@ import {
   TO_PREPARE_ROOM,
   TO_PROGRESS_ROOM,
   VOTE_ROOM,
+  END_VOTE_ROOM,
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
@@ -167,6 +168,19 @@ const actions = {
     if (allVote && isLastVote) {
       await updateAllVoteRoom(state.room, members, votes, roomKey)
     }
+  },
+  async [END_VOTE_ROOM](context, { roomKey, members }) {
+    const votesRef = dbVotesRef(database, roomKey)
+    // 投票後の投票状態
+    const votesnapshots = await votesRef.orderByChild('createdAt').once('value')
+    const votes = []
+    votesnapshots.forEach(vs => {
+      const vote = vs.val()
+      if (!votes.some(v => v.uid === vote.uid)) {
+        votes.push(vote)
+      }
+    })
+    await updateAllVoteRoom(state.room, members, votes, roomKey)
   },
   [COUNTER_ROOM](context, { roomKey, counterWord }) {
     const collect = state.room.villagersWord === counterWord
