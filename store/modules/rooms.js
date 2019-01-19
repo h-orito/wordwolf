@@ -225,7 +225,7 @@ const actions = {
     })
   },
   [BAN_ROOM_MEMBER](context, { roomKey, target }) {
-    const banTargets = state.room.ban
+    const banTargets = state.room.ban == null ? [] : state.room.ban
     banTargets.push(target)
     roomsRef.doc(roomKey).update({
       ban: banTargets
