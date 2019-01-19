@@ -6,6 +6,10 @@
         <div class="columns">
           <div class="column">
             <p class="content">ワードウルフオンラインはワードウルフが無料・専用アプリ不要で気軽に遊べるサービスです。</p>
+            <div class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
+              現在テストプレイ中のため、バグがあっても暖かい心で見守ってあげてください。
+              <br>（報告いただけると喜びます）
+            </div>
             <nuxt-link class="button is-primary" :to="{ path: 'intro' }">ワードウルフとは</nuxt-link>
           </div>
         </div>
