@@ -123,7 +123,7 @@ export default {
       }
     },
     validRoomName(roomName) {
-      if (roomName.length < 4 || roomName.length > 20) {
+      if (roomName.trim().length < 4 || roomName.length > 20) {
         return false
       }
       return true
@@ -155,17 +155,17 @@ export default {
       }
     },
     validPlayerName(playerName) {
-      if (playerName.length < 1 || playerName.length > 10) {
+      if (playerName.trim().length < 1 || playerName.length > 10) {
         return false
       }
       return true
     },
     createRoom() {
       createRoomAndJoin(
-        this.roomName,
+        this.roomName.trim(),
         this.roomPassword,
         this.user.uid,
-        this.playerName,
+        this.playerName.trim(),
         this.$store
       )
     }

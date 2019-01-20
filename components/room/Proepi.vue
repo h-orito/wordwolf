@@ -76,7 +76,7 @@
           <button
             class="button is-primary is-small"
             :disabled="!canJoinSubmit"
-            @click="$emit('joinRoom', playerName)"
+            @click="$emit('joinRoom', playerName.trim())"
           >参加する</button>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default {
       }
     },
     validPlayerName(playerName) {
-      if (playerName.length < 1 || playerName.length > 10) {
+      if (playerName.trim().length < 1 || playerName.length > 10) {
         return false
       }
       return true
