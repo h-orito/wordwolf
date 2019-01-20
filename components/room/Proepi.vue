@@ -55,7 +55,10 @@
             @keyup="validatePlayerName"
           >
         </div>
-        <p class="help is-danger is-size-7 has-text-left">{{this.playerNameError}}</p>
+        <p
+          class="help is-danger is-size-7 has-text-left"
+          v-if="hasPlayerName"
+        >{{this.playerNameError}}</p>
       </div>
       <div class="field" v-if="room.roomPassword != null && room.roomPassword !== ''">
         <label class="label is-size-7 has-text-left">部屋パスワード</label>
@@ -69,7 +72,10 @@
             @keyup="validateRoomPassword"
           >
         </div>
-        <p class="help is-danger has-text-left is-size-7">{{this.roomPasswordError}}</p>
+        <p
+          class="help is-danger has-text-left is-size-7"
+          v-if="hasRoomPassword"
+        >{{this.roomPasswordError}}</p>
       </div>
       <div class="field">
         <div class="control">
@@ -178,9 +184,6 @@ export default {
       if (this.room.roomPassword == null || this.room.roomPassword === '') {
         return
       }
-      if (this.roomPassword == null || this.roomPassword === '') {
-        return
-      }
       if (this.room.roomPassword !== this.roomPassword) {
         this.roomPasswordError = '正しくありません'
       } else {
@@ -188,9 +191,6 @@ export default {
       }
     },
     validatePlayerName() {
-      if (this.playerName == null || this.playerName === '') {
-        return
-      }
       if (!this.validPlayerName(this.playerName)) {
         this.playerNameError = '3文字以上10文字以内で入力してください'
       } else {
@@ -204,7 +204,9 @@ export default {
       return true
     },
     joinRoom() {
-      if (!this.canJoin) {
+      this.validateRoomPassword()
+      this.validatePlayerName()
+      if (!this.canJoinSubmit) {
         return
       }
       this.$emit('joinRoom', this.playerName.trim())

@@ -17,7 +17,7 @@
                 <i v-if="!hasRoomNameError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger">{{this.roomNameError}}</p>
+            <p class="help is-danger" v-if="hasRoomName">{{this.roomNameError}}</p>
           </div>
           <div class="field">
             <label class="label">部屋パスワード（任意）</label>
@@ -32,7 +32,7 @@
                 <i v-if="!hasRoomPasswordError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger">{{this.roomPasswordError}}</p>
+            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
           </div>
           <div class="field">
             <label class="label">自分のニックネーム</label>
@@ -47,7 +47,7 @@
                 <i v-if="!hasPlayerNameError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger">{{this.playerNameError}}</p>
+            <p class="help is-danger" v-if="hasPlayerName">{{this.playerNameError}}</p>
           </div>
           <div class="field">
             <div class="control has-text-centered">
@@ -113,9 +113,6 @@ export default {
   },
   methods: {
     validateRoomName() {
-      if (this.roomName == null || this.roomName === '') {
-        return
-      }
       if (!this.validRoomName(this.roomName)) {
         this.roomNameError = '4文字以上20文字以内で入力してください'
       } else {
@@ -145,9 +142,6 @@ export default {
       return true
     },
     validatePlayerName() {
-      if (this.playerName == null || this.playerName === '') {
-        return
-      }
       if (!this.validPlayerName(this.playerName)) {
         this.playerNameError = '3文字以上10文字以内で入力してください'
       } else {
@@ -161,6 +155,12 @@ export default {
       return true
     },
     createRoom() {
+      this.validateRoomName()
+      this.validateRoomPassword()
+      this.validatePlayerName()
+      if (!this.canSubmit) {
+        return
+      }
       createRoomAndJoin(
         this.roomName.trim(),
         this.roomPassword,
