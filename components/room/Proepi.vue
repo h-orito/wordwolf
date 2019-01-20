@@ -36,7 +36,7 @@
             <button
               class="button is-primary is-small"
               :disabled="!canGameStart"
-              @click="$emit('gameStart', Math.floor(talkMinutes))"
+              @click="gameStart"
             >ゲームを開始する</button>
           </div>
         </div>
@@ -76,14 +76,14 @@
           <button
             class="button is-primary is-small"
             :disabled="!canJoinSubmit"
-            @click="$emit('joinRoom', playerName.trim())"
+            @click="joinRoom"
           >参加する</button>
         </div>
       </div>
     </div>
     <div class="panel-block" v-if="canLeave">
       <div class="has-text-left">
-        <button class="button is-danger is-small" @click="$emit('leaveRoom')">退出する</button>
+        <button class="button is-danger is-small" @click="leaveRoom">退出する</button>
       </div>
     </div>
   </div>
@@ -202,6 +202,24 @@ export default {
         return false
       }
       return true
+    },
+    joinRoom() {
+      if (!this.canJoin) {
+        return
+      }
+      this.$emit('joinRoom', this.playerName.trim())
+    },
+    leaveRoom() {
+      if (!this.canLeave) {
+        return
+      }
+      this.$emit('leaveRoom')
+    },
+    gameStart() {
+      if (!this.canGameStart) {
+        return
+      }
+      this.$emit('gameStart', Math.floor(this.talkMinutes))
     }
   }
 }

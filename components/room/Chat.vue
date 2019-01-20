@@ -92,6 +92,9 @@ export default {
         // 日本語確定でも発火してしまうので、keypress後でない限りNGにする
         return
       }
+      if (!this.canChat) {
+        return
+      }
 
       this.$emit('say', {
         message: this.message
