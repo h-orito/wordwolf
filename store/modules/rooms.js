@@ -208,7 +208,7 @@ const actions = {
     { roomKey, memberNum, isChangeCreator, newCreator }
   ) {
     const query = {
-      memberNum: memberNum
+      membersNum: memberNum
     }
     if (isChangeCreator) {
       query['creatorRef'] = newCreator
