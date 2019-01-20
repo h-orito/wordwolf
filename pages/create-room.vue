@@ -61,7 +61,12 @@
 </template>
 
 <script>
-import { ADD_ROOM, ADD_MEMBER, ADD_MESSAGE } from '../store/action-types'
+import {
+  ADD_ROOM,
+  ADD_MEMBER,
+  ADD_MESSAGE,
+  INIT_MASTER
+} from '../store/action-types'
 import firebase from '~/plugins/firebase'
 const auth = firebase.auth()
 export default {
@@ -76,6 +81,9 @@ export default {
     }
   },
   computed: {
+    master() {
+      return this.$store.getters.getMaster
+    },
     hasRoomName() {
       return this.roomName != null && this.roomName !== ''
     },
@@ -111,6 +119,9 @@ export default {
       )
     }
   },
+  created() {
+    this.$store.dispatch(INIT_MASTER)
+  },
   methods: {
     validateRoomName() {
       if (!this.validRoomName(this.roomName)) {
@@ -144,6 +155,11 @@ export default {
     validatePlayerName() {
       if (!this.validPlayerName(this.playerName)) {
         this.playerNameError = '3文字以上10文字以内で入力してください'
+      } else if (
+        this.playerName.trim() === 'ort' &&
+        this.user.uid !== this.master
+      ) {
+        this.playerNameError = 'その名前は使用できません'
       } else {
         this.playerNameError = null
       }

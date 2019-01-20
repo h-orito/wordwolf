@@ -98,7 +98,7 @@
 <script>
 import * as consts from '~/store/consts'
 export default {
-  props: ['room', 'members', 'user', 'isLogin'],
+  props: ['room', 'members', 'user', 'isLogin', 'master'],
   data: function() {
     return {
       playerName: '',
@@ -193,6 +193,11 @@ export default {
     validatePlayerName() {
       if (!this.validPlayerName(this.playerName)) {
         this.playerNameError = '3文字以上10文字以内で入力してください'
+      } else if (
+        this.playerName.trim() === 'ort' &&
+        this.user.uid !== this.master
+      ) {
+        this.playerNameError = 'その名前は使用できません'
       } else {
         this.playerNameError = null
       }

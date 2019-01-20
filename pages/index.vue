@@ -73,6 +73,7 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
+              <li>2019/01/20 不正操作対策</li>
               <li>2019/01/20 入退室時に部屋一覧の部屋人数が更新されない不具合を修正</li>
               <li>2019/01/19 パスワードが合っていなくても入室できる不具合を修正</li>
               <li>2019/01/19 一度もゲームを進行させていない部屋で強制退出させられない不具合を修正</li>

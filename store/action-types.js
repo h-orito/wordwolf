@@ -24,3 +24,5 @@ export const DELETE_VOTE = 'DELETE_VOTE'
 // auth
 export const LOGINOUT = 'LOGINOUT'
 export const UPDATE_USERNAME = 'UPDATE_USERNAME'
+// master
+export const INIT_MASTER = 'INIT_MASTER'

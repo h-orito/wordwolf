@@ -7,7 +7,7 @@
         <!-- left tab -->
         <div class="column is-one-thirds-tablet" v-if="this.room != null && !this.room.isComplete">
           <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
-          <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin"
+          <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin" :master="master"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @endVote="endVote"></Progress>
@@ -49,7 +49,8 @@ import {
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
-  RESET_ROOM
+  RESET_ROOM,
+  INIT_MASTER
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
 import Members from '~/components/room/Members'
@@ -91,6 +92,9 @@ export default {
     members() {
       return this.$store.getters.getMembers
     },
+    master() {
+      return this.$store.getters.getMaster
+    },
     votes() {
       return this.$store.getters.getVotes
     },
@@ -130,6 +134,7 @@ export default {
     if (!query.complete) {
       await store.dispatch(INIT_VOTE, fetchQuery)
     }
+    await store.dispatch(INIT_MASTER)
     return await store.dispatch(INIT_MESSAGE, fetchQuery)
   },
   created() {
