@@ -59,7 +59,10 @@ const actions = {
       commit('initMessage', messages)
     }
   },
-  [ADD_MESSAGE](context, { name, roomKey, color, message, callback }) {
+  [ADD_MESSAGE](
+    context,
+    { name, roomKey, color, message, memberKey, callback }
+  ) {
     const key = Math.random()
       .toString(36)
       .slice(-8)
@@ -72,6 +75,7 @@ const actions = {
         color: color,
         key: key,
         message: message,
+        memberKey: memberKey,
         createdAt: Date.now()
       })
       .then(function() {

@@ -278,6 +278,7 @@ export default {
         name: this.user.displayName,
         color: color,
         message: message,
+        memberKey: this.user.uid,
         callback: () => {}
       })
     }
@@ -341,6 +342,7 @@ const addSystemMessage = function(roomKey, message, store) {
     roomKey: roomKey,
     name: '',
     message: message,
+    memberKey: null,
     color: null,
     callback: () => {}
   })

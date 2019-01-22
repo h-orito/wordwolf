@@ -65,7 +65,8 @@ import {
   ADD_ROOM,
   ADD_MEMBER,
   ADD_MESSAGE,
-  INIT_MASTER
+  INIT_MASTER,
+  LOGINOUT
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
 const auth = firebase.auth()
@@ -122,6 +123,11 @@ export default {
   },
   created() {
     this.$store.dispatch(INIT_MASTER)
+    firebase.auth().onAuthStateChanged(user => {
+      this.$store.dispatch(LOGINOUT, {
+        user: user
+      })
+    })
   },
   methods: {
     validateRoomName() {
@@ -229,6 +235,7 @@ const addMessage = function(roomKey, userName, store) {
     roomKey: roomKey,
     name: '',
     message: userName + 'さんが入室しました',
+    memberKey: null,
     color: null,
     callback: () => {
       location.href = '/room?id=' + roomKey
