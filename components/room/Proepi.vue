@@ -42,6 +42,11 @@
         </div>
       </div>
     </div>
+    <div class="panel-block" v-if="!canJoin && notVerified">
+      <p class="has-text-left is-size-7">参加するにはメール認証が必要です。メールをご確認ください。
+        <br>送信されていない場合は「ユーザ情報編集」から再送してください。
+      </p>
+    </div>
     <div class="panel-block" v-if="canJoin">
       <div class="field">
         <label class="label is-size-7 has-text-left">自分のニックネーム</label>
@@ -132,6 +137,17 @@ export default {
     isMember() {
       return (
         this.user != null && this.members.some(mem => mem.key === this.user.uid)
+      )
+    },
+    notVerified() {
+      return (
+        this.isLogin &&
+        !this.isMember &&
+        !this.user.emailVerified &&
+        this.isNotProgress &&
+        this.room != null &&
+        (this.room.ban == null ||
+          !this.room.ban.some(target => target === this.user.uid))
       )
     },
     canJoin() {
