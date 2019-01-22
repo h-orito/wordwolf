@@ -69,6 +69,16 @@
     </section>
     <section class="section has-background-light">
       <div class="container">
+        <h1 class="title is-5">よくある質問</h1>
+        <div class="columns">
+          <div class="column">
+            <nuxt-link class="button is-primary" :to="{ path: 'faq' }">よくある質問を見る</nuxt-link>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
         <h1 class="title is-5">更新情報</h1>
         <div class="columns">
           <div class="column">
@@ -83,7 +93,7 @@
         </div>
       </div>
     </section>
-    <section class="section">
+    <section class="section has-background-light">
       <div class="container">
         <h1 class="title is-5">その他情報</h1>
         <div class="columns">
