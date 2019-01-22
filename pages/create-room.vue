@@ -51,7 +51,7 @@
           </div>
           <div class="field">
             <div class="control has-text-centered">
-              <button class="button is-primary" :disabled="!canSubmit" @click="createRoom">部屋を作成</button>
+              <button class="button is-primary" :disabled="!canSubmit || submitting" @click="createRoom">部屋を作成</button>
             </div>
           </div>
         </div>
@@ -77,7 +77,8 @@ export default {
       roomPassword: null,
       roomPasswordError: null,
       playerName: null,
-      playerNameError: null
+      playerNameError: null,
+      submitting: false
     }
   },
   computed: {
@@ -165,7 +166,11 @@ export default {
       }
     },
     validPlayerName(playerName) {
-      if (playerName.trim().length < 1 || playerName.length > 10) {
+      if (
+        playerName == null ||
+        playerName.trim().length < 1 ||
+        playerName.length > 10
+      ) {
         return false
       }
       return true
@@ -177,6 +182,7 @@ export default {
       if (!this.canSubmit) {
         return
       }
+      this.submitting = true
       createRoomAndJoin(
         this.roomName.trim(),
         this.roomPassword,
