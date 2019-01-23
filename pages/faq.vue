@@ -21,6 +21,20 @@
     </section>
     <section class="section">
       <div class="container">
+        <p class="content">Q. 人狼の人数って増やせないんですか？
+          <br>A. 現状1名固定です。
+        </p>
+      </div>
+    </section>
+    <section class="section has-background-light">
+      <div class="container">
+        <p class="content">Q. 1部屋の最大人数は何人ですか？
+          <br>A. 制限はありませんが、10人目以降はチャットの色がシステムメッセージと同じになってしまいます。
+        </p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
         <p class="content">Q. 全員投票しても先に進みません。
           <br>A. 参加者の通信状況次第で進まないことがあります。
           <br>お手数ですがゲームマスターもしくは部屋主が「投票を打ち切る」ボタンを押して進めてください。
@@ -29,7 +43,7 @@
     </section>
     <section class="section has-background-light">
       <div class="container">
-        <p class="content">Q. 寝落ちした人がいて先に進めなくなりました
+        <p class="content">Q. 寝落ちした人がいて先に進めなくなりました。
           <br>A. 部屋主の方が「リセット」ボタンを押してゲーム前の状態に戻してください。
           <br>進行中であればゲームマスターもしくは部屋主が「投票を打ち切る」ボタンを押すことで先に進むこともできます。
         </p>
@@ -44,7 +58,7 @@
     </section>
     <section class="section has-background-light">
       <div class="container">
-        <p class="content">Q. 変な人が入ってきて部屋を荒らされています
+        <p class="content">Q. 変な人が入ってきて部屋を荒らされています。
           <br>A. 部屋主の方は参加者を追い出すことができます。追い出された人はその部屋には参加できなくなります。
           <br>ひどいようであれば<a href="https://twitter.com/ort_dev" target="_blank">@ort_dev</a>へ報告をお願いします。
         </p>
