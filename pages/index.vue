@@ -98,6 +98,8 @@
               <li>ワードウルフは<a href="https://twitter.com/kawasakifactory" target="_blank">川崎晋</a>様が考案したゲームです</li>
               <li>要望、改善提案、不具合報告はTwitter<a href="https://twitter.com/ort_dev" target="_blank">@ort_dev</a>へお願いします</li>
               <li>投げ銭いただける方は<a href="javascript:void(0);" @click="openKampaModal">こちら</a>からお願いします</li>
+              <li><a href="javascript:void(0);" @click="openTermsModal">利用規約</a></li>
+              <li><a href="javascript:void(0);" @click="openPolicyModal">プライバシーポリシー</a></li>
             </ul>
           </div>
         </div>
@@ -142,6 +144,28 @@
         </div>
       </div>
     </section>
+    <div class="modal" id="terms-modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <h4 class="is-size-5">利用規約</h4>
+          <div class="content">
+            <Terms />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="policy-modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <h4 class="is-size-5">プライバシーポリシー</h4>
+          <div class="content">
+            <Policy />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -150,6 +174,8 @@ import { LOGINOUT } from '~/store/action-types'
 import { INIT_ROOMS } from '../store/action-types'
 import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
+import Terms from '~/components/Terms.vue'
+import Policy from '~/components/Policy.vue'
 const auth = firebase.auth()
 export default {
   head() {
@@ -157,6 +183,10 @@ export default {
   },
   data() {
     return {}
+  },
+  components: {
+    Terms,
+    Policy
   },
   computed: {
     rooms() {
@@ -185,6 +215,34 @@ export default {
     },
     openKampaModal() {
       var modal = document.querySelector('#kampa-modal')
+      var html = document.querySelector('html')
+      modal.classList.add('is-active')
+      html.classList.add('is-clipped')
+
+      modal
+        .querySelector('.modal-background')
+        .addEventListener('click', function(e) {
+          e.preventDefault()
+          modal.classList.remove('is-active')
+          html.classList.remove('is-clipped')
+        })
+    },
+    openTermsModal() {
+      var modal = document.querySelector('#terms-modal')
+      var html = document.querySelector('html')
+      modal.classList.add('is-active')
+      html.classList.add('is-clipped')
+
+      modal
+        .querySelector('.modal-background')
+        .addEventListener('click', function(e) {
+          e.preventDefault()
+          modal.classList.remove('is-active')
+          html.classList.remove('is-clipped')
+        })
+    },
+    openPolicyModal() {
+      var modal = document.querySelector('#policy-modal')
       var html = document.querySelector('html')
       modal.classList.add('is-active')
       html.classList.add('is-clipped')

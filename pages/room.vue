@@ -74,7 +74,7 @@ import Chat from '~/components/room/Chat'
 import Footer from '~/components/Footer'
 const auth = firebase.auth()
 export default {
-  head () {
+  head() {
     return { title: 'ワードウルフオンライン', titleTemplate: '' }
   },
   components: {
@@ -87,55 +87,55 @@ export default {
     Chat,
     Footer
   },
-  data () {
+  data() {
     return {
       leftTime: 0,
       timerObj: null
     }
   },
   computed: {
-    user () {
+    user() {
       return this.$store.getters.getUser
     },
-    room () {
+    room() {
       return this.$store.getters.getRoom
     },
-    members () {
+    members() {
       return this.$store.getters.getMembers
     },
-    master () {
+    master() {
       return this.$store.getters.getMaster
     },
-    votes () {
+    votes() {
       return this.$store.getters.getVotes
     },
-    isLogin () {
+    isLogin() {
       return this.$store.getters.isLogin
     },
-    isMember () {
+    isMember() {
       return (
         this.user != null && this.members.some(mem => mem.key === this.user.uid)
       )
     },
-    isOwner: function () {
+    isOwner: function() {
       return (
         this.user != null &&
         this.room != null &&
         this.room.creatorRef === this.user.uid
       )
     },
-    isGameMaster () {
+    isGameMaster() {
       return (
         this.room != null &&
         this.user != null &&
         this.room.gameMaster.key === this.user.uid
       )
     },
-    messages () {
+    messages() {
       return this.$store.getters.getMessages
     }
   },
-  async fetch ({ store, query }) {
+  async fetch({ store, query }) {
     const fetchQuery = {
       roomKey: query.id,
       isComplete: query.complete
@@ -148,9 +148,9 @@ export default {
     await store.dispatch(INIT_MASTER)
     return await store.dispatch(INIT_MESSAGE, fetchQuery)
   },
-  created () {
+  created() {
     const self = this
-    this.timerObj = setInterval(function () {
+    this.timerObj = setInterval(function() {
       self.timerCount()
     }, 1000)
     firebase.auth().onAuthStateChanged(user => {
@@ -160,13 +160,13 @@ export default {
     })
   },
   methods: {
-    joinRoom: function (playerName) {
+    joinRoom: function(playerName) {
       if (this.user == null || this.isMember) {
         return // 何もしない
       }
       join(this.user.uid, playerName, this.room.key, this.$store)
     },
-    leaveRoom: function () {
+    leaveRoom: function() {
       if (!window.confirm('本当に退出しますか？')) {
         return
       }
@@ -181,7 +181,7 @@ export default {
         this.room.creatorRef
       )
     },
-    kick: function ({ memberKey, memberName }) {
+    kick: function({ memberKey, memberName }) {
       if (
         !window.confirm(
           '本当に強制退出させますか？退出させた人はこの部屋に参加できなくなります。'
@@ -204,7 +204,7 @@ export default {
         this.room.creatorRef
       )
     },
-    submitRoomReset: function () {
+    submitRoomReset: function() {
       if (
         !window.confirm(
           '進行不可能になった場合のみ使用してください。本当に開始前の状態に戻しますか？'
@@ -220,7 +220,7 @@ export default {
         members: this.members
       })
     },
-    gameStart: function (talkMinutes) {
+    gameStart: function(talkMinutes) {
       const roomKey = this.room.key
       this.$store
         .dispatch(TO_PREPARE_ROOM, {
@@ -234,7 +234,7 @@ export default {
           })
         })
     },
-    setWord: function ({ villagersWord, wolfWord }) {
+    setWord: function({ villagersWord, wolfWord }) {
       const self = this
       this.$store.dispatch(TO_PROGRESS_ROOM, {
         roomKey: this.room.key,
@@ -246,7 +246,7 @@ export default {
         }
       })
     },
-    timerCount: function () {
+    timerCount: function() {
       if (this.room == null || this.room.endingTime == null) {
         return
       }
@@ -255,7 +255,7 @@ export default {
       const leftTime = Math.floor((endTime.getTime() - now.getTime()) / 1000)
       this.leftTime = leftTime < 0 ? 0 : leftTime
     },
-    vote: async function (key) {
+    vote: async function(key) {
       await this.$store.dispatch(VOTE_ROOM, {
         roomKey: this.room.key,
         uid: this.user.uid,
@@ -263,7 +263,7 @@ export default {
         members: this.members
       })
     },
-    endVote: async function () {
+    endVote: async function() {
       if (!window.confirm('本当に投票を打ち切って進行させますか？')) {
         return
       }
@@ -275,13 +275,13 @@ export default {
         members: this.members
       })
     },
-    submitCounterWord: function (counterWord) {
+    submitCounterWord: function(counterWord) {
       this.$store.dispatch(COUNTER_ROOM, {
         roomKey: this.room.key,
         counterWord: counterWord
       })
     },
-    say: function ({ message }) {
+    say: function({ message }) {
       const member = this.members.find(m => m.key === this.user.uid)
       const color = member == null ? null : member.color
       return this.$store.dispatch(ADD_MESSAGE, {
@@ -290,20 +290,20 @@ export default {
         color: color,
         message: message,
         memberKey: this.user.uid,
-        callback: () => { }
+        callback: () => {}
       })
     }
   }
 }
 
-const join = function (userId, userName, roomKey, store) {
+const join = function(userId, userName, roomKey, store) {
   var user = auth.currentUser
 
   user
     .updateProfile({
       displayName: userName
     })
-    .then(function () {
+    .then(function() {
       const message = userName + 'さんが参加しました。'
       store.dispatch(ADD_MEMBER, {
         userName: userName,
@@ -324,10 +324,10 @@ const join = function (userId, userName, roomKey, store) {
         }
       })
     })
-    .catch(function () { })
+    .catch(function() {})
 }
 
-const leave = async function (userId, userName, roomKey, store, creator) {
+const leave = async function(userId, userName, roomKey, store, creator) {
   const message = userName + 'さんが退出しました。'
   store.dispatch(REMOVE_MEMBER, {
     key: userId,
@@ -348,14 +348,14 @@ const leave = async function (userId, userName, roomKey, store, creator) {
   })
 }
 
-const addSystemMessage = function (roomKey, message, store) {
+const addSystemMessage = function(roomKey, message, store) {
   store.dispatch(ADD_MESSAGE, {
     roomKey: roomKey,
     name: '',
     message: message,
     memberKey: null,
     color: null,
-    callback: () => { }
+    callback: () => {}
   })
 }
 </script>
