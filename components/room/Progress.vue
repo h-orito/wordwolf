@@ -10,16 +10,16 @@
         <br>
       </p>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="!isGameMaster">
+    <div class="panel-block is-size-7 has-text-left sp-fixed-second-bottom" v-if="!isGameMaster">
       <div class="content">
         <p v-if="isMember && !isGameMaster" style="margin-bottom: 10px;">
           あなたのワードは
-          <span class="has-text-weight-bold is-size-6">{{ myWord }}</span> です。
-          <br>ワードについて話して人狼（少数派）を探しましょう。
+          <span class="has-text-weight-bold is-size-6">{{ myWord }}</span>
+          です。
         </p>
       </div>
     </div>
-    <div class="panel-block is-size-7 has-text-left">
+    <div class="panel-block is-size-7 has-text-left sp-fixed-bottom">
       <p class="is-size-7">
         残り時間
         <span class="has-text-weight-bold is-size-6">{{ leftTime }}</span> 秒
@@ -35,7 +35,8 @@
     <div class="panel-block is-size-7 has-text-left" v-if="isMember && !isGameMaster">
       <div v-if="doneVote">他の人が投票するまでお待ちください。</div>
       <div v-if="!doneVote">
-        <p class="is-size-7" v-if="isMember && !isGameMaster && leftTime <= 0">投票の時間になりました。</p>
+        <p class="is-size-7" v-if="leftTime > 0">ワードについて話して人狼（少数派）を探し、</p>
+        <p class="is-size-7" v-if="leftTime <= 0">投票の時間になりました。</p>
         <p style="margin-bottom: 5px;">人狼（少数派）だと思う人に投票してください。（変更不可）</p>
         <p class="is-size-7" v-if="isMember && !isGameMaster && leftTime > 0">議論時間終了後に投票することもできます。</p>
         <button
@@ -146,4 +147,34 @@ const isVillagers = function(villagers, user) {
 </script>
 
 <style>
+@media screen and (max-width: 767px) {
+  .sp-fixed-bottom {
+    position: fixed;
+    width: 100vw;
+    height: 50px;
+    background-color: #ffffff;
+    bottom: 0px;
+    left: 0px;
+    padding: 5px;
+    margin-bottom: 0px;
+    z-index: 100;
+    border-top: 1px solid #dbdbdb;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .sp-fixed-second-bottom {
+    position: fixed;
+    width: 100vw;
+    background-color: #ffffff;
+    bottom: 40px;
+    left: 0px;
+    padding: 5px;
+    margin-bottom: 0px;
+    z-index: 100;
+    border-top: 1px solid #dbdbdb;
+    border-left: 0;
+    border-right: 0;
+  }
+}
 </style>
