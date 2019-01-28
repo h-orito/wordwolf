@@ -6,7 +6,10 @@
         <div class="columns">
           <div class="column">
             <div class="notification is-size-7">
-              メールアドレス / パスワードの組み合わせは他サービスで利用していないものにしてください。
+              <ul>
+                <li>メールアドレス / パスワードの組み合わせは他サービスで利用していないものにしてください。</li>
+                <li>また、ここで入力したメールアドレスは他ユーザには表示されません。<br>ゲーム参加時は自分でニックネームを入力して参加となります。</li>
+              </ul>
             </div>
             <div class="field">
               <label class="label">メールアドレス</label>
