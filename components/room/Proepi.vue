@@ -11,12 +11,24 @@
       </p>
     </div>
     <div class="panel-block">
-      <p class="is-size-7 has-text-left" v-if="!isOwner">現在ゲーム開始前です。
-        <br>4人集まるとルームオーナーがゲームを開始することができます。
+      <p class="is-size-7 has-text-left" v-if="!isOwner" style="margin-bottom: 10px;">現在ゲーム開始前です。
+        <br>4人以上集まり、全員が準備完了すればルームオーナーがゲームを開始することができます。
       </p>
+      <div class="has-text-left is-size-7" v-if="!isOwner && isMember">
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary is-small" v-if="canReady" @click="ready">準備完了状態にする</button>
+            <button
+              class="button is-default is-small"
+              v-if="canCancelReady"
+              @click="cancelReady"
+            >準備中に戻す</button>
+          </div>
+        </div>
+      </div>
       <div class="has-text-left is-size-7" v-if="isOwner">
         <p style="margin-bottom: 10px;">あなたはルームオーナーです。
-          <br>4人集まればゲームを開始することができます。
+          <br>4人以上集まり、ルームオーナー以外の全員が準備完了すればゲームを開始することができます。
         </p>
         <div class="field">
           <label class="label is-size-7 has-text-left">議論時間（分）</label>
@@ -190,8 +202,27 @@ export default {
         this.isLogin
       )
     },
+    canReady() {
+      return (
+        this.isMember &&
+        !this.members.filter(m => m.key === this.user.uid)[0].ready
+      )
+    },
+    canCancelReady() {
+      return (
+        this.isMember &&
+        this.members.filter(m => m.key === this.user.uid)[0].ready
+      )
+    },
     canGameStart() {
-      return this.members.length >= 4 && this.isNotProgress && this.isOwner
+      return (
+        this.members.length >= 4 &&
+        this.isNotProgress &&
+        this.isOwner &&
+        this.members
+          .filter(m => m.key != this.room.creatorRef)
+          .every(m => m.ready)
+      )
     }
   },
   created: function() {},
@@ -237,6 +268,18 @@ export default {
         return
       }
       this.$emit('leaveRoom')
+    },
+    ready() {
+      if (!this.canReady) {
+        return
+      }
+      this.$emit('ready')
+    },
+    cancelReady() {
+      if (!this.canCancelReady) {
+        return
+      }
+      this.$emit('cancelReady')
     },
     gameStart() {
       if (!this.canGameStart) {

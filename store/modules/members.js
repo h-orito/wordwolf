@@ -1,4 +1,11 @@
-import { INIT_MEMBER, ADD_MEMBER, REMOVE_MEMBER } from '~/store/action-types'
+import {
+  INIT_MEMBER,
+  ADD_MEMBER,
+  REMOVE_MEMBER,
+  ADD_READY,
+  DELETE_READY,
+  DELETE_READIES
+} from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const firestore = firebase.firestore()
@@ -62,11 +69,29 @@ const actions = {
         key: userId,
         roomKey: roomKey,
         createdAt: new Date(),
-        color: color
+        color: color,
+        ready: false
       })
       .then(function() {
         callback(state.members)
       })
+  },
+  [ADD_READY](context, { userId }) {
+    membersRef.doc(userId).update({
+      ready: true
+    })
+  },
+  [DELETE_READY](context, { userId }) {
+    membersRef.doc(userId).update({
+      ready: false
+    })
+  },
+  [DELETE_READIES](context, { members }) {
+    members.forEach(m => {
+      membersRef.doc(m.key).update({
+        ready: false
+      })
+    })
   },
   [REMOVE_MEMBER](context, { key, callback }) {
     membersRef

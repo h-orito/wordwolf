@@ -27,6 +27,7 @@
       <span v-if="allowOpenSkill && isVillagers(member)" class="tag reverse-info is-pulled-right">村人</span>
       <span v-if="allowOpenSkill && isWolfs(member)" class="tag reverse-danger is-pulled-right">人狼</span>
       <span v-if="displayDoneVote(member)" class="tag reverse-info is-pulled-right">投票済</span>
+      <span v-if="displayDoneReady(member)" class="tag reverse-info is-pulled-right">準備完了</span>
       <span
         v-if="isNotProgress && isCreator(member)"
         class="tag reverse-success is-pulled-right"
@@ -100,6 +101,14 @@ export default {
         this.doneVote(member) &&
         this.room != null &&
         this.roomStatus !== consts.STATUS_EPILOGUE
+      )
+    },
+    displayDoneReady: function(member) {
+      return (
+        this.room != null &&
+        (this.roomStatus == consts.STATUS_EPILOGUE ||
+          this.roomStatus == consts.STATUS_PROLOGUE) &&
+        member.ready
       )
     }
   }

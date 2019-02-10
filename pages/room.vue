@@ -8,7 +8,7 @@
         <div class="column is-one-thirds-tablet" v-if="this.room != null && !this.room.isComplete">
           <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin" :master="master"
-            @joinRoom="joinRoom" @leaveRoom="leaveRoom" @gameStart="gameStart"></Proepi>
+            @joinRoom="joinRoom" @leaveRoom="leaveRoom" @ready="ready" @cancelReady="cancelReady" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
           <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @endVote="endVote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
@@ -50,6 +50,9 @@ import {
   INIT_MESSAGE,
   INIT_VOTE,
   DELETE_VOTE,
+  ADD_READY,
+  DELETE_READY,
+  DELETE_READIES,
   ADD_MEMBER,
   REMOVE_MEMBER,
   ADD_MESSAGE,
@@ -232,6 +235,9 @@ export default {
           this.$store.dispatch(DELETE_VOTE, {
             roomKey: roomKey
           })
+          this.$store.dispatch(DELETE_READIES, {
+            members: this.members
+          })
         })
     },
     setWord: function({ villagersWord, wolfWord }) {
@@ -254,6 +260,16 @@ export default {
       const now = new Date()
       const leftTime = Math.floor((endTime.getTime() - now.getTime()) / 1000)
       this.leftTime = leftTime < 0 ? 0 : leftTime
+    },
+    cancelReady: function() {
+      this.$store.dispatch(DELETE_READY, {
+        userId: this.user.uid
+      })
+    },
+    ready: function() {
+      this.$store.dispatch(ADD_READY, {
+        userId: this.user.uid
+      })
     },
     vote: async function(key) {
       await this.$store.dispatch(VOTE_ROOM, {
