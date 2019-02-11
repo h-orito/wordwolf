@@ -102,13 +102,17 @@ const actions = {
       })
   },
   // 開始前→準備
-  [TO_PREPARE_ROOM](context, { roomKey, members, talkMinutes }) {
+  [TO_PREPARE_ROOM](context, { roomKey, members, talkMinutes, wolfNum }) {
     // GMは順番にする
     const gm = detectGameMaster(state.room.gameMaster, members)
+    const wnum =
+      wolfNum == null || wolfNum <= 0 || members.length - 1 <= wolfNum
+        ? 1
+        : wolfNum
     let mems = members.slice(0, members.length).filter(m => m.key !== gm.key)
     shuffle(mems)
-    const wolfs = mems.slice(0, state.room.wolfNum)
-    const villagers = mems.slice(state.room.wolfNum, mems.length)
+    const wolfs = mems.slice(0, wnum)
+    const villagers = mems.slice(wnum, mems.length)
     roomsRef
       .doc(roomKey)
       .update({
@@ -232,7 +236,6 @@ const actions = {
       villagers: [],
       wolfWord: '',
       villagersWord: '',
-      wolfNum: 1,
       endingTime: null,
       winCamp: null,
       membersNum: members.length
@@ -320,7 +323,6 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     villagers: [],
     wolfWord: '',
     villagersWord: '',
-    wolfNum: 1,
     endingTime: null,
     winCamp: null,
     membersNum: 1,
@@ -345,6 +347,11 @@ function detectGameMaster(gameMaster, members) {
 
 function updateAllVoteRoom(room, members, votes, roomKey) {
   const query = {}
+  const [isWolfWin, counterPerson] = getCounterPerson(
+    votes,
+    room.wolfs,
+    members
+  )
   if (isWolfWin(votes, room.wolfs[0].key)) {
     query['status'] = consts.STATUS_EPILOGUE
     query['winCamp'] = 'wolfs'
@@ -384,6 +391,42 @@ function isWolfWin(votes, wolfKey) {
       : voteCounts.filter(vc => vc.key === wolfKey)[0].count
   // 人狼と同じか、それ以上に得票数が多い人がいるか
   return voteCounts.some(vc => vc.key !== wolfKey && vc.count >= wolfCount)
+}
+
+function getCounterPerson(votes, wolfs, members) {
+  // それぞれの得票数を集計
+  const voteCounts = members.map(m => {
+    return {
+      key: m.key,
+      count: votes.filter(v => v.target === m.key).length,
+      isWolf: wolfs.some(w => w.key === m.key)
+    }
+  })
+
+  // 最大得票数
+  let maxVoteCount = 0
+  voteCounts.forEach(vc => {
+    if (maxVoteCount < vc.count) {
+      maxVoteCount = vc.count
+    }
+  })
+
+  // 村人で最大得票数だった人がいるか
+  const isWolfWin = voteCounts.some(
+    vc => !vc.isWolf && vc.count === maxVoteCount
+  )
+
+  // 人狼の勝利
+  if (isWolfWin) {
+    return [true, null]
+  }
+
+  // 人狼が最大得票数の場合は最大得票数のうち一人をランダムで選出
+  let maxVoteWolfs = voteCounts.filter(
+    vc => vc.isWolf && vc.count === maxVoteCount
+  )
+  shuffle(maxVoteWolfs)
+  return [false, maxVoteWolfs[0].key]
 }
 
 // ------------------------------------------

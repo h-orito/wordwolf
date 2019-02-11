@@ -44,6 +44,12 @@
           </div>
         </div>
         <div class="field">
+          <label class="label is-size-7 has-text-left">人狼の人数</label>
+          <div class="control">
+            <input class="input is-small" type="number" min="1" max="3" step="1" v-model="wolfNum">
+          </div>
+        </div>
+        <div class="field">
           <div class="control">
             <button
               class="button is-primary is-small"
@@ -122,7 +128,8 @@ export default {
       playerNameError: null,
       roomPassword: '',
       roomPasswordError: null,
-      talkMinutes: 3
+      talkMinutes: 3,
+      wolfNum: 1
     }
   },
   computed: {
@@ -285,7 +292,10 @@ export default {
       if (!this.canGameStart) {
         return
       }
-      this.$emit('gameStart', Math.floor(this.talkMinutes))
+      this.$emit('gameStart', {
+        talkMinutes: Math.floor(this.talkMinutes),
+        wolfNum: this.wolfNum
+      })
     }
   }
 }

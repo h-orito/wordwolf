@@ -223,13 +223,14 @@ export default {
         members: this.members
       })
     },
-    gameStart: function(talkMinutes) {
+    gameStart: function({ talkMinutes, wolfNum }) {
       const roomKey = this.room.key
       this.$store
         .dispatch(TO_PREPARE_ROOM, {
           roomKey: roomKey,
           members: this.members,
-          talkMinutes: talkMinutes
+          talkMinutes: talkMinutes,
+          wolfNum: wolfNum
         })
         .then(() => {
           this.$store.dispatch(DELETE_VOTE, {
