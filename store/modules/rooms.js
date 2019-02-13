@@ -128,7 +128,7 @@ const actions = {
         membersNum: members.length
       })
       .then(() => {
-        addMessage(roomKey, PERSON_SYSTEM, makePrepareMessage(gm))
+        addMessage(roomKey, PERSON_SYSTEM, makePrepareMessage(gm, wnum))
       })
   },
   [TO_PROGRESS_ROOM](context, { roomKey, villagersWord, wolfWord, callback }) {
@@ -238,7 +238,8 @@ const actions = {
       villagersWord: '',
       endingTime: null,
       winCamp: null,
-      membersNum: members.length
+      membersNum: members.length,
+      counterPerson: null
     })
   },
   [BAN_ROOM_MEMBER](context, { roomKey, target }) {
@@ -327,7 +328,8 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     winCamp: null,
     membersNum: 1,
     roomPassword: roomPassword,
-    ban: []
+    ban: [],
+    counterPerson: null
   }
 }
 
@@ -352,11 +354,12 @@ function updateAllVoteRoom(room, members, votes, roomKey) {
     room.wolfs,
     members
   )
-  if (isWolfWin(votes, room.wolfs[0].key)) {
+  if (isWolfWin) {
     query['status'] = consts.STATUS_EPILOGUE
     query['winCamp'] = 'wolfs'
   } else {
     query['status'] = consts.STATUS_COUNTER
+    query['counterPerson'] = counterPerson
   }
   roomsRef
     .doc(roomKey)
@@ -368,29 +371,6 @@ function updateAllVoteRoom(room, members, votes, roomKey) {
         makeVoteCompleteMessage(state.room, votes, members)
       )
     })
-}
-
-function isWolfWin(votes, wolfKey) {
-  // それぞれの得票数を集計
-  let voteCounts = []
-  votes.forEach(v => {
-    if (voteCounts.some(vc => vc.key === v.target)) {
-      return true
-    }
-    voteCounts.push({
-      key: v.target,
-      count: votes.filter(vt => vt.target === v.target).length
-    })
-  })
-
-  // 人狼の得票数
-  const wolfVoteCount = voteCounts.filter(vc => vc.key === wolfKey)
-  const wolfCount =
-    wolfVoteCount.length === 0
-      ? 0
-      : voteCounts.filter(vc => vc.key === wolfKey)[0].count
-  // 人狼と同じか、それ以上に得票数が多い人がいるか
-  return voteCounts.some(vc => vc.key !== wolfKey && vc.count >= wolfCount)
 }
 
 function getCounterPerson(votes, wolfs, members) {
@@ -432,10 +412,14 @@ function getCounterPerson(votes, wolfs, members) {
 // ------------------------------------------
 // システムメッセージ
 // ------------------------------------------
-function makePrepareMessage(gamemaster) {
+function makePrepareMessage(gamemaster, wolfNum) {
   const msgs = [HR]
   msgs.push(
-    'ゲームを開始します。ゲームマスターは ' + gamemaster.name + ' さんです。'
+    'ゲームを開始します。ゲームマスターは ' +
+      gamemaster.name +
+      ' さん、人狼の人数は' +
+      wolfNum +
+      '人です。'
   )
   msgs.push(HR)
   return msgs.join('\n')

@@ -21,13 +21,13 @@
         </p>
       </div>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isWolfs">
+    <div class="panel-block is-size-7 has-text-left" v-if="isCounterPerson">
       <p>あなたが最多票になりました。
         <br>村人のワードを当てられればあなたの勝利、当てられなければ村人の勝利となります。
         <br>村人のワードを予想してください。
       </p>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isWolfs">
+    <div class="panel-block is-size-7 has-text-left" v-if="isCounterPerson">
       <label class="label is-size-7 has-text-left">村人（多数派）のワード</label>
       <div class="field">
         <div class="control">
@@ -45,7 +45,7 @@
       <button class="button is-primary is-small" @click="submit">決定</button>
       <br>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="!isWolfs">
+    <div class="panel-block is-size-7 has-text-left" v-if="!isCounterPerson">
       <p>人狼が最多票になりました。
         <br>人狼が村人のワードを予想しています。
         <br>人狼が村人のワードを当てられれば人狼の勝利、当てられなければ村人の勝利となります。
@@ -101,6 +101,9 @@ export default {
         this.user != null &&
         this.room.wolfs.some(w => w.key === this.user.uid)
       )
+    },
+    isCounterPerson() {
+      return this.isWolfs && this.room.counterPerson === this.user.uid
     }
   },
   created: function() {},

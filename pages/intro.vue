@@ -35,8 +35,9 @@
     </section>
     <section class="section">
       <div class="container">
-        <p class="content">ワードが決定したら参加者の一人に人狼用のワードが配られ、残り全員に村人用のワードが配られます。
-          <br>参加者は他の人のワードは知りませんし、自分のワードが村人のものか人狼のものかもわかりません。</p>
+        <p class="content">ワードが決定したら参加者の一部に人狼用のワードが配られ、残り全員に村人用のワードが配られます。
+          <br>参加者は他の人のワードは知りませんし、自分のワードが村人のものか人狼のものかもわかりません。
+          <br>（人狼が何名いるかは公表されます）</p>
         <img src="~/assets/intro04.png" width="240" height="160"/>
       </div>
     </section>
@@ -55,7 +56,8 @@
     </section>
     <section class="section has-background-light">
       <div class="container">
-        <p class="content">最多票が村人だった場合は人狼の勝利です。（最多票が二人いて、人狼と村人だった場合も人狼の勝利です。）</p>
+        <p class="content">最多票が村人だった場合は人狼の勝利です。
+          <br>（最多票が二人いて、人狼と村人だった場合も人狼の勝利です。）</p>
         <img src="~/assets/intro07.png" width="240" height="160"/>
       </div>
     </section>
