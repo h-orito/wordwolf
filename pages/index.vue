@@ -32,10 +32,6 @@
     <section class="section">
       <div class="container">
         <h1 class="title is-5">部屋一覧</h1>
-        <div v-if="isLogin" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
-          ワードやニックネーム、発言に問題のあるケースが散見されます。
-          <br><a href="javascript:void(0);" @click="openTermsModal">利用規約</a>を再度ご確認ください。
-        </div>
         <p class="content" v-if="rooms.length == 0">現在部屋がありません。</p><br>
         <table v-if="rooms.length > 0" class="table is-striped is-fullwidth is-size-7">
           <thead>
