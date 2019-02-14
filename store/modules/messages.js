@@ -45,11 +45,11 @@ const actions = {
         })
       await messagesRef
         .orderByChild('createdAt')
-        .limitToLast(3)
+        .limitToLast(5)
         .on('value', function(snapshots) {
           snapshots.forEach(snapshot => {
             const newMessage = snapshot.val()
-            const latestMessages = messages.slice(0, 3)
+            const latestMessages = messages.slice(0, 10)
             if (latestMessages.some(l => l.key === newMessage.key)) {
               return
             }

@@ -79,14 +79,11 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
+              <li>2019/02/14 チャットメッセージ重複対策</li>
               <li>2019/02/13 人狼を複数名にできるように変更</li>
               <li>2019/02/10 全員が準備完了したら開始できるように変更</li>
-              <li>2019/01/20 不正操作対策</li>
-              <li>2019/01/20 入退室時に部屋一覧の部屋人数が更新されない不具合を修正</li>
-              <li>2019/01/19 パスワードが合っていなくても入室できる不具合を修正</li>
-              <li>2019/01/19 一度もゲームを進行させていない部屋で強制退出させられない不具合を修正</li>
-              <li>2019/01/19 強制退出させた場合該当者はその部屋には入室できないように変更</li>
             </ul>
+            <nuxt-link class="button is-primary" :to="{ path: 'release-note' }">過去の更新情報を見る</nuxt-link>
           </div>
         </div>
       </div>
