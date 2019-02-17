@@ -83,23 +83,6 @@
           v-if="hasPlayerName"
         >{{this.playerNameError}}</p>
       </div>
-      <div class="field" v-if="room.roomPassword != null && room.roomPassword !== ''">
-        <label class="label is-size-7 has-text-left">部屋パスワード</label>
-        <div class="control">
-          <input
-            class="input is-small"
-            :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
-            type="text"
-            v-model="roomPassword"
-            placeholder="パスワード"
-            @keyup="validateRoomPassword"
-          >
-        </div>
-        <p
-          class="help is-danger has-text-left is-size-7"
-          v-if="hasRoomPassword"
-        >{{this.roomPasswordError}}</p>
-      </div>
       <div class="field">
         <div class="control">
           <button
@@ -126,8 +109,6 @@ export default {
     return {
       playerName: '',
       playerNameError: null,
-      roomPassword: '',
-      roomPasswordError: null,
       talkMinutes: 3,
       wolfNum: 1
     }
@@ -170,7 +151,6 @@ export default {
       )
     },
     canJoin() {
-      // TODO: 他の村に参加していてゲーム中だったらNG
       return (
         this.isLogin &&
         !this.isMember &&
@@ -190,24 +170,9 @@ export default {
     hasPlayerNameError() {
       return this.playerNameError != null
     },
-    hasRoomPassword() {
-      return this.roomPassword != null && this.roomPassword !== ''
-    },
-    hasRoomPasswordError() {
-      return this.roomPasswordError != null
-    },
     canJoinSubmit() {
       this.validatePlayerName()
-      this.validateRoomPassword()
-      return (
-        this.hasPlayerName &&
-        (this.room.roomPassword == null ||
-          this.room.roomPassword === '' ||
-          this.hasRoomPassword) &&
-        !this.hasRoomPasswordError &&
-        !this.hasPlayerNameError &&
-        this.isLogin
-      )
+      return this.hasPlayerName && !this.hasPlayerNameError && this.isLogin
     },
     canReady() {
       return (
@@ -234,16 +199,6 @@ export default {
   },
   created: function() {},
   methods: {
-    validateRoomPassword() {
-      if (this.room.roomPassword == null || this.room.roomPassword === '') {
-        return
-      }
-      if (this.room.roomPassword !== this.roomPassword) {
-        this.roomPasswordError = '正しくありません'
-      } else {
-        this.roomPasswordError = null
-      }
-    },
     validatePlayerName() {
       if (!this.validPlayerName(this.playerName)) {
         this.playerNameError = '3文字以上10文字以内で入力してください'
@@ -263,7 +218,6 @@ export default {
       return true
     },
     joinRoom() {
-      this.validateRoomPassword()
       this.validatePlayerName()
       if (!this.canJoinSubmit) {
         return

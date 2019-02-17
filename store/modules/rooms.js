@@ -74,18 +74,20 @@ const actions = {
       })
   },
   async [INIT_ROOM]({ commit }, { roomKey, isComplete }) {
+    // 一旦初期化
+    await commit('initRoom', null)
+    if (roomsUnsubscribe != null) {
+      roomsUnsubscribe()
+    }
     // 終了している場合は1回だけ読み込む
     if (isComplete) {
-      await roomsRef
-        .doc(roomKey)
-        .get()
-        .then(doc => {
-          commit('initRoom', doc.data())
-        })
+      const doc = await roomsRef.doc(roomKey).get()
+      await commit('initRoom', doc.data())
     } else {
-      if (roomsUnsubscribe != null) {
-        roomsUnsubscribe()
-      }
+      // 初回
+      const doc = await roomsRef.doc(roomKey).get()
+      await commit('initRoom', doc.data())
+      // 変更を取得
       roomsUnsubscribe = await roomsRef.doc(roomKey).onSnapshot(doc => {
         commit('initRoom', doc.data())
       })

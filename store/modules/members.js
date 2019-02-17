@@ -1,5 +1,6 @@
 import {
   INIT_MEMBER,
+  RESET_MEMBER,
   ADD_MEMBER,
   REMOVE_MEMBER,
   ADD_READY,
@@ -38,6 +39,12 @@ const mutations = {
 }
 
 const actions = {
+  async [RESET_MEMBER]({ commit }) {
+    if (membersUnsubscribe != null) {
+      membersUnsubscribe()
+    }
+    commit('initMember', [])
+  },
   async [INIT_MEMBER]({ commit }, { roomKey }) {
     if (membersUnsubscribe != null) {
       membersUnsubscribe()

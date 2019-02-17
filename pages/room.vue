@@ -3,9 +3,9 @@
     class="section" style="padding: 1rem 1rem;">
     <div class="container">
       <h1 class="title is-6">{{ room != null ? room.name : '' }}</h1>
-      <div class="columns is-tablet">
+      <div class="columns is-tablet" v-if="isPasswordCollect">
         <!-- left tab -->
-        <div class="column is-one-thirds-tablet" v-if="this.room != null && !this.room.isComplete">
+        <div class="column is-one-thirds-tablet" v-if="room != null && !room.isComplete">
           <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin" :master="master"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @ready="ready" @cancelReady="cancelReady" @gameStart="gameStart"></Proepi>
@@ -16,7 +16,7 @@
         </div>
         <!-- end left tab -->
         <!-- right tab -->
-        <div class="column" :class="this.room == null || !this.room.isComplete ? 'is-two-thirds-tablet' : ''">
+        <div class="column" :class="room == null || !room.isComplete ? 'is-two-thirds-tablet' : ''">
           <Chat :room="room" :members="members" :user="user" :messages="messages" :leftTime="leftTime" @say="say"></Chat>
         </div>
         <!-- end right tab -->
@@ -39,6 +39,37 @@
       (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+    <div class="modal" id="password-modal">
+      <div class="modal-background is-cli"></div>
+      <div class="modal-card" style="width: 95vw; height: 95vh;">
+        <header class="modal-card-head">
+          <p class="modal-card-title is-size-5">パスワード入力</p>
+        </header>
+        <section class="modal-card-body is-size-7">
+          この部屋に入室するにはパスワードが必要です。
+          <div class="field" v-if="room != null && room.roomPassword != null && room.roomPassword !== ''">
+            <div class="control">
+              <input
+                class="input is-small"
+                :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
+                type="text"
+                v-model="roomPassword"
+                placeholder="パスワード"
+                @keyup="validateRoomPassword"
+              >
+            </div>
+            <p
+              class="help is-danger has-text-left is-size-7"
+              v-if="hasRoomPassword"
+            >{{this.roomPasswordError}}</p>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button is-small" @click="backToTop">キャンセル</button>
+          <button class="button is-success is-small" style="right: 0;" :disabled="!canView" @click="submitPassword">送信</button>
+        </footer>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -47,7 +78,9 @@ import {
   LOGINOUT,
   INIT_ROOM,
   INIT_MEMBER,
+  RESET_MEMBER,
   INIT_MESSAGE,
+  RESET_MESSAGE,
   INIT_VOTE,
   DELETE_VOTE,
   ADD_READY,
@@ -92,8 +125,13 @@ export default {
   },
   data() {
     return {
+      roomKey: '',
+      isComplete: false,
       leftTime: 0,
-      timerObj: null
+      timerObj: null,
+      roomPassword: '',
+      roomPasswordError: null,
+      isPasswordCollect: false
     }
   },
   computed: {
@@ -136,22 +174,22 @@ export default {
     },
     messages() {
       return this.$store.getters.getMessages
+    },
+    hasRoomPassword() {
+      return this.roomPassword != null && this.roomPassword !== ''
+    },
+    hasRoomPasswordError() {
+      return this.roomPasswordError != null
+    },
+    canView() {
+      this.validateRoomPassword()
+      return this.hasRoomPassword && !this.hasRoomPasswordError && this.isLogin
     }
   },
-  async fetch({ store, query }) {
-    const fetchQuery = {
-      roomKey: query.id,
-      isComplete: query.complete
-    }
-    await store.dispatch(INIT_ROOM, fetchQuery)
-    await store.dispatch(INIT_MEMBER, fetchQuery)
-    if (!query.complete) {
-      await store.dispatch(INIT_VOTE, fetchQuery)
-    }
-    await store.dispatch(INIT_MASTER)
-    return await store.dispatch(INIT_MESSAGE, fetchQuery)
+  asyncData({ query }) {
+    return { roomKey: query.id, isComplete: query.complete }
   },
-  created() {
+  async mounted() {
     const self = this
     this.timerObj = setInterval(function() {
       self.timerCount()
@@ -161,6 +199,20 @@ export default {
         user: user
       })
     })
+
+    const fetchQuery = {
+      roomKey: this.roomKey,
+      isComplete: this.isComplete
+    }
+    await this.$store.dispatch(INIT_ROOM, fetchQuery)
+    if (this.room.roomPassword != null) {
+      await this.$store.dispatch(RESET_MEMBER, fetchQuery)
+      await this.$store.dispatch(RESET_MESSAGE, fetchQuery)
+      this.openPasswordModal()
+      return
+    } else {
+      this.initMemberAndMessage()
+    }
   },
   methods: {
     joinRoom: function(playerName) {
@@ -309,6 +361,51 @@ export default {
         memberKey: this.user.uid,
         callback: () => {}
       })
+    },
+    openPasswordModal() {
+      var modal = document.querySelector('#password-modal')
+      var html = document.querySelector('html')
+      modal.classList.add('is-active')
+      html.classList.add('is-clipped')
+    },
+    backToTop() {
+      this.$router.push('/')
+    },
+    validateRoomPassword() {
+      if (
+        this.room == null ||
+        this.room.roomPassword == null ||
+        this.room.roomPassword === ''
+      ) {
+        return
+      }
+      if (this.room.roomPassword !== this.roomPassword) {
+        this.roomPasswordError = '正しくありません'
+      } else {
+        this.roomPasswordError = null
+      }
+    },
+    async submitPassword() {
+      this.validateRoomPassword()
+      if (!this.canView) {
+        return
+      }
+      await this.initMemberAndMessage()
+      document.querySelector('#password-modal').classList.remove('is-active')
+      document.querySelector('html').classList.remove('is-clipped')
+    },
+    async initMemberAndMessage() {
+      this.isPasswordCollect = true
+      const fetchQuery = {
+        roomKey: this.roomKey,
+        isComplete: this.isComplete
+      }
+      await this.$store.dispatch(INIT_MEMBER, fetchQuery)
+      if (!this.isComplete) {
+        await this.$store.dispatch(INIT_VOTE, fetchQuery)
+      }
+      await this.$store.dispatch(INIT_MASTER)
+      await this.$store.dispatch(INIT_MESSAGE, fetchQuery)
     }
   }
 }

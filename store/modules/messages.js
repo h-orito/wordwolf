@@ -1,4 +1,4 @@
-import { INIT_MESSAGE, ADD_MESSAGE } from '~/store/action-types'
+import { INIT_MESSAGE, RESET_MESSAGE, ADD_MESSAGE } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const database = firebase.database()
@@ -15,6 +15,12 @@ const mutations = {
 }
 
 const actions = {
+  async [RESET_MESSAGE]({ commit }) {
+    if (messagesRef != null) {
+      messagesRef.off()
+    }
+    commit('initMessage', [])
+  },
   async [INIT_MESSAGE]({ commit }, { roomKey, isComplete }) {
     const messages = []
     if (messagesRef != null) {
