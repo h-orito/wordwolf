@@ -37,8 +37,8 @@
           <thead>
             <tr>
               <th>部屋名</th>
+              <th>作成者</th>
               <th>人数</th>
-              <th>状態</th>
             </tr>
           </thead>
           <tbody>
@@ -46,10 +46,12 @@
               v-for="room in rooms" 
               :key="room['key']">
               <td>
+                <span v-if="room['roomPassword'] != null && room['roomPassword'] !== ''" class="fas fa-key"></span>
+                <span v-if="room['roomRating'] === 'R15' || room['roomRating'] === 'R18'" class="tag reverse-danger">{{ room['roomRating'] }}</span>
                 <nuxt-link :to="{ path: 'room', query: { id: room.key }}">{{ room.name }}</nuxt-link>
               </td>
+              <td>{{ room['creatorName'] }}</td>
               <td>{{ room['membersNum'] }}人</td>
-              <td>{{ getStatusName(room['status']) }}</td>
             </tr>
           </tbody>
         </table>
@@ -79,6 +81,9 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
+              <li>2019/02/18 利用規約を一部変更（R15R18部屋での暴力表現、R18部屋での性的表現を許容）</li>
+              <li>2019/02/18 R15部屋、R18部屋を作成できるように変更</li>
+              <li>2019/02/18 部屋パスワードを参加→閲覧パスワードに変更</li>
               <li>2019/02/14 チャットメッセージ重複対策</li>
               <li>2019/02/13 人狼を複数名にできるように変更</li>
               <li>2019/02/10 全員が準備完了したら開始できるように変更</li>
@@ -171,7 +176,6 @@
 <script>
 import { LOGINOUT } from '~/store/action-types'
 import { INIT_ROOMS } from '../store/action-types'
-import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
 import Terms from '~/components/Terms.vue'
 import Policy from '~/components/Policy.vue'
@@ -256,13 +260,16 @@ export default {
     },
     logout() {
       auth.signOut()
-    },
-    getStatusName(status) {
-      return consts.VILLAGE_STATUS_MAP[status]
     }
   }
 }
 </script>
 
 <style lang="css">
+.reverse-danger {
+  border: 1px solid #ff3860;
+  color: #ff3860 !important;
+  background-color: #ffffff !important;
+  padding: 5px !important;
+}
 </style>

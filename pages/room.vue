@@ -46,7 +46,10 @@
           <p class="modal-card-title is-size-5">パスワード入力</p>
         </header>
         <section class="modal-card-body is-size-7">
-          この部屋に入室するにはパスワードが必要です。
+          <div v-if="room != null && room.roomPassword != null && room.roomRating != ''" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
+            {{ 'この部屋は暴力表現' + (room.roomRating == 'R18' ? '、性的表現': '') + 'が投稿される可能性があります。'}}<br>
+          </div>
+          <p class="has-text-left">この部屋に入室するにはパスワードが必要です。</p>
           <div class="field" v-if="room != null && room.roomPassword != null && room.roomPassword !== ''">
             <div class="control">
               <input
@@ -205,7 +208,7 @@ export default {
       isComplete: this.isComplete
     }
     await this.$store.dispatch(INIT_ROOM, fetchQuery)
-    if (this.room.roomPassword != null) {
+    if (this.room.roomPassword != null && this.room.roomPassword != '') {
       await this.$store.dispatch(RESET_MEMBER, fetchQuery)
       await this.$store.dispatch(RESET_MESSAGE, fetchQuery)
       this.openPasswordModal()
@@ -369,7 +372,7 @@ export default {
       html.classList.add('is-clipped')
     },
     backToTop() {
-      this.$router.push('/')
+      location.href = '/'
     },
     validateRoomPassword() {
       if (

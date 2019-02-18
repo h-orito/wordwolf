@@ -8,6 +8,9 @@
     <section class="section has-background-light">
       <div class="container">
         <ul class="content has-text-left" style="list-style: inside;">
+          <li>2019/02/18 利用規約を一部変更（R15R18部屋での暴力表現、R18部屋での性的表現を許容）</li>
+          <li>2019/02/18 R15部屋、R18部屋を作成できるように変更</li>
+          <li>2019/02/18 部屋パスワードを参加→閲覧パスワードに変更</li>
           <li>2019/02/14 チャットメッセージ重複対策</li>
           <li>2019/02/13 人狼を複数名にできるように変更</li>
           <li>2019/02/10 全員が準備完了したら開始できるように変更</li>

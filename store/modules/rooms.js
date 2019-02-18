@@ -93,12 +93,24 @@ const actions = {
       })
     }
   },
-  [ADD_ROOM](context, { roomName, userId, callback, roomPassword }) {
+  [ADD_ROOM](
+    context,
+    { roomName, userId, userName, callback, roomPassword, roomRating }
+  ) {
     // 部屋を追加
     const key = generateKey()
     roomsRef
       .doc(key)
-      .set(makeRoomTemplate(roomName, key, userId, roomPassword))
+      .set(
+        makeRoomTemplate(
+          roomName,
+          key,
+          userId,
+          userName,
+          roomPassword,
+          roomRating
+        )
+      )
       .then(function() {
         callback(key)
       })
@@ -313,12 +325,20 @@ function generateKey() {
     .slice(-8)
 }
 
-function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
+function makeRoomTemplate(
+  roomName,
+  roomKey,
+  userId,
+  userName,
+  roomPassword,
+  roomRating
+) {
   return {
     isComplete: false,
     name: roomName,
     key: roomKey,
     creatorRef: userId,
+    creatorName: userName,
     createdAt: new Date(),
     status: consts.STATUS_PROLOGUE,
     gameMaster: null,
@@ -330,6 +350,7 @@ function makeRoomTemplate(roomName, roomKey, userId, roomPassword) {
     winCamp: null,
     membersNum: 1,
     roomPassword: roomPassword,
+    roomRating: roomRating,
     ban: [],
     counterPerson: null
   }

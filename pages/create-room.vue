@@ -20,21 +20,6 @@
             <p class="help is-danger" v-if="hasRoomName">{{this.roomNameError}}</p>
           </div>
           <div class="field">
-            <label class="label">部屋パスワード（任意）</label>
-            <div class="control has-icons-left has-icons-right">
-              <input class="input" :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
-                type="text" placeholder="パスワード" v-model="roomPassword" @keyup="validateRoomPassword">
-              <span class="icon is-small is-left">
-                <i class="fas fa-key"></i>
-              </span>
-              <span v-if="hasRoomPassword" class="icon is-small is-right">
-                <i v-if="hasRoomPasswordError" class="fas fa-exclamation-triangle"></i>
-                <i v-if="!hasRoomPasswordError" class="fas fa-check"></i>
-              </span>
-            </div>
-            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
-          </div>
-          <div class="field">
             <label class="label">自分のニックネーム</label>
             <div class="control has-icons-left has-icons-right">
               <input class="input" :class="!hasPlayerName ? '' : hasPlayerNameError ? 'is-danger': 'is-success'"
@@ -50,6 +35,34 @@
             <p class="help is-danger" v-if="hasPlayerName">{{this.playerNameError}}</p>
           </div>
           <div class="field">
+            <label class="label">部屋パスワード（任意）</label>
+            <div class="control has-icons-left has-icons-right">
+              <input class="input" :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
+                type="text" placeholder="パスワード" v-model="roomPassword" @keyup="validateRoomPassword">
+              <span class="icon is-small is-left">
+                <i class="fas fa-key"></i>
+              </span>
+              <span v-if="hasRoomPassword" class="icon is-small is-right">
+                <i v-if="hasRoomPasswordError" class="fas fa-exclamation-triangle"></i>
+                <i v-if="!hasRoomPasswordError" class="fas fa-check"></i>
+              </span>
+            </div>
+            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
+          </div>
+          <div class="field">
+            <label class="label">レーティング</label>
+            <div class="control has-text-centered">
+              <div class="select">
+                <select v-model="roomRating" :disabled="!hasRoomPassword">
+                  <option value="">全年齢</option>
+                  <option value="R15">R15</option>
+                  <option value="R18">R18</option>
+                </select>
+              </div>
+            </div>
+            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
+          </div>
+          <div class="field" style="margin-top: 40px;">
             <div class="control has-text-centered">
               <button class="button is-primary" :disabled="!canSubmit || submitting" @click="createRoom">部屋を作成</button>
             </div>
@@ -79,6 +92,7 @@ export default {
       roomPasswordError: null,
       playerName: null,
       playerNameError: null,
+      roomRating: '',
       submitting: false
     }
   },
@@ -117,6 +131,7 @@ export default {
         !this.hasRoomNameError &&
         !this.hasPasswordError &&
         !this.hasPlayerNameError &&
+        this.validRoomRating &&
         this.isLogin
       )
     }
@@ -181,6 +196,9 @@ export default {
       }
       return true
     },
+    validRoomRating(rating) {
+      return rating === '' || rating === 'R15' || rating === 'R18'
+    },
     createRoom() {
       this.validateRoomName()
       this.validateRoomPassword()
@@ -192,6 +210,7 @@ export default {
       createRoomAndJoin(
         this.roomName.trim(),
         this.roomPassword,
+        this.hasRoomPassword ? this.roomRating : '',
         this.user.uid,
         this.playerName.trim(),
         this.$store
@@ -203,6 +222,7 @@ export default {
 const createRoomAndJoin = function(
   roomName,
   roomPassword,
+  roomRating,
   userId,
   userName,
   store
@@ -215,7 +235,9 @@ const createRoomAndJoin = function(
       store.dispatch(ADD_ROOM, {
         roomName: roomName,
         roomPassword: roomPassword,
+        roomRating: roomRating,
         userId: userId,
+        userName: userName,
         callback: key => joinRoom(userId, userName, key, store)
       })
     })

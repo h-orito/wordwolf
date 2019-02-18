@@ -7,6 +7,7 @@
         <thead>
           <tr>
             <th>部屋名</th>
+            <th>作成者</th>
           </tr>
         </thead>
         <tbody>
@@ -14,8 +15,11 @@
             v-for="room in rooms" 
             :key="room['key']">
             <td>
+              <span v-if="room['roomPassword'] != null && room['roomPassword'] !== ''" class="fas fa-key"></span>
+              <span v-if="room['roomRating'] === 'R15' || room['roomRating'] === 'R18'" class="tag reverse-danger">{{ room['roomRating'] }}</span>
               <nuxt-link :to="{ path: 'room', query: { id: room.key, complete: true }}">{{ room.name }}</nuxt-link>
             </td>
+            <td>{{ room['creatorName'] }}</td>
           </tr>
         </tbody>
       </table>
@@ -45,4 +49,10 @@ export default {
 </script>
 
 <style lang="css">
+.reverse-danger {
+  border: 1px solid #ff3860;
+  color: #ff3860 !important;
+  background-color: #ffffff !important;
+  padding: 5px !important;
+}
 </style>
