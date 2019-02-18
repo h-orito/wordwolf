@@ -2,6 +2,8 @@
   <section
     class="section" style="padding: 1rem 1rem;">
     <div class="container">
+      <span v-if="room != null && (room['roomPassword'] != null && room['roomPassword'] !== '')" class="fas fa-key"></span>
+      <span v-if="room != null && (room['roomRating'] === 'R15' || room['roomRating'] === 'R18')" class="has-text-danger">{{ room['roomRating'] }}</span>
       <h1 class="title is-6">{{ room != null ? room.name : '' }}</h1>
       <div class="columns is-tablet" v-if="isPasswordCollect">
         <!-- left tab -->

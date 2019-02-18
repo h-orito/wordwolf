@@ -22,7 +22,7 @@
     <section class="section">
       <div class="container">
         <p class="content">Q. 人狼の人数って増やせないんですか？
-          <br>A. 現状1名固定です。
+          <br>A. ゲーム開始時にルームオーナーが人狼の人数を指定できます。
         </p>
       </div>
     </section>
