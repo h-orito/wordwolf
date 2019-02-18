@@ -11,6 +11,7 @@ export const COUNTER_ROOM = 'COUNTER_ROOM'
 export const CHANGE_ROOM_MEMBER = 'CHANGE_ROOM_MEMBER'
 export const BAN_ROOM_MEMBER = 'BAN_ROOM_MEMBER'
 export const RESET_ROOM = 'RESET_ROOM'
+export const COMPLETE_ROOM = 'COMPLETE_ROOM'
 // members
 export const INIT_MEMBER = 'INIT_MEMBER'
 export const RESET_MEMBER = 'RESET_MEMBER'

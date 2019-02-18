@@ -10,7 +10,8 @@ import {
   COUNTER_ROOM,
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
-  RESET_ROOM
+  RESET_ROOM,
+  COMPLETE_ROOM
 } from '~/store/action-types'
 import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
@@ -261,6 +262,11 @@ const actions = {
     banTargets.push(target)
     roomsRef.doc(roomKey).update({
       ban: banTargets
+    })
+  },
+  [COMPLETE_ROOM](context, { roomKey }) {
+    roomsRef.doc(roomKey).update({
+      isComplete: true
     })
   }
 }

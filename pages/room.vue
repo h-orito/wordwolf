@@ -100,6 +100,7 @@ import {
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
   RESET_ROOM,
+  COMPLETE_ROOM,
   INIT_MASTER
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
@@ -461,6 +462,9 @@ const leave = async function(userId, userName, roomKey, store, creator) {
         query['newCreator'] = members.length > 0 ? members[0].key : null
       }
       store.dispatch(CHANGE_ROOM_MEMBER, query)
+      if (members.length <= 0) {
+        store.dispatch(COMPLETE_ROOM, { roomKey: roomKey })
+      }
     }
   })
 }

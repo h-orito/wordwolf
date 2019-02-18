@@ -81,6 +81,7 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
+              <li>2019/02/18 全員退出したらすぐに部屋が終了一覧に移動するよう変更</li>
               <li>2019/02/18 利用規約を一部変更（R15R18部屋での暴力表現、R18部屋での性的表現を許容）</li>
               <li>2019/02/18 R15部屋、R18部屋を作成できるように変更</li>
               <li>2019/02/18 部屋パスワードを参加→閲覧パスワードに変更</li>

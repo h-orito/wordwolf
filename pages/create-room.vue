@@ -4,6 +4,13 @@
       <h1 class="title is-5">部屋を作成</h1>
       <div class="columns">
         <div class="column">
+          <div class="notification is-size-7">
+            <ul class="has-text-left" style="list-style: inside;">
+              <li>部屋パスワードなしの部屋を作成するとTwitter<a href="https://twitter.com/ort_dev" target="_blank">@ort_dev</a>にて通知されます。</li>
+              <li>R15、R18の話題を取り扱う場合は必ず部屋パスワードとレーティングを設定してください。</li>
+              <li>管理人はパスワードを設定しているものも含め全ての部屋を閲覧できます。</li>
+            </ul>
+          </div>
           <div class="field">
             <label class="label">部屋名</label>
             <div class="control has-icons-left has-icons-right">
@@ -153,7 +160,11 @@ export default {
       }
     },
     validRoomName(roomName) {
-      if (roomName.trim().length < 4 || roomName.length > 20) {
+      if (
+        roomName == null ||
+        roomName.trim().length < 4 ||
+        roomName.length > 20
+      ) {
         return false
       }
       return true
