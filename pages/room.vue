@@ -188,6 +188,9 @@ export default {
       return this.roomPasswordError != null
     },
     canView() {
+      if (this.user != null && this.user.uid === this.master) {
+        return true
+      }
       this.validateRoomPassword()
       return this.hasRoomPassword && !this.hasRoomPasswordError && this.isLogin
     }
@@ -211,6 +214,7 @@ export default {
       isComplete: this.isComplete
     }
     await this.$store.dispatch(INIT_ROOM, fetchQuery)
+    await this.$store.dispatch(INIT_MASTER)
     if (this.room.roomPassword != null && this.room.roomPassword != '') {
       await this.$store.dispatch(RESET_MEMBER, fetchQuery)
       await this.$store.dispatch(RESET_MESSAGE, fetchQuery)
@@ -410,7 +414,6 @@ export default {
       if (!this.isComplete) {
         await this.$store.dispatch(INIT_VOTE, fetchQuery)
       }
-      await this.$store.dispatch(INIT_MASTER)
       await this.$store.dispatch(INIT_MESSAGE, fetchQuery)
     }
   }
