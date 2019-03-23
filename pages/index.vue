@@ -81,13 +81,7 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
-              <li>2019/02/18 全員退出したらすぐに部屋が終了一覧に移動するよう変更</li>
-              <li>2019/02/18 利用規約を一部変更（R15R18部屋での暴力表現、R18部屋での性的表現を許容）</li>
-              <li>2019/02/18 R15部屋、R18部屋を作成できるように変更</li>
-              <li>2019/02/18 部屋パスワードを参加→閲覧パスワードに変更</li>
-              <li>2019/02/14 チャットメッセージ重複対策</li>
-              <li>2019/02/13 人狼を複数名にできるように変更</li>
-              <li>2019/02/10 全員が準備完了したら開始できるように変更</li>
+              <li>2019/03/23 パスワードリセット機能を追加</li>
             </ul>
             <nuxt-link class="button is-primary" :to="{ path: 'release-note' }">過去の更新情報を見る</nuxt-link>
           </div>

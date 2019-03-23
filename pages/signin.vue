@@ -39,6 +39,9 @@
               <div class="control has-text-centered">
                 <button class="button is-primary" :disabled="!canSubmit" @click="signin">ログイン</button>
               </div>
+              <div class="control has-text-centered" style="margin-top: 15px;">
+                <nuxt-link :to="{ path: 'remind' }">パスワードを忘れた</nuxt-link>
+              </div>
             </div>
           </div>
         </div>

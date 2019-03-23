@@ -5,6 +5,13 @@
         <h1 class="title is-5">更新情報</h1>
       </div>
     </section>
+    <section class="section">
+      <div class="container">
+        <ul class="content has-text-left" style="list-style: inside;">
+          <li>2019/03/23 パスワードリセット機能を追加</li>
+        </ul>
+      </div>
+    </section>
     <section class="section has-background-light">
       <div class="container">
         <ul class="content has-text-left" style="list-style: inside;">
