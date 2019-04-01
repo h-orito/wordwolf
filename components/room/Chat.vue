@@ -97,7 +97,10 @@ export default {
       }
 
       this.$emit('say', {
-        message: this.message
+        message:
+          this.message.length > 200
+            ? this.message.substring(0, 200)
+            : this.message
       })
       this.message = ''
       this.canMessageSubmit = false
