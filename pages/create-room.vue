@@ -6,7 +6,6 @@
         <div class="column">
           <div class="notification is-size-7">
             <ul class="has-text-left" style="list-style: inside;">
-              <li>部屋パスワードなしの部屋を作成するとTwitter<a href="https://twitter.com/ort_dev" target="_blank">@ort_dev</a>にて通知されます。</li>
               <li>R15、R18の話題を取り扱う場合は必ず部屋パスワードとレーティングを設定してください。</li>
               <li>管理人はパスワードを設定しているものも含め全ての部屋を閲覧できます。</li>
             </ul>
