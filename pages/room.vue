@@ -106,6 +106,7 @@ import {
   INIT_MASTER
 } from '../store/action-types'
 import firebase from '~/plugins/firebase'
+import bcrypt from 'bcryptjs'
 import Members from '~/components/room/Members'
 import Proepi from '~/components/room/Proepi'
 import Prepare from '~/components/room/Prepare'
@@ -389,7 +390,7 @@ export default {
       ) {
         return
       }
-      if (this.room.roomPassword !== this.roomPassword) {
+      if (!bcrypt.compareSync(this.roomPassword, this.room.roomPassword)) {
         this.roomPasswordError = '正しくありません'
       } else {
         this.roomPasswordError = null

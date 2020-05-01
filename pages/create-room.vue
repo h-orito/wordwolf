@@ -217,62 +217,57 @@ export default {
         return
       }
       this.submitting = true
-      createRoomAndJoin(
+      this.createRoomAndJoin(
         this.roomName.trim(),
         this.roomPassword,
         this.hasRoomPassword ? this.roomRating : '',
         this.user.uid,
-        this.playerName.trim(),
-        this.$store
+        this.playerName.trim()
       )
+    },
+    createRoomAndJoin(roomName, roomPassword, roomRating, userId, userName) {
+      const self = this
+      auth.currentUser
+        .updateProfile({
+          displayName: userName
+        })
+        .then(function() {
+          self.$store.dispatch(ADD_ROOM, {
+            roomName: roomName,
+            roomPassword: self.hased(roomPassword),
+            roomRating: roomRating,
+            userId: userId,
+            userName: userName,
+            callback: key => self.joinRoom(userId, userName, key)
+          })
+        })
+    },
+    joinRoom(userId, userName, roomKey) {
+      const self = this
+      this.$store.dispatch(ADD_MEMBER, {
+        userName: userName,
+        userId: userId,
+        roomKey: roomKey,
+        callback: () => self.addMessage(roomKey, userName)
+      })
+    },
+    addMessage(roomKey, userName) {
+      this.$store.dispatch(ADD_MESSAGE, {
+        roomKey: roomKey,
+        name: '',
+        message: userName + 'さんが入室しました',
+        memberKey: null,
+        color: null,
+        callback: () => {
+          location.href = '/room?id=' + roomKey
+        }
+      })
+    },
+    hased(str) {
+      const bcrypt = require('bcryptjs')
+      return bcrypt.hashSync(str, 10)
     }
   }
-}
-
-const createRoomAndJoin = function(
-  roomName,
-  roomPassword,
-  roomRating,
-  userId,
-  userName,
-  store
-) {
-  auth.currentUser
-    .updateProfile({
-      displayName: userName
-    })
-    .then(function() {
-      store.dispatch(ADD_ROOM, {
-        roomName: roomName,
-        roomPassword: roomPassword,
-        roomRating: roomRating,
-        userId: userId,
-        userName: userName,
-        callback: key => joinRoom(userId, userName, key, store)
-      })
-    })
-}
-
-const joinRoom = function(userId, userName, roomKey, store) {
-  store.dispatch(ADD_MEMBER, {
-    userName: userName,
-    userId: userId,
-    roomKey: roomKey,
-    callback: () => addMessage(roomKey, userName, store)
-  })
-}
-
-const addMessage = function(roomKey, userName, store) {
-  store.dispatch(ADD_MESSAGE, {
-    roomKey: roomKey,
-    name: '',
-    message: userName + 'さんが入室しました',
-    memberKey: null,
-    color: null,
-    callback: () => {
-      location.href = '/room?id=' + roomKey
-    }
-  })
 }
 </script>
 
