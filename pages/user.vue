@@ -62,6 +62,15 @@
                 </div>
               </div>
             </div>
+            <div>
+              <hr>
+              <h2 class="title is-6">退会</h2>
+              <div class="field">
+                <div class="control has-text-centered">
+                  <button class="button is-danger" @click="deleteUser">退会する</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="column" v-if="user != null && !user.emailVerified">
             <hr>
@@ -193,6 +202,23 @@ export default {
         .sendEmailVerification()
         .then(function() {
           // トップページに戻る
+          self.$router.replace({ path: '/' })
+        })
+        .catch(function() {})
+    },
+    deleteUser() {
+      if (
+        !window.confirm(
+          '本当に退会しますか？ユーザが削除され、元に戻せません。'
+        )
+      ) {
+        return
+      }
+      const self = this
+      firebase
+        .auth()
+        .currentUser.delete()
+        .then(function() {
           self.$router.replace({ path: '/' })
         })
         .catch(function() {})

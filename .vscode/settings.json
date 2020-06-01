@@ -1,9 +1,9 @@
 {
   "files.eol": "\n",
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "vetur.format.defaultFormatter.js": "vscode-typescript",
-  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  // "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+  // "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
   "emmet.includeLanguages": {
     "vue-html": "html"
   },
