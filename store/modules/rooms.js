@@ -1,5 +1,6 @@
 import {
   INIT_ROOMS,
+  INIT_ALL_OLD_ROOMS,
   INIT_OLD_ROOMS,
   INIT_ROOM,
   ADD_ROOM,
@@ -62,6 +63,20 @@ const actions = {
       })
   },
   async [INIT_OLD_ROOMS]({ commit }) {
+    await roomsRef
+      .where('isComplete', '==', true)
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get()
+      .then(function(querySnapshot) {
+        let rooms = []
+        querySnapshot.forEach(function(doc) {
+          rooms.push(doc.data())
+        })
+        commit('initOldRooms', rooms)
+      })
+  },
+  async [INIT_ALL_OLD_ROOMS]({ commit }) {
     await roomsRef
       .where('isComplete', '==', true)
       .orderBy('createdAt', 'desc')

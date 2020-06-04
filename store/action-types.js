@@ -1,6 +1,7 @@
 // rooms
 export const INIT_ROOMS = 'INIT_ROOMS'
 export const INIT_OLD_ROOMS = 'INIT_OLD_ROOMS'
+export const INIT_ALL_OLD_ROOMS = 'INIT_ALL_OLD_ROOMS'
 export const INIT_ROOM = 'INIT_ROOM'
 export const ADD_ROOM = 'ADD_ROOM'
 export const TO_PREPARE_ROOM = 'TO_PREPARE_ROOM'

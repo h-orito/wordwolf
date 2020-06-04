@@ -23,18 +23,21 @@
           </tr>
         </tbody>
       </table>
+      <button v-if="!isDispAllRoom" class="button is-primary" @click="fetchAllRoom">全ての部屋を表示する</button>
     </div>
   </section>
 </template>
 
 <script>
-import { INIT_OLD_ROOMS } from '../store/action-types'
+import { INIT_OLD_ROOMS, INIT_ALL_OLD_ROOMS } from '../store/action-types'
 export default {
   head() {
     return { title: '終了した部屋' }
   },
   data() {
-    return {}
+    return {
+      isDispAllRoom: false
+    }
   },
   computed: {
     rooms() {
@@ -44,7 +47,12 @@ export default {
   async fetch({ store }) {
     return await store.dispatch(INIT_OLD_ROOMS)
   },
-  methods: {}
+  methods: {
+    fetchAllRoom() {
+      this.$store.dispatch(INIT_ALL_OLD_ROOMS)
+      this.isDispAllRoom = true
+    }
+  }
 }
 </script>
 
