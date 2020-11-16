@@ -58,7 +58,7 @@
     </div>
     <div v-if="isOwner || isGameMaster" class="panel-block is-size-7 has-text-left">
       <p style="margin-bottom: 5px;">強制的に投票を打ち切って進行させることもできます。</p>
-      <button class="button is-danger is-small" @click="$emit('endVote')">投票を打ち切る</button>
+      <button class="button is-danger is-small" @click="$emit('end-vote')">投票を打ち切る</button>
     </div>
   </div>
 </template>

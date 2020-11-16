@@ -29,7 +29,7 @@
     <section class="section has-background-light">
       <div class="container">
         <p class="content">Q. 1部屋の最大人数は何人ですか？
-          <br>A. 制限はありませんが、10人目以降はチャットの色がシステムメッセージと同じになってしまいます。
+          <br>A. 制限はありませんが、10人目以降はチャットの色がランダムになってしまいます。
         </p>
       </div>
     </section>

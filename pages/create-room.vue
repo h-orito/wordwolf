@@ -264,6 +264,7 @@ export default {
       })
     },
     hased(str) {
+      if (!str || str === '') return str
       const bcrypt = require('bcryptjs')
       return bcrypt.hashSync(str, 10)
     }

@@ -5,6 +5,14 @@
         <h1 class="title is-5">更新情報</h1>
       </div>
     </section>
+    <section class="section has-background-light">
+      <div class="container">
+        <ul class="content has-text-left" style="list-style: inside;">
+          <li>2020/11/16 パスワードなしの部屋を作成できない不具合を修正</li>
+          <li>2020/11/16 11名以上参加できない不具合を修正</li>
+        </ul>
+      </div>
+    </section>
     <section class="section">
       <div class="container">
         <ul class="content has-text-left" style="list-style: inside;">

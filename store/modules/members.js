@@ -68,7 +68,7 @@ const actions = {
     const color =
       leftColor.length > 0
         ? leftColor[0]
-        : leftColor[Math.round(Math.random() * COLORS.length)]
+        : COLORS[Math.floor(Math.random() * COLORS.length)]
     membersRef
       .doc(userId)
       .set({
