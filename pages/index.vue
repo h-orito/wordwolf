@@ -36,7 +36,7 @@
         <table v-if="rooms.length > 0" class="table is-striped is-fullwidth is-size-7">
           <thead>
             <tr>
-              <th>部屋名</th>
+              <th class="has-text-left">部屋名</th>
               <th>作成者</th>
               <th>人数</th>
             </tr>
@@ -45,7 +45,7 @@
             <tr
               v-for="room in rooms" 
               :key="room['key']">
-              <td>
+              <td class="has-text-left">
                 <span v-if="room['roomPassword'] != null && room['roomPassword'] !== ''" class="fas fa-key"></span>
                 <span v-if="room['roomRating'] === 'R15' || room['roomRating'] === 'R18'" class="tag reverse-danger">{{ room['roomRating'] }}</span>
                 <nuxt-link :to="{ path: 'room', query: { id: room.key }}">{{ room.name }}</nuxt-link>
@@ -81,7 +81,10 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
-              <li>2019/03/23 パスワードリセット機能を追加</li>
+              <li>2020/11/18 投票打ち切りが機能しなくなっていた不具合を修正</li>
+              <li>2020/11/18 チャットのパフォーマンスを若干改善</li>
+              <li>2020/11/18 最後の人が投票しても進まない不具合の発生率を低減（実験中）</li>
+              <li>2020/11/18 人狼が村人のワードを当てる際ひらがな以外が入力されていたら送信できなくなるよう変更</li>
             </ul>
             <nuxt-link class="button is-primary" :to="{ path: 'release-note' }">過去の更新情報を見る</nuxt-link>
           </div>
@@ -208,9 +211,6 @@ export default {
     })
   },
   methods: {
-    isCreator(roomCreator) {
-      return this.user != null && this.user.uid === roomCreator
-    },
     openKampaModal() {
       var modal = document.querySelector('#kampa-modal')
       var html = document.querySelector('html')

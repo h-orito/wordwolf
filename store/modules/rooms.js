@@ -21,9 +21,6 @@ const PERSON_SYSTEM = ''
 const HR = 'ーーーーーーーーーーーーーーーーーーーーー'
 
 const firestore = firebase.firestore()
-firestore.settings({
-  timestampsInSnapshots: true
-})
 const roomsRef = firestore.collection('rooms')
 let roomsUnsubscribe = null
 const wordsRef = firestore.collection('words')
@@ -198,8 +195,7 @@ const actions = {
       }
     })
     const allVote = votes.length >= members.length - 1
-    const isLastVote = votes[votes.length - 1].uid === uid
-    if (allVote && isLastVote) {
+    if (allVote) {
       await updateAllVoteRoom(state.room, members, votes, roomKey)
     }
   },

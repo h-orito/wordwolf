@@ -10,9 +10,6 @@ import {
 import firebase from '~/plugins/firebase'
 
 const firestore = firebase.firestore()
-firestore.settings({
-  timestampsInSnapshots: true
-})
 const membersRef = firestore.collection('members')
 let membersUnsubscribe = null
 const COLORS = [

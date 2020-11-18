@@ -2,28 +2,28 @@
   <section
     class="section" style="padding: 1rem 1rem;">
     <div class="container">
-      <span v-if="room != null && (room['roomPassword'] != null && room['roomPassword'] !== '')" class="fas fa-key"></span>
-      <span v-if="room != null && (room['roomRating'] === 'R15' || room['roomRating'] === 'R18')" class="has-text-danger">{{ room['roomRating'] }}</span>
-      <h1 class="title is-6">{{ room != null ? room.name : '' }}</h1>
+      <span v-if="requiredPassword" class="fas fa-key"></span>
+      <span v-if="isRatingRoom" class="has-text-danger">{{ room.roomRating }}</span>
+      <h1 class="title is-6">{{ !!room ? room.name : '' }}</h1>
       <div class="columns is-tablet" v-if="isPasswordCollect">
         <!-- left tab -->
-        <div class="column is-one-thirds-tablet" v-if="room != null && !room.isComplete">
+        <div class="column is-one-thirds-tablet" v-if="!!room && !room.isComplete">
           <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
           <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin" :master="master"
             @joinRoom="joinRoom" @leaveRoom="leaveRoom" @ready="ready" @cancelReady="cancelReady" @gameStart="gameStart"></Proepi>
           <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
-          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @endVote="endVote"></Progress>
+          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @end-vote="endVote"></Progress>
           <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
           <Reset :room="room" :user="user" @submitRoomReset="submitRoomReset"></Reset>
         </div>
         <!-- end left tab -->
         <!-- right tab -->
-        <div class="column" :class="room == null || !room.isComplete ? 'is-two-thirds-tablet' : ''">
+        <div class="column" :class="!room || !room.isComplete ? 'is-two-thirds-tablet' : ''">
           <Chat :room="room" :members="members" :user="user" :messages="messages" :leftTime="leftTime" @say="say"></Chat>
         </div>
         <!-- end right tab -->
       </div>
-      <div v-if="this.room != null && this.room.isComplete">
+      <div v-if="!!room && room.isComplete">
         <nuxt-link
           class="button is-primary is-small"
           to="/room-list">終了した部屋一覧に戻る</nuxt-link>
@@ -48,11 +48,11 @@
           <p class="modal-card-title is-size-5">パスワード入力</p>
         </header>
         <section class="modal-card-body is-size-7">
-          <div v-if="room != null && room.roomPassword != null && room.roomRating != ''" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
+          <div v-if="requiredPassword && isRatingRoom" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
             {{ 'この部屋は暴力表現' + (room.roomRating == 'R18' ? '、性的表現': '') + 'が投稿される可能性があります。'}}<br>
           </div>
           <p class="has-text-left">この部屋に入室するにはパスワードが必要です。</p>
-          <div class="field" v-if="room != null && room.roomPassword != null && room.roomPassword !== ''">
+          <div class="field" v-if="requiredPassword">
             <div class="control">
               <input
                 class="input is-small"
@@ -161,39 +161,43 @@ export default {
       return this.$store.getters.isLogin
     },
     isMember() {
-      return (
-        this.user != null && this.members.some(mem => mem.key === this.user.uid)
-      )
+      return !!this.user && this.members.some(mem => mem.key === this.user.uid)
     },
     isOwner: function() {
       return (
-        this.user != null &&
-        this.room != null &&
-        this.room.creatorRef === this.user.uid
+        !!this.user && !!this.room && this.room.creatorRef === this.user.uid
       )
     },
     isGameMaster() {
       return (
-        this.room != null &&
-        this.user != null &&
-        this.room.gameMaster.key === this.user.uid
+        !!this.room && !!this.user && this.room.gameMaster.key === this.user.uid
       )
     },
     messages() {
       return this.$store.getters.getMessages
     },
     hasRoomPassword() {
-      return this.roomPassword != null && this.roomPassword !== ''
+      return !!this.roomPassword && this.roomPassword !== ''
     },
     hasRoomPasswordError() {
-      return this.roomPasswordError != null
+      return !!this.roomPasswordError
     },
     canView() {
-      if (this.user != null && this.user.uid === this.master) {
+      if (!!this.user && this.user.uid === this.master) {
         return true
       }
       this.validateRoomPassword()
       return this.hasRoomPassword && !this.hasRoomPasswordError && this.isLogin
+    },
+    requiredPassword() {
+      return (
+        !!this.room &&
+        this.room.roomPassword != null &&
+        this.room.roomPassword !== ''
+      )
+    },
+    isRatingRoom() {
+      return !!this.room && ['R15', 'R18'].some(r => r === this.room.roomRating)
     }
   },
   asyncData({ query }) {
@@ -227,18 +231,12 @@ export default {
   },
   methods: {
     joinRoom: function(playerName) {
-      if (this.user == null || this.isMember) {
-        return // 何もしない
-      }
+      if (!this.user || this.isMember) return
       join(this.user.uid, playerName, this.room.key, this.$store)
     },
     leaveRoom: function() {
-      if (!window.confirm('本当に退出しますか？')) {
-        return
-      }
-      if (this.user == null || !this.isMember) {
-        return // 何もしない
-      }
+      if (!window.confirm('本当に退出しますか？')) return
+      if (!this.user || !this.isMember) return
       leave(
         this.user.uid,
         this.user.displayName,
@@ -317,9 +315,7 @@ export default {
       })
     },
     timerCount: function() {
-      if (this.room == null || this.room.endingTime == null) {
-        return
-      }
+      if (!this.room || !this.room.endingTime) return
       const endTime = this.room.endingTime.toDate()
       const now = new Date()
       const leftTime = Math.floor((endTime.getTime() - now.getTime()) / 1000)
@@ -347,9 +343,7 @@ export default {
       if (!window.confirm('本当に投票を打ち切って進行させますか？')) {
         return
       }
-      if (!this.isOwner && !this.isGameMaster) {
-        return // 何もしない
-      }
+      if (!this.isOwner && !this.isGameMaster) return
       await this.$store.dispatch(END_VOTE_ROOM, {
         roomKey: this.room.key,
         members: this.members
@@ -363,7 +357,7 @@ export default {
     },
     say: function({ message }) {
       const member = this.members.find(m => m.key === this.user.uid)
-      const color = member == null ? null : member.color
+      const color = !member ? null : member.color
       return this.$store.dispatch(ADD_MESSAGE, {
         roomKey: this.room.key,
         name: this.user.displayName,
@@ -383,13 +377,7 @@ export default {
       location.href = '/'
     },
     validateRoomPassword() {
-      if (
-        this.room == null ||
-        this.room.roomPassword == null ||
-        this.room.roomPassword === ''
-      ) {
-        return
-      }
+      if (!this.requiredPassword) return
       if (!bcrypt.compareSync(this.roomPassword, this.room.roomPassword)) {
         this.roomPasswordError = '正しくありません'
       } else {
@@ -398,9 +386,7 @@ export default {
     },
     async submitPassword() {
       this.validateRoomPassword()
-      if (!this.canView) {
-        return
-      }
+      if (!this.canView) return
       await this.initMemberAndMessage()
       document.querySelector('#password-modal').classList.remove('is-active')
       document.querySelector('html').classList.remove('is-clipped')

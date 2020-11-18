@@ -40,28 +40,9 @@ const actions = {
         })
       commit('initMessage', messages)
     } else {
-      await messagesRef
-        .orderByChild('createdAt')
-        .limitToLast(100)
-        .once('value')
-        .then(function(snapshots) {
-          snapshots.forEach(snapshot => {
-            messages.unshift(snapshot.val())
-          })
-        })
-      await messagesRef
-        .orderByChild('createdAt')
-        .limitToLast(5)
-        .on('value', function(snapshots) {
-          snapshots.forEach(snapshot => {
-            const newMessage = snapshot.val()
-            const latestMessages = messages.slice(0, 10)
-            if (latestMessages.some(l => l.key === newMessage.key)) {
-              return
-            }
-            messages.unshift(newMessage)
-          })
-        })
+      await messagesRef.on('child_added', snapshot => {
+        messages.unshift(snapshot.val())
+      })
       commit('initMessage', messages)
     }
   },

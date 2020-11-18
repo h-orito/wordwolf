@@ -2,9 +2,6 @@ import { LOGINOUT, UPDATE_USERNAME } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const firestore = firebase.firestore()
-firestore.settings({
-  timestampsInSnapshots: true
-})
 const membersRef = firestore.collection('members')
 
 const state = {

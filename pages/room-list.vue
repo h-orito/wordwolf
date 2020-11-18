@@ -6,7 +6,7 @@
       <table v-if="rooms.length > 0" class="table is-striped is-fullwidth is-size-7">
         <thead>
           <tr>
-            <th>部屋名</th>
+            <th class="has-text-left">部屋名</th>
             <th>作成者</th>
           </tr>
         </thead>
@@ -14,7 +14,7 @@
           <tr
             v-for="room in rooms" 
             :key="room['key']">
-            <td>
+            <td class="has-text-left">
               <span v-if="room['roomPassword'] != null && room['roomPassword'] !== ''" class="fas fa-key"></span>
               <span v-if="room['roomRating'] === 'R15' || room['roomRating'] === 'R18'" class="tag reverse-danger">{{ room['roomRating'] }}</span>
               <nuxt-link :to="{ path: 'room', query: { id: room.key, complete: true }}">{{ room.name }}</nuxt-link>
