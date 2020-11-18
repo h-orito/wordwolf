@@ -42,7 +42,7 @@
         </div>
         <p class="help is-danger has-text-left">{{this.counterWordError}}</p>
       </div>
-      <button class="button is-primary is-small" @click="submit">決定</button>
+      <button class="button is-primary is-small" @click="submit" :disabled="!canSubmitCounterWord">決定</button>
       <br>
     </div>
     <div class="panel-block is-size-7 has-text-left" v-if="!isCounterPerson">
@@ -104,6 +104,11 @@ export default {
     },
     isCounterPerson() {
       return this.isWolfs && this.room.counterPerson === this.user.uid
+    },
+    canSubmitCounterWord() {
+      return (
+        !!this.counterWord && this.counterWord !== '' && !this.counterWordError
+      )
     }
   },
   created: function() {},
@@ -121,6 +126,7 @@ export default {
       }
     },
     submit() {
+      if (!this.canSubmitCounterWord) return
       this.$emit('submitCounterWord', this.counterWord)
       this.counterWord = ''
     }

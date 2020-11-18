@@ -2,9 +2,6 @@ import { INIT_MASTER } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
 const firestore = firebase.firestore()
-firestore.settings({
-  timestampsInSnapshots: true
-})
 const masterRef = firestore.collection('users')
 
 const state = {

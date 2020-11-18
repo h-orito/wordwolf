@@ -5,6 +5,16 @@
         <h1 class="title is-5">更新情報</h1>
       </div>
     </section>
+    <section class="section has-background">
+      <div class="container">
+        <ul class="content has-text-left" style="list-style: inside;">
+          <li>2020/11/18 投票打ち切りが機能しなくなっていた不具合を修正</li>
+          <li>2020/11/18 チャットのパフォーマンスを若干改善</li>
+          <li>2020/11/18 最後の人が投票しても進まない不具合の発生率を低減（実験中）</li>
+          <li>2020/11/18 人狼が村人のワードを当てる際ひらがな以外が入力されていたら送信できなくなるよう変更</li>
+        </ul>
+      </div>
+    </section>
     <section class="section has-background-light">
       <div class="container">
         <ul class="content has-text-left" style="list-style: inside;">
