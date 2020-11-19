@@ -12,7 +12,8 @@ import {
   CHANGE_ROOM_MEMBER,
   BAN_ROOM_MEMBER,
   RESET_ROOM,
-  COMPLETE_ROOM
+  COMPLETE_ROOM,
+  ADD_WINNUM
 } from '~/store/action-types'
 import * as consts from '~/store/consts'
 import firebase from '~/plugins/firebase'
@@ -196,7 +197,13 @@ const actions = {
     })
     const allVote = votes.length >= members.length - 1
     if (allVote) {
-      await updateAllVoteRoom(state.room, members, votes, roomKey)
+      await updateAllVoteRoom(
+        state.room,
+        members,
+        votes,
+        roomKey,
+        context.dispatch
+      )
     }
   },
   async [END_VOTE_ROOM](context, { roomKey, members }) {
@@ -210,7 +217,13 @@ const actions = {
         votes.push(vote)
       }
     })
-    await updateAllVoteRoom(state.room, members, votes, roomKey)
+    await updateAllVoteRoom(
+      state.room,
+      members,
+      votes,
+      roomKey,
+      context.dispatch
+    )
   },
   [COUNTER_ROOM](context, { roomKey, counterWord }) {
     const collect = state.room.villagersWord === counterWord
@@ -232,6 +245,12 @@ const actions = {
           )
         )
       })
+    const winnerKeys = collect
+      ? state.room.wolfs.map(w => w.key)
+      : state.room.villagers.map(m => m.key)
+    context.dispatch(ADD_WINNUM, {
+      keys: winnerKeys
+    })
   },
   [CHANGE_ROOM_MEMBER](
     context,
@@ -387,7 +406,7 @@ function detectGameMaster(gameMaster, members) {
   return gm
 }
 
-function updateAllVoteRoom(room, members, votes, roomKey) {
+function updateAllVoteRoom(room, members, votes, roomKey, dispatch) {
   const query = {}
   const [isWolfWin, counterPerson] = getCounterPerson(
     votes,
@@ -397,6 +416,9 @@ function updateAllVoteRoom(room, members, votes, roomKey) {
   if (isWolfWin) {
     query['status'] = consts.STATUS_EPILOGUE
     query['winCamp'] = 'wolfs'
+    dispatch(ADD_WINNUM, {
+      keys: room.wolfs.map(w => w.key)
+    })
   } else {
     query['status'] = consts.STATUS_COUNTER
     query['counterPerson'] = counterPerson

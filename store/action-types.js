@@ -21,6 +21,7 @@ export const REMOVE_MEMBER = 'REMOVE_MEMBER'
 export const ADD_READY = 'ADD_READY'
 export const DELETE_READY = 'DELETE_READY'
 export const DELETE_READIES = 'DELETE_READIES'
+export const ADD_WINNUM = 'ADD_WINNUM'
 // messages
 export const INIT_MESSAGE = 'INIT_MESSAGE'
 export const RESET_MESSAGE = 'RESET_MESSAGE'

@@ -14,7 +14,7 @@
       <span
         class="membername"
         :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
-      >{{ member.name }}</span>
+      >{{ member.name }}</span><span v-if="member.winNum != null" :class="member.color">{{ `（${member.winNum}勝）`}}</span>
       <button
         v-if="canKick"
         class="tag is-small is-pulled-right"

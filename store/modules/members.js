@@ -5,7 +5,8 @@ import {
   REMOVE_MEMBER,
   ADD_READY,
   DELETE_READY,
-  DELETE_READIES
+  DELETE_READIES,
+  ADD_WINNUM
 } from '~/store/action-types'
 import firebase from '~/plugins/firebase'
 
@@ -74,7 +75,8 @@ const actions = {
         roomKey: roomKey,
         createdAt: new Date(),
         color: color,
-        ready: false
+        ready: false,
+        winNum: 0
       })
       .then(function() {
         callback(state.members)
@@ -106,6 +108,13 @@ const actions = {
           callback(state.members)
         }
       })
+  },
+  [ADD_WINNUM](context, { keys }) {
+    keys.forEach(key => {
+      membersRef.doc(key).update({
+        winNum: firebase.firestore.FieldValue.increment(1)
+      })
+    })
   }
 }
 

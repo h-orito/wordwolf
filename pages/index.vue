@@ -81,10 +81,7 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
-              <li>2020/11/18 投票打ち切りが機能しなくなっていた不具合を修正</li>
-              <li>2020/11/18 チャットのパフォーマンスを若干改善</li>
-              <li>2020/11/18 最後の人が投票しても進まない不具合の発生率を低減（実験中）</li>
-              <li>2020/11/18 人狼が村人のワードを当てる際ひらがな以外が入力されていたら送信できなくなるよう変更</li>
+              <li>2020/11/20 勝利数を表示するよう変更</li>
             </ul>
             <nuxt-link class="button is-primary" :to="{ path: 'release-note' }">過去の更新情報を見る</nuxt-link>
           </div>

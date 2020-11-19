@@ -5,6 +5,13 @@
         <h1 class="title is-5">更新情報</h1>
       </div>
     </section>
+    <section class="section has-background-light">
+      <div class="container">
+        <ul class="content has-text-left" style="list-style: inside;">
+          <li>2020/11/20 勝利数を表示するよう変更</li>
+        </ul>
+      </div>
+    </section>
     <section class="section has-background">
       <div class="container">
         <ul class="content has-text-left" style="list-style: inside;">
