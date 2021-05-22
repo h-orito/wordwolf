@@ -3,6 +3,28 @@
     <section class="section">
       <div class="container">
         <h1 class="title is-5">ログイン</h1>
+        <h2 class="title is-6">匿名ログイン</h2>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <div class="control has-text-centered">
+                <label class="checkbox">
+                  <input type="checkbox" v-model="termsandpolicy">
+                  <a href="javascript:void(0);" @click="openTermsModal">利用規約</a>
+                  および<a href="javascript:void(0);" @click="openPolicyModal">プライバシーポリシー</a>に同意します。
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control has-text-centered">
+                <button class="button is-primary" :disabled="!canAnnonymouslySubmit" @click="annonymouslySignin">匿名ログイン</button>
+              </div>
+              <p class="help is-danger">{{annonymouslyError}}</p>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <h2 class="title is-6">メールアドレスでログイン（メール認証で登録した方向け）</h2>
         <div class="columns">
           <div class="column">
             <div class="field">
@@ -18,7 +40,7 @@
                   <i v-if="!hasEmailError" class="fas fa-check"></i>
                 </span>
               </div>
-              <p class="help is-danger">{{this.emailError}}</p>
+              <p class="help is-danger">{{emailError}}</p>
             </div>
             <div class="field">
               <label class="label">パスワード</label>
@@ -47,11 +69,36 @@
         </div>
       </div>
     </section>
+        <div class="modal" id="terms-modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <h4 class="is-size-5">利用規約</h4>
+          <div class="content">
+            <Terms />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="policy-modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <h4 class="is-size-5">プライバシーポリシー</h4>
+          <div class="content">
+            <Policy />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import firebase from '~/plugins/firebase'
+import Terms from '~/components/Terms.vue'
+import Policy from '~/components/Policy.vue'
+
 const auth = firebase.auth()
 export default {
   head() {
@@ -62,8 +109,14 @@ export default {
       email: null,
       emailError: null,
       password: null,
-      passwordError: null
+      passwordError: null,
+      termsandpolicy: false,
+      annonymouslyError: null
     }
+  },
+  components: {
+    Terms,
+    Policy
   },
   computed: {
     hasEmailInput() {
@@ -85,6 +138,9 @@ export default {
         !this.hasEmailError &&
         !this.hasPasswordError
       )
+    },
+    canAnnonymouslySubmit() {
+      return !!this.termsandpolicy
     }
   },
   methods: {
@@ -141,6 +197,45 @@ export default {
           } else if (errorCode != null && errorCode !== '') {
             self.emailError = 'エラーが発生しました。'
           }
+        })
+    },
+    annonymouslySignin() {
+      const self = this
+      auth
+        .signInAnonymously()
+        .then(function() {
+          self.$router.replace({ path: '/' })
+        })
+        .catch(function() {
+          self.annonymouslyError = 'エラーが発生しました。'
+        })
+    },
+    openTermsModal() {
+      var modal = document.querySelector('#terms-modal')
+      var html = document.querySelector('html')
+      modal.classList.add('is-active')
+      html.classList.add('is-clipped')
+
+      modal
+        .querySelector('.modal-background')
+        .addEventListener('click', function(e) {
+          e.preventDefault()
+          modal.classList.remove('is-active')
+          html.classList.remove('is-clipped')
+        })
+    },
+    openPolicyModal() {
+      var modal = document.querySelector('#policy-modal')
+      var html = document.querySelector('html')
+      modal.classList.add('is-active')
+      html.classList.add('is-clipped')
+
+      modal
+        .querySelector('.modal-background')
+        .addEventListener('click', function(e) {
+          e.preventDefault()
+          modal.classList.remove('is-active')
+          html.classList.remove('is-clipped')
         })
     }
   }

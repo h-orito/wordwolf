@@ -60,6 +60,9 @@
         </div>
       </div>
     </div>
+    <div class="panel-block" v-if="!canJoin && !isLogin">
+      <p class="has-text-left is-size-7">参加するにはログインが必要です。トップページよりログインしてください。</p>
+    </div>
     <div class="panel-block" v-if="!canJoin && notVerified">
       <p class="has-text-left is-size-7">参加するにはメール認証が必要です。メールをご確認ください。
         <br>送信されていない場合は「ユーザ情報編集」から再送してください。
@@ -143,6 +146,7 @@ export default {
       return (
         this.isLogin &&
         !this.isMember &&
+        this.user.email &&
         !this.user.emailVerified &&
         this.isNotProgress &&
         this.room != null &&
@@ -154,7 +158,7 @@ export default {
       return (
         this.isLogin &&
         !this.isMember &&
-        this.user.emailVerified &&
+        (!this.user.email || this.user.emailVerified) &&
         this.isNotProgress &&
         this.room != null &&
         (this.room.ban == null ||

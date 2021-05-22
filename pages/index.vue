@@ -15,15 +15,14 @@
       <div class="container">
         <div v-if="!isLogin">
           <h1 class="title is-5">はじめる</h1>
-          <nuxt-link class="button is-primary" :to="{ path: 'signup' }">新規登録</nuxt-link>
           <nuxt-link class="button is-primary" :to="{ path: 'signin' }">ログイン</nuxt-link> 
         </div>
         <div v-if="isLogin">
           <h1 class="title is-5">ようこそ</h1>
-          <p class="content">{{ user.email }} さん</p>
-          <nuxt-link class="button is-primary" :to="{ path: 'user' }">ユーザ情報編集</nuxt-link>
+          <p v-if="user.email" class="content">{{ user.email }} さん</p>
+          <nuxt-link v-if="user.email" class="button is-primary" :to="{ path: 'user' }">ユーザ情報編集</nuxt-link>
           <button class="button" @click="logout">ログアウト</button>
-          <div v-if="isLogin && !user.emailVerified" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
+          <div v-if="isLogin && user.email && !user.emailVerified" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
             部屋の作成やゲームへの参加にはメール認証が必要です。メールをご確認ください。送信されていない場合は「ユーザ情報編集」から再送してください。<br>
           </div>
         </div>
@@ -81,7 +80,7 @@
         <div class="columns">
           <div class="column">
             <ul class="content has-text-left is-size-7" style="list-style: inside;">
-              <li>2020/11/20 勝利数を表示するよう変更</li>
+              <li>2021/05/22 匿名ログインできるように変更</li>
             </ul>
             <nuxt-link class="button is-primary" :to="{ path: 'release-note' }">過去の更新情報を見る</nuxt-link>
           </div>
