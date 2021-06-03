@@ -19,6 +19,7 @@
       <div class="container">
         <div v-if="!isLogin">
           <h1 class="title is-5">はじめる</h1>
+          <p class="content">参加/部屋の作成にはログインが必要です。</p>
           <nuxt-link class="button is-primary" :to="{ path: 'signin' }"
             >ログイン</nuxt-link
           >

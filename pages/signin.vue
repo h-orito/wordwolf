@@ -4,72 +4,109 @@
       <div class="container">
         <h1 class="title is-5">ログイン</h1>
         <h2 class="title is-6">匿名ログイン</h2>
-        <div class="columns">
-          <div class="column">
-            <div class="field">
-              <div class="control has-text-centered">
-                <label class="checkbox">
-                  <input type="checkbox" v-model="termsandpolicy">
-                  <a href="javascript:void(0);" @click="openTermsModal">利用規約</a>
-                  および<a href="javascript:void(0);" @click="openPolicyModal">プライバシーポリシー</a>に同意します。
-                </label>
-              </div>
-            </div>
-            <div class="field">
-              <div class="control has-text-centered">
-                <button class="button is-primary" :disabled="!canAnnonymouslySubmit" @click="annonymouslySignin">匿名ログイン</button>
-              </div>
-              <p class="help is-danger">{{annonymouslyError}}</p>
-            </div>
+        <p class="content is-size-7">
+          2021/5よりメール登録は不要となり、「匿名ログイン」すれば参加や部屋の作成が行えるようになりました。
+        </p>
+        <div class="field">
+          <div class="control has-text-centered">
+            <label class="checkbox">
+              <input type="checkbox" v-model="termsandpolicy" />
+              <a href="javascript:void(0);" @click="openTermsModal">利用規約</a>
+              および<a href="javascript:void(0);" @click="openPolicyModal"
+                >プライバシーポリシー</a
+              >に同意します。
+            </label>
           </div>
         </div>
+        <div class="field">
+          <div class="control has-text-centered">
+            <button
+              class="button is-primary"
+              :disabled="!canAnnonymouslySubmit"
+              @click="annonymouslySignin"
+            >
+              匿名ログイン
+            </button>
+          </div>
+          <p class="help is-danger">{{ annonymouslyError }}</p>
+        </div>
         <hr />
-        <h2 class="title is-6">メールアドレスでログイン（メール認証で登録した方向け）</h2>
-        <div class="columns">
-          <div class="column">
-            <div class="field">
-              <label class="label">メールアドレス</label>
-              <div class="control has-icons-left has-icons-right">
-                <input class="input" :class="!hasEmailInput ? '' : hasEmailError ? 'is-danger': 'is-success'"
-                  type="email" placeholder="Email" v-model="email" @keyup="validateEmail">
-                <span class="icon is-small is-left">
-                  <i class="fas fa-envelope"></i>
-                </span>
-                <span v-if="hasEmailInput" class="icon is-small is-right">
-                  <i v-if="hasEmailError" class="fas fa-exclamation-triangle"></i>
-                  <i v-if="!hasEmailError" class="fas fa-check"></i>
-                </span>
-              </div>
-              <p class="help is-danger">{{emailError}}</p>
-            </div>
-            <div class="field">
-              <label class="label">パスワード</label>
-              <div class="control has-icons-left has-icons-right">
-                <input class="input" :class="!hasPasswordInput ? '' : hasPasswordError ? 'is-danger': 'is-success'"
-                  type="password" placeholder="Password" v-model="password" @keyup="validatePassword">
-                <span class="icon is-small is-left">
-                  <i class="fas fa-key"></i>
-                </span>
-                <span v-if="hasPasswordInput" class="icon is-small is-right">
-                  <i v-if="hasPasswordError" class="fas fa-exclamation-triangle"></i>
-                  <i v-if="!hasPasswordError" class="fas fa-check"></i>
-                </span>
-              </div>
-              <p class="help is-danger">{{this.passwordError}}</p>
-            </div>
-            <div class="field">
-              <div class="control has-text-centered">
-                <button class="button is-primary" :disabled="!canSubmit" @click="signin">ログイン</button>
-              </div>
-              <div class="control has-text-centered" style="margin-top: 15px;">
-                <nuxt-link :to="{ path: 'remind' }">パスワードを忘れた</nuxt-link>
-              </div>
-            </div>
+        <h2 class="title is-6">
+          メールアドレスでログイン（メール認証で登録した方向け）
+        </h2>
+        <p class="content is-size-7">
+          過去にメール登録した方は以下よりログインすることもできます。
+        </p>
+        <div class="field">
+          <label class="label">メールアドレス</label>
+          <div class="control has-icons-left has-icons-right">
+            <input
+              class="input"
+              :class="
+                !hasEmailInput ? '' : hasEmailError ? 'is-danger' : 'is-success'
+              "
+              type="email"
+              placeholder="Email"
+              v-model="email"
+              @keyup="validateEmail"
+            />
+            <span class="icon is-small is-left">
+              <i class="fas fa-envelope"></i>
+            </span>
+            <span v-if="hasEmailInput" class="icon is-small is-right">
+              <i v-if="hasEmailError" class="fas fa-exclamation-triangle"></i>
+              <i v-if="!hasEmailError" class="fas fa-check"></i>
+            </span>
+          </div>
+          <p class="help is-danger">{{ emailError }}</p>
+        </div>
+        <div class="field">
+          <label class="label">パスワード</label>
+          <div class="control has-icons-left has-icons-right">
+            <input
+              class="input"
+              :class="
+                !hasPasswordInput
+                  ? ''
+                  : hasPasswordError
+                  ? 'is-danger'
+                  : 'is-success'
+              "
+              type="password"
+              placeholder="Password"
+              v-model="password"
+              @keyup="validatePassword"
+            />
+            <span class="icon is-small is-left">
+              <i class="fas fa-key"></i>
+            </span>
+            <span v-if="hasPasswordInput" class="icon is-small is-right">
+              <i
+                v-if="hasPasswordError"
+                class="fas fa-exclamation-triangle"
+              ></i>
+              <i v-if="!hasPasswordError" class="fas fa-check"></i>
+            </span>
+          </div>
+          <p class="help is-danger">{{ this.passwordError }}</p>
+        </div>
+        <div class="field">
+          <div class="control has-text-centered">
+            <button
+              class="button is-primary"
+              :disabled="!canSubmit"
+              @click="signin"
+            >
+              ログイン
+            </button>
+          </div>
+          <div class="control has-text-centered" style="margin-top: 15px;">
+            <nuxt-link :to="{ path: 'remind' }">パスワードを忘れた</nuxt-link>
           </div>
         </div>
       </div>
     </section>
-        <div class="modal" id="terms-modal">
+    <div class="modal" id="terms-modal">
       <div class="modal-background"></div>
       <div class="modal-content">
         <div class="box">
@@ -242,5 +279,4 @@ export default {
 }
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>
