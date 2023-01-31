@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="section">
     <div class="container">
-      <h1 class="title is-5">終了した部屋一覧</h1>
+      <h1 class="title is-5">最近終了した部屋</h1>
       <p class="content" v-if="rooms.length == 0">現在部屋がありません。</p><br>
       <table v-if="rooms.length > 0" class="table is-striped is-fullwidth is-size-7">
         <thead>
@@ -23,7 +23,7 @@
           </tr>
         </tbody>
       </table>
-      <button v-if="!isDispAllRoom" class="button is-primary" @click="fetchAllRoom">全ての部屋を表示する</button>
+      <!-- <button v-if="!isDispAllRoom" class="button is-primary" @click="fetchAllRoom">全ての部屋を表示する</button> -->
     </div>
   </section>
 </template>
@@ -48,10 +48,11 @@ export default {
     return await store.dispatch(INIT_OLD_ROOMS)
   },
   methods: {
-    fetchAllRoom() {
-      this.$store.dispatch(INIT_ALL_OLD_ROOMS)
-      this.isDispAllRoom = true
-    }
+    // 大量の読み込みが発生するため一旦封印
+    // fetchAllRoom() {
+    //   this.$store.dispatch(INIT_ALL_OLD_ROOMS)
+    //   this.isDispAllRoom = true
+    // }
   }
 }
 </script>
