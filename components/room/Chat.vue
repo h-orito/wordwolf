@@ -114,6 +114,8 @@ export default {
       } else if (this.message === this.beforeMessage) {
         this.errorMessage = '同じ言葉を連投しないでください'
         this.banCount += 3
+      } else {
+        this.banCount -= 1
       }
       if (this.banCount >= 10) {
         const member = this.members.find(mem => mem.key === this.user.uid)
