@@ -116,6 +116,9 @@ export default {
         this.banCount += 3
       } else {
         this.banCount -= 1
+        if (this.banCount < 0) {
+          this.banCount = 0
+        }
       }
       if (this.banCount >= 10) {
         const member = this.members.find(mem => mem.key === this.user.uid)
