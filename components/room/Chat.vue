@@ -1,8 +1,8 @@
 <template>
   <div class="panel" id="room-chat">
-    <p
-      class="is-size-7 has-text-left panel-heading"
-    >{{ this.room != null && this.room.isComplete ? 'ログ' : 'チャット'}}</p>
+    <p class="is-size-7 has-text-left panel-heading">
+      {{ this.room != null && this.room.isComplete ? 'ログ' : 'チャット' }}
+    </p>
     <div v-if="this.room != null && !this.room.isComplete" class="panel-block">
       <div class="control has-icons-right" style="margin-bottom: 5px;">
         <input
@@ -12,10 +12,15 @@
           class="input is-small"
           @keyup.enter="say"
           @keypress.enter="setCanMessageSubmit()"
-        >
+        />
         <span class="icon is-small is-right">
           <i class="fas fa-comment"></i>
         </span>
+      </div>
+      <div v-if="errorMessage">
+        <p class="has-text-left error-message is-size-7">
+          {{ errorMessage }}
+        </p>
       </div>
     </div>
     <div
@@ -23,11 +28,12 @@
       :class="this.room != null && this.room.isComplete ? 'chatlog' : ''"
     >
       <div v-for="mes in messages" :key="mes.key" class="chatcontent">
-        <span
-          class="is-size-7 has-text-left chatmessage"
-          :class="mes.color"
-        >{{ createDispMessage(mes) }}</span>
-        <span class="is-size-7" :class="mes.color">{{ messageDatetime(mes) }}</span>
+        <span class="is-size-7 has-text-left chatmessage" :class="mes.color">{{
+          createDispMessage(mes)
+        }}</span>
+        <span class="is-size-7" :class="mes.color">{{
+          messageDatetime(mes)
+        }}</span>
       </div>
     </div>
   </div>
@@ -39,6 +45,9 @@ export default {
   data: function() {
     return {
       message: '',
+      errorMessage: '',
+      banCount: 0,
+      beforeMessage: '',
       canMessageSubmit: false
     }
   },
@@ -85,7 +94,12 @@ export default {
       return makeDatetimeStr(mes.createdAt)
     },
     say() {
+      this.errorMessage = ''
       if (this.message.trim() === '') {
+        return
+      }
+      if (this.message.indexOf('http') != -1) {
+        this.errorMessage = '禁止文字列が含まれています'
         return
       }
       if (!this.canMessageSubmit) {
@@ -95,6 +109,20 @@ export default {
       if (!this.canChat) {
         return
       }
+      if (this.message.length >= 200) {
+        this.banCount += 4
+      } else if (this.message === this.beforeMessage) {
+        this.errorMessage = '同じ言葉を連投しないでください'
+        this.banCount += 3
+      }
+      if (this.banCount >= 10) {
+        const member = this.members.find(mem => mem.key === this.user.uid)
+        this.$emit('kick', {
+          memberKey: member.key,
+          memberName: member.name
+        })
+        return
+      }
 
       this.$emit('say', {
         message:
@@ -102,6 +130,7 @@ export default {
             ? this.message.substring(0, 200)
             : this.message
       })
+      this.beforeMessage = this.message
       this.message = ''
       this.canMessageSubmit = false
     }
@@ -122,6 +151,10 @@ const rightZeroPad = function(str) {
 </script>
 
 <style>
+#room-chat .error-message {
+  color: #ff0000;
+}
+
 #room-chat .chatmessage {
   flex: 1;
   white-space: pre-wrap;

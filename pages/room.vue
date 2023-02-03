@@ -1,44 +1,102 @@
 <template lang="html">
-  <section
-    class="section" style="padding: 1rem 1rem;">
+  <section class="section" style="padding: 1rem 1rem;">
     <div class="container">
       <span v-if="requiredPassword" class="fas fa-key"></span>
-      <span v-if="isRatingRoom" class="has-text-danger">{{ room.roomRating }}</span>
+      <span v-if="isRatingRoom" class="has-text-danger">{{
+        room.roomRating
+      }}</span>
       <h1 class="title is-6">{{ !!room ? room.name : '' }}</h1>
       <div class="columns is-tablet" v-if="isPasswordCollect">
         <!-- left tab -->
-        <div class="column is-one-thirds-tablet" v-if="!!room && !room.isComplete">
-          <Members :room="room" :members="members" :voteKeys="votes" :user="user" @kick="kick"></Members>
-          <Proepi :room="room" :members="members" :user="user" :isLogin="isLogin" :master="master"
-            @joinRoom="joinRoom" @leaveRoom="leaveRoom" @ready="ready" @cancelReady="cancelReady" @gameStart="gameStart"></Proepi>
-          <Prepare :room="room" :members="members" :user="user" @setWord="setWord"></Prepare>
-          <Progress :room="room" :members="members" :voteKeys="votes" :user="user" :leftTime="leftTime" @vote="vote" @end-vote="endVote"></Progress>
-          <Counter :room="room" :members="members" :user="user" @submitCounterWord="submitCounterWord"></Counter>
-          <Reset :room="room" :user="user" @submitRoomReset="submitRoomReset"></Reset>
+        <div
+          class="column is-one-thirds-tablet"
+          v-if="!!room && !room.isComplete"
+        >
+          <Members
+            :room="room"
+            :members="members"
+            :voteKeys="votes"
+            :user="user"
+            @kick="confirmToKick"
+          ></Members>
+          <Proepi
+            :room="room"
+            :members="members"
+            :user="user"
+            :isLogin="isLogin"
+            :master="master"
+            @joinRoom="joinRoom"
+            @leaveRoom="leaveRoom"
+            @ready="ready"
+            @cancelReady="cancelReady"
+            @gameStart="gameStart"
+          ></Proepi>
+          <Prepare
+            :room="room"
+            :members="members"
+            :user="user"
+            @setWord="setWord"
+          ></Prepare>
+          <Progress
+            :room="room"
+            :members="members"
+            :voteKeys="votes"
+            :user="user"
+            :leftTime="leftTime"
+            @vote="vote"
+            @end-vote="endVote"
+          ></Progress>
+          <Counter
+            :room="room"
+            :members="members"
+            :user="user"
+            @submitCounterWord="submitCounterWord"
+          ></Counter>
+          <Reset
+            :room="room"
+            :user="user"
+            @submitRoomReset="submitRoomReset"
+          ></Reset>
         </div>
         <!-- end left tab -->
         <!-- right tab -->
-        <div class="column" :class="!room || !room.isComplete ? 'is-two-thirds-tablet' : ''">
-          <Chat :room="room" :members="members" :user="user" :messages="messages" :leftTime="leftTime" @say="say"></Chat>
+        <div
+          class="column"
+          :class="!room || !room.isComplete ? 'is-two-thirds-tablet' : ''"
+        >
+          <Chat
+            :room="room"
+            :members="members"
+            :user="user"
+            :messages="messages"
+            :leftTime="leftTime"
+            @say="say"
+            @kick="kick"
+          ></Chat>
         </div>
         <!-- end right tab -->
       </div>
       <div v-if="!!room && room.isComplete">
-        <nuxt-link
-          class="button is-primary is-small"
-          to="/room-list">終了した部屋一覧に戻る</nuxt-link>
+        <nuxt-link class="button is-primary is-small" to="/room-list"
+          >終了した部屋一覧に戻る</nuxt-link
+        >
       </div>
       <!-- <Footer/> -->
-      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <script
+        async
+        src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+      ></script>
       <!-- wordwolf-footer -->
-      <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-0917187897820609"
-          data-ad-slot="1231685842"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-0917187897820609"
+        data-ad-slot="1231685842"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
       <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
+        ;(adsbygoogle = window.adsbygoogle || []).push({})
       </script>
     </div>
     <div class="modal" id="password-modal">
@@ -48,30 +106,55 @@
           <p class="modal-card-title is-size-5">パスワード入力</p>
         </header>
         <section class="modal-card-body is-size-7">
-          <div v-if="requiredPassword && isRatingRoom" class="notification is-warning is-size-7" style="margin-top: 1.5rem;">
-            {{ 'この部屋は暴力表現' + (room.roomRating == 'R18' ? '、性的表現': '') + 'が投稿される可能性があります。'}}<br>
+          <div
+            v-if="requiredPassword && isRatingRoom"
+            class="notification is-warning is-size-7"
+            style="margin-top: 1.5rem;"
+          >
+            {{
+              'この部屋は暴力表現' +
+                (room.roomRating == 'R18' ? '、性的表現' : '') +
+                'が投稿される可能性があります。'
+            }}<br />
           </div>
-          <p class="has-text-left">この部屋に入室するにはパスワードが必要です。</p>
+          <p class="has-text-left">
+            この部屋に入室するにはパスワードが必要です。
+          </p>
           <div class="field" v-if="requiredPassword">
             <div class="control">
               <input
                 class="input is-small"
-                :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
+                :class="
+                  !hasRoomPassword
+                    ? ''
+                    : hasRoomPasswordError
+                    ? 'is-danger'
+                    : 'is-success'
+                "
                 type="text"
                 v-model="roomPassword"
                 placeholder="パスワード"
                 @keyup="validateRoomPassword"
-              >
+              />
             </div>
             <p
               class="help is-danger has-text-left is-size-7"
               v-if="hasRoomPassword"
-            >{{this.roomPasswordError}}</p>
+            >
+              {{ this.roomPasswordError }}
+            </p>
           </div>
         </section>
         <footer class="modal-card-foot">
           <button class="button is-small" @click="backToTop">キャンセル</button>
-          <button class="button is-success is-small" style="right: 0;" :disabled="!canView" @click="submitPassword">送信</button>
+          <button
+            class="button is-success is-small"
+            style="right: 0;"
+            :disabled="!canView"
+            @click="submitPassword"
+          >
+            送信
+          </button>
         </footer>
       </div>
     </div>
@@ -245,7 +328,7 @@ export default {
         this.room.creatorRef
       )
     },
-    kick: function({ memberKey, memberName }) {
+    confirmToKick({ memberKey, memberName }) {
       if (
         !window.confirm(
           '本当に強制退出させますか？退出させた人はこの部屋に参加できなくなります。'
@@ -256,6 +339,12 @@ export default {
       if (!this.isOwner) {
         return // 何もしない
       }
+      this.kick({
+        memberKey,
+        memberName
+      })
+    },
+    kick: function({ memberKey, memberName }) {
       this.$store.dispatch(BAN_ROOM_MEMBER, {
         roomKey: this.room.key,
         target: memberKey
