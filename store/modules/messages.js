@@ -56,6 +56,7 @@ const actions = {
     if (messagesRef == null) {
       messagesRef = dbMessagesRef(database, roomKey)
     }
+    const clientToken = this.$cookies.get('client-token')
     messagesRef
       .push({
         name: name,
@@ -63,7 +64,8 @@ const actions = {
         key: key,
         message: message,
         memberKey: memberKey,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        clientToken: clientToken
       })
       .then(function() {
         if (callback != null) {

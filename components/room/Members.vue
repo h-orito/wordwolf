@@ -4,7 +4,9 @@
     <div
       class="panel-block is-size-7 has-text-left"
       v-if="members == null || members.length === 0"
-    >参加者がいません</div>
+    >
+      参加者がいません
+    </div>
     <div
       class="panel-block is-size-7 has-text-left"
       v-for="member in members"
@@ -13,25 +15,55 @@
     >
       <span
         class="membername"
-        :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
-      >{{ member.name }}</span><span v-if="member.winNum != null" :class="member.color">{{ `（${member.winNum}勝）`}}</span>
+        :class="
+          (isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color
+        "
+        >{{ member.name }}</span
+      ><span v-if="member.winNum != null" :class="member.color">{{
+        `（${member.winNum}勝）`
+      }}</span>
       <button
         v-if="canKick"
         class="tag is-small is-pulled-right"
         :class="isCreator(member) ? 'is-default' : 'is-danger'"
         style="cursor: pointer;"
         :disabled="isCreator(member)"
-        @click="$emit('kick', { memberKey: member.key, memberName: member.name })"
-      >×</button>
-      <span v-if="isGameMaster(member)" class="tag reverse-success is-pulled-right">GM</span>
-      <span v-if="allowOpenSkill && isVillagers(member)" class="tag reverse-info is-pulled-right">村人</span>
-      <span v-if="allowOpenSkill && isWolfs(member)" class="tag reverse-danger is-pulled-right">人狼</span>
-      <span v-if="displayDoneVote(member)" class="tag reverse-info is-pulled-right">投票済</span>
-      <span v-if="displayDoneReady(member)" class="tag reverse-info is-pulled-right">準備完了</span>
+        @click="
+          $emit('kick', { memberKey: member.key, memberName: member.name })
+        "
+      >
+        ×
+      </button>
+      <span
+        v-if="isGameMaster(member)"
+        class="tag reverse-success is-pulled-right"
+        >GM</span
+      >
+      <span
+        v-if="allowOpenSkill && isVillagers(member)"
+        class="tag reverse-info is-pulled-right"
+        >村人</span
+      >
+      <span
+        v-if="allowOpenSkill && isWolfs(member)"
+        class="tag reverse-danger is-pulled-right"
+        >人狼</span
+      >
+      <span
+        v-if="displayDoneVote(member)"
+        class="tag reverse-info is-pulled-right"
+        >投票済</span
+      >
+      <span
+        v-if="displayDoneReady(member)"
+        class="tag reverse-info is-pulled-right"
+        >準備完了</span
+      >
       <span
         v-if="isNotProgress && isCreator(member)"
         class="tag reverse-success is-pulled-right"
-      >部屋主</span>
+        >部屋主</span
+      >
     </div>
   </div>
 </template>

@@ -1,59 +1,114 @@
 <template lang="html">
-    <section class="section">
+  <section class="section">
     <div class="container">
       <h1 class="title is-5">部屋を作成</h1>
       <div class="columns">
         <div class="column">
           <div class="notification is-size-7">
             <ul class="has-text-left" style="list-style: inside;">
-              <li>R15、R18の話題を取り扱う場合は必ず部屋パスワードとレーティングを設定してください。</li>
-              <li>管理人はパスワードを設定しているものも含め全ての部屋を閲覧できます。</li>
+              <li>
+                R15、R18の話題を取り扱う場合は必ず部屋パスワードとレーティングを設定してください。
+              </li>
+              <li>
+                管理人はパスワードを設定しているものも含め全ての部屋を閲覧できます。
+              </li>
             </ul>
           </div>
           <div class="field">
             <label class="label">部屋名</label>
             <div class="control has-icons-left has-icons-right">
-              <input class="input" :class="!hasRoomName ? '' : hasRoomNameError ? 'is-danger': 'is-success'"
-                type="text" placeholder="部屋名" v-model="roomName" @keyup="validateRoomName">
+              <input
+                class="input"
+                :class="
+                  !hasRoomName
+                    ? ''
+                    : hasRoomNameError
+                    ? 'is-danger'
+                    : 'is-success'
+                "
+                type="text"
+                placeholder="部屋名"
+                v-model="roomName"
+                @keyup="validateRoomName"
+              />
               <span class="icon is-small is-left">
-                  <i class="fas fa-comments"></i>
+                <i class="fas fa-comments"></i>
               </span>
               <span v-if="hasRoomName" class="icon is-small is-right">
-                <i v-if="hasRoomNameError" class="fas fa-exclamation-triangle"></i>
+                <i
+                  v-if="hasRoomNameError"
+                  class="fas fa-exclamation-triangle"
+                ></i>
                 <i v-if="!hasRoomNameError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasRoomName">{{this.roomNameError}}</p>
+            <p class="help is-danger" v-if="hasRoomName">
+              {{ this.roomNameError }}
+            </p>
           </div>
           <div class="field">
             <label class="label">自分のニックネーム</label>
             <div class="control has-icons-left has-icons-right">
-              <input class="input" :class="!hasPlayerName ? '' : hasPlayerNameError ? 'is-danger': 'is-success'"
-                type="text" placeholder="ニックネーム" v-model="playerName" @keyup="validatePlayerName">
+              <input
+                class="input"
+                :class="
+                  !hasPlayerName
+                    ? ''
+                    : hasPlayerNameError
+                    ? 'is-danger'
+                    : 'is-success'
+                "
+                type="text"
+                placeholder="ニックネーム"
+                v-model="playerName"
+                @keyup="validatePlayerName"
+              />
               <span class="icon is-small is-left">
-                  <i class="fas fa-user-circle"></i>
+                <i class="fas fa-user-circle"></i>
               </span>
               <span v-if="hasPlayerName" class="icon is-small is-right">
-                <i v-if="hasPlayerNameError" class="fas fa-exclamation-triangle"></i>
+                <i
+                  v-if="hasPlayerNameError"
+                  class="fas fa-exclamation-triangle"
+                ></i>
                 <i v-if="!hasPlayerNameError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasPlayerName">{{this.playerNameError}}</p>
+            <p class="help is-danger" v-if="hasPlayerName">
+              {{ this.playerNameError }}
+            </p>
           </div>
           <div class="field">
             <label class="label">部屋パスワード（任意）</label>
             <div class="control has-icons-left has-icons-right">
-              <input class="input" :class="!hasRoomPassword ? '' : hasRoomPasswordError ? 'is-danger': 'is-success'"
-                type="text" placeholder="パスワード" v-model="roomPassword" @keyup="validateRoomPassword">
+              <input
+                class="input"
+                :class="
+                  !hasRoomPassword
+                    ? ''
+                    : hasRoomPasswordError
+                    ? 'is-danger'
+                    : 'is-success'
+                "
+                type="text"
+                placeholder="パスワード"
+                v-model="roomPassword"
+                @keyup="validateRoomPassword"
+              />
               <span class="icon is-small is-left">
                 <i class="fas fa-key"></i>
               </span>
               <span v-if="hasRoomPassword" class="icon is-small is-right">
-                <i v-if="hasRoomPasswordError" class="fas fa-exclamation-triangle"></i>
+                <i
+                  v-if="hasRoomPasswordError"
+                  class="fas fa-exclamation-triangle"
+                ></i>
                 <i v-if="!hasRoomPasswordError" class="fas fa-check"></i>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
+            <p class="help is-danger" v-if="hasRoomPassword">
+              {{ this.roomPasswordError }}
+            </p>
           </div>
           <div class="field">
             <label class="label">レーティング</label>
@@ -66,11 +121,19 @@
                 </select>
               </div>
             </div>
-            <p class="help is-danger" v-if="hasRoomPassword">{{this.roomPasswordError}}</p>
+            <p class="help is-danger" v-if="hasRoomPassword">
+              {{ this.roomPasswordError }}
+            </p>
           </div>
           <div class="field" style="margin-top: 40px;">
             <div class="control has-text-centered">
-              <button class="button is-primary" :disabled="!canSubmit || submitting" @click="createRoom">部屋を作成</button>
+              <button
+                class="button is-primary"
+                :disabled="!canSubmit || submitting"
+                @click="createRoom"
+              >
+                部屋を作成
+              </button>
             </div>
           </div>
         </div>
@@ -130,6 +193,11 @@ export default {
     isLogin() {
       return this.$store.getters.isLogin
     },
+    isGlobalBaned() {
+      const bans = this.$store.getters.getBans
+      const clientToken = this.$cookies.get('client-token')
+      return bans.some(b => b === clientToken)
+    },
     canSubmit() {
       return (
         this.hasRoomName &&
@@ -138,7 +206,8 @@ export default {
         !this.hasPasswordError &&
         !this.hasPlayerNameError &&
         this.validRoomRating &&
-        this.isLogin
+        this.isLogin &&
+        !this.isGlobalBaned
       )
     }
   },
@@ -272,5 +341,4 @@ export default {
 }
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>

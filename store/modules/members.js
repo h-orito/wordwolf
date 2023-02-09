@@ -67,6 +67,8 @@ const actions = {
       leftColor.length > 0
         ? leftColor[0]
         : COLORS[Math.floor(Math.random() * COLORS.length)]
+
+    const clientToken = getClientToken(this)
     membersRef
       .doc(userId)
       .set({
@@ -76,7 +78,8 @@ const actions = {
         createdAt: new Date(),
         color: color,
         ready: false,
-        winNum: 0
+        winNum: 0,
+        clientToken: clientToken
       })
       .then(function() {
         callback(state.members)
@@ -120,6 +123,24 @@ const actions = {
 
 const getters = {
   getMembers: state => state.members
+}
+
+function generateKey() {
+  return Math.random()
+    .toString(36)
+    .slice(-8)
+}
+
+function getClientToken(app) {
+  const token = app.$cookies.get('client-token')
+  if (token) return token
+
+  const newToken = generateKey()
+  app.$cookies.set('client-token', newToken, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30
+  })
+  return newToken
 }
 
 export default {

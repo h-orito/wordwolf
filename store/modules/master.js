@@ -5,12 +5,16 @@ const firestore = firebase.firestore()
 const masterRef = firestore.collection('users')
 
 const state = {
-  master: ''
+  master: '',
+  bans: []
 }
 
 const mutations = {
   initMaster(state, master) {
     state.master = master
+  },
+  initBans(state, bans) {
+    state.bans = bans
   }
 }
 
@@ -22,13 +26,15 @@ const actions = {
       .then(snapshot => {
         snapshot.forEach(function(doc) {
           commit('initMaster', doc.data().master)
+          commit('initBans', doc.data().globalBans)
         })
       })
   }
 }
 
 const getters = {
-  getMaster: state => state.master
+  getMaster: state => state.master,
+  getBans: state => state.bans
 }
 
 export default {

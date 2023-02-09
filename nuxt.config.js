@@ -11,8 +11,8 @@ module.exports = {
   devtool: 'source-map',
 
   /*
-  ** Headers of the page
-  */
+   ** Headers of the page
+   */
   head: {
     titleTemplate: 'ワードウルフオンライン | %s',
     meta: [
@@ -27,8 +27,8 @@ module.exports = {
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   /*
-  ** Customize the progress bar color
-  */
+   ** Customize the progress bar color
+   */
   loading: { color: '#3B8070' },
 
   modules: [
@@ -40,7 +40,8 @@ module.exports = {
       {
         id: 'UA-131610270-1'
       }
-    ]
+    ],
+    'cookie-universal-nuxt'
   ],
   css: [
     { src: 'bulma/bulma.sass', lang: 'sass' },
@@ -51,12 +52,12 @@ module.exports = {
   ],
 
   /*
-  ** Build configuration
-  */
+   ** Build configuration
+   */
   build: {
     /*
-    ** Run ESLint on save
-    */
+     ** Run ESLint on save
+     */
     extend(config) {
       if (process.server && process.browser) {
         config.module.rules.push({
