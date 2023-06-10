@@ -70,7 +70,9 @@ export default {
       return true
     }
   },
-  created: function() {},
+  created: function() {
+    this.banCount = localStorage.banCount ? parseInt(localStorage.banCount) : 0
+  },
   methods: {
     setCanMessageSubmit() {
       // 日本語確定でもkeyup.enterが発火するので、keypressしたら立てておく
@@ -114,12 +116,15 @@ export default {
       } else if (this.message === this.beforeMessage) {
         this.errorMessage = '同じ言葉を連投しないでください'
         this.banCount += 3
+      } else if (this.message.length <= 4) {
+        this.banCount += 1
       } else {
         this.banCount -= 1
         if (this.banCount < 0) {
           this.banCount = 0
         }
       }
+      localStorage.banCount = this.banCount
       if (this.banCount >= 10) {
         const member = this.members.find(mem => mem.key === this.user.uid)
         this.$emit('kick', {

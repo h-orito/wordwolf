@@ -129,15 +129,19 @@
             :disabled="!canJoinSubmit"
             @click="joinRoom"
           >
-            参加する
+            参加する{{ waitCount > 0 ? `（残${waitCount}秒）` : '' }}
           </button>
         </div>
       </div>
     </div>
     <div class="panel-block" v-if="canLeave">
       <div class="has-text-left">
-        <button class="button is-danger is-small" @click="leaveRoom">
-          退出する
+        <button
+          class="button is-danger is-small"
+          @click="leaveRoom"
+          :disabled="waitCount > 0"
+        >
+          退出する{{ waitCount > 0 ? `（残${waitCount}秒）` : '' }}
         </button>
       </div>
     </div>
@@ -153,7 +157,9 @@ export default {
       playerName: '',
       playerNameError: null,
       talkMinutes: 3,
-      wolfNum: 1
+      wolfNum: 1,
+      waitCount: 30,
+      timer: null
     }
   },
   computed: {
@@ -222,7 +228,12 @@ export default {
     },
     canJoinSubmit() {
       this.validatePlayerName()
-      return this.hasPlayerName && !this.hasPlayerNameError && this.isLogin
+      return (
+        this.hasPlayerName &&
+        !this.hasPlayerNameError &&
+        this.isLogin &&
+        this.waitCount <= 0
+      )
     },
     canReady() {
       return (
@@ -247,7 +258,17 @@ export default {
       )
     }
   },
-  created: function() {},
+  created: function() {
+    this.timer = setInterval(() => {
+      if (this.room == null) {
+        return
+      }
+      this.countDown()
+    }, 1000)
+  },
+  destroyed: function() {
+    clearInterval(this.timer)
+  },
   methods: {
     validatePlayerName() {
       if (!this.validPlayerName(this.playerName)) {
@@ -273,6 +294,7 @@ export default {
         return
       }
       this.$emit('joinRoom', this.playerName.trim())
+      this.waitCount = 30
     },
     leaveRoom() {
       if (!this.canLeave) {
@@ -300,6 +322,11 @@ export default {
         talkMinutes: Math.floor(this.talkMinutes),
         wolfNum: this.wolfNum
       })
+    },
+    countDown() {
+      if (this.waitCount > 0) {
+        this.waitCount--
+      }
     }
   }
 }

@@ -1,52 +1,75 @@
 <template>
   <div class="panel" v-if="isPrepare">
     <p class="is-size-7 has-text-left panel-heading">ゲーム準備中</p>
-    <div class="panel-block is-size-7 has-text-left" v-if="!canSetWord">ゲームマスターがワードを決めています。</div>
+    <div class="panel-block is-size-7 has-text-left" v-if="!canSetWord">
+      ゲームマスターがワードを決めています。
+    </div>
     <div class="panel-block" v-if="canSetWord">
       <div class="field">
         <div class="control">
-          <p class="is-size-7">あなたはゲームマスターです。
-            <br>ワードをそれぞれ20文字以内で設定してください。
-            <br>ワードに設定できる文字はひらがなと半角数字のみです。
+          <p class="is-size-7">
+            あなたはゲームマスターです。
+            <br />ワードをそれぞれ20文字以内で設定してください。
+            <br />ワードに設定できる文字はひらがなと半角数字のみです。
           </p>
         </div>
       </div>
-      <label class="label is-size-7 has-text-left">村人（多数派）のワード</label>
+      <label class="label is-size-7 has-text-left"
+        >村人（多数派）のワード</label
+      >
       <div class="field">
         <div class="control">
           <input
             v-model="villagersWord"
             type="text"
             class="input is-small"
-            :class="villagersWord == '' ? '' : villagersWordError != null ? 'is-danger': 'is-success'"
+            :class="
+              villagersWord == ''
+                ? ''
+                : villagersWordError != null
+                ? 'is-danger'
+                : 'is-success'
+            "
             @keyup="validateWord"
             placeholder="村人（多数派）のワード"
-          >
-          <br>
+          />
+          <br />
         </div>
-        <p class="help is-danger has-text-left">{{this.villagersWordError}}</p>
+        <p class="help is-danger has-text-left">
+          {{ this.villagersWordError }}
+        </p>
       </div>
-      <label class="label is-size-7 has-text-left">人狼（少数派）のワード</label>
+      <label class="label is-size-7 has-text-left"
+        >人狼（少数派）のワード</label
+      >
       <div class="field">
         <div class="control">
           <input
             v-model="wolfWord"
             type="text"
             class="input is-small"
-            :class="wolfWord == '' ? '' : wolfWordError != null  ? 'is-danger': 'is-success'"
+            :class="
+              wolfWord == ''
+                ? ''
+                : wolfWordError != null
+                ? 'is-danger'
+                : 'is-success'
+            "
             @keyup="validateWord"
             placeholder="人狼（少数派）のワード"
-          >
-          <br>
+          />
+          <br />
         </div>
-        <p class="help is-danger has-text-left">{{this.wolfWordError}}</p>
+        <p class="help is-danger has-text-left">{{ this.wolfWordError }}</p>
       </div>
       <button
         class="button is-primary is-small"
         :disabled="!canSubmitSetWord"
         @click="submitSetWord"
-      >決定</button>
-      <br>
+      >
+        決定
+      </button>
+      <br />
     </div>
   </div>
 </template>
@@ -152,5 +175,4 @@ const isOnlyHiragana = function(word) {
 }
 </script>
 
-<style>
-</style>
+<style></style>
