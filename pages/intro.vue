@@ -71,19 +71,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  head() {
-    return { title: 'ルール紹介' }
-  },
-  data() {
-    return {}
-  },
-  computed: {},
-  created: function() {},
-  methods: {}
-}
+<script setup lang="ts">
+useHead({
+  title: 'ルール紹介'
+})
 </script>
-
-<style lang="css">
-</style>

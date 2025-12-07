@@ -71,19 +71,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  head() {
-    return { title: 'よくある質問' }
-  },
-  data() {
-    return {}
-  },
-  computed: {},
-  created: function() {},
-  methods: {}
-}
+<script setup lang="ts">
+useHead({
+  title: '更新情報'
+})
 </script>
-
-<style lang="css">
-</style>

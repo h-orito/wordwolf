@@ -1,7 +1,6 @@
 {
   "files.eol": "\n",
-  "editor.formatOnSave": false,
-  "vetur.format.defaultFormatter.js": "vscode-typescript",
+  "editor.formatOnSave": true,
   "emmet.includeLanguages": {
     "vue-html": "html"
   },

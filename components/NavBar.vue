@@ -1,21 +1,15 @@
 <template>
   <nav class="navbar has-background-light" style="margin-bottom: 0;">
     <div class="navbar-brand">
-      <nuxt-link class="navbar-item" to="/">
+      <NuxtLink class="navbar-item" to="/">
         <img src="~/assets/wordwolf_icon.png" alt="ワードウルフオンライン">
         ワードウルフオンライン
-      </nuxt-link>
+      </NuxtLink>
     </div>
   </nav>
 </template>
 
-<script>
-export default {
-  data: () => ({}),
-  computed: {},
-  created: function() {},
-  methods: {}
-}
+<script setup lang="ts">
 </script>
 
 <style>

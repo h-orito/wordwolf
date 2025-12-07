@@ -6,6 +6,7 @@ npm-debug.log
 
 # Nuxt build
 .nuxt
+.output
 
 # Nuxt generate
 dist
@@ -14,3 +15,6 @@ dist
 
 # local claude settings
 .claude/settings.local.json
+
+# backup files
+*.bak

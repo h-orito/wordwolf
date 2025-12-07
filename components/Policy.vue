@@ -76,13 +76,5 @@
   </div>
 </template>
 
-<script>
-export default {
-  data: () => ({}),
-  computed: {},
-  created: function() {},
-  methods: {}
-}
+<script setup lang="ts">
 </script>
-
-<style></style>
