@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <section class="section">
       <div class="container">
@@ -88,7 +88,7 @@
               <i v-if="!hasPasswordError" class="fas fa-check"></i>
             </span>
           </div>
-          <p class="help is-danger">{{ this.passwordError }}</p>
+          <p class="help is-danger">{{ passwordError }}</p>
         </div>
         <div class="field">
           <div class="control has-text-centered">
@@ -101,13 +101,13 @@
             </button>
           </div>
           <div class="control has-text-centered" style="margin-top: 15px;">
-            <nuxt-link :to="{ path: 'remind' }">パスワードを忘れた</nuxt-link>
+            <NuxtLink :to="{ path: '/remind' }">パスワードを忘れた</NuxtLink>
           </div>
         </div>
       </div>
     </section>
     <div class="modal" id="terms-modal">
-      <div class="modal-background"></div>
+      <div class="modal-background" @click="closeTermsModal"></div>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">利用規約</h4>
@@ -118,7 +118,7 @@
       </div>
     </div>
     <div class="modal" id="policy-modal">
-      <div class="modal-background"></div>
+      <div class="modal-background" @click="closePolicyModal"></div>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">プライバシーポリシー</h4>
@@ -131,151 +131,131 @@
   </div>
 </template>
 
-<script>
-import firebase from '~/plugins/firebase'
-import Terms from '~/components/Terms.vue'
-import Policy from '~/components/Policy.vue'
+<script setup lang="ts">
+import { signInWithEmailAndPassword, signInAnonymously } from 'firebase/auth'
 
-const auth = firebase.auth()
-export default {
-  head() {
-    return { title: 'ログイン' }
-  },
-  data() {
-    return {
-      email: null,
-      emailError: null,
-      password: null,
-      passwordError: null,
-      termsandpolicy: false,
-      annonymouslyError: null
-    }
-  },
-  components: {
-    Terms,
-    Policy
-  },
-  computed: {
-    hasEmailInput() {
-      return this.email != null && this.email !== ''
-    },
-    hasEmailError() {
-      return this.emailError != null
-    },
-    hasPasswordInput() {
-      return this.password != null && this.password !== ''
-    },
-    hasPasswordError() {
-      return this.passwordError != null
-    },
-    canSubmit() {
-      return (
-        this.hasEmailInput &&
-        this.hasPasswordInput &&
-        !this.hasEmailError &&
-        !this.hasPasswordError
-      )
-    },
-    canAnnonymouslySubmit() {
-      return !!this.termsandpolicy
-    }
-  },
-  methods: {
-    validateEmail() {
-      if (this.email == null || this.email === '') {
-        return
-      }
-      if (!this.validEmail(this.email)) {
-        this.emailError = '正しいメールアドレス形式で入力してください。'
-      } else {
-        this.emailError = null
-      }
-    },
-    validEmail(email) {
-      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      return re.test(String(email).toLowerCase())
-    },
-    validatePassword() {
-      if (this.password == null || this.password === '') {
-        return
-      }
-      if (!this.validPassword(this.password)) {
-        this.passwordError = '7文字以上20文字以内の英数で入力してください。'
-      } else {
-        this.passwordError = null
-      }
-    },
-    validPassword(password) {
-      if (password.length < 7 || password.length > 20) {
-        return false
-      }
-      const re = /^[a-zA-Z0-9]*$/
-      return re.test(String(password))
-    },
-    signin() {
-      const self = this
-      auth
-        .signInWithEmailAndPassword(self.email, self.password)
-        .then(function() {
-          self.$router.replace({ path: '/' })
-        })
-        .catch(function(error) {
-          const errorCode = error.code
-          if (errorCode === 'auth/user-disabled') {
-            self.emailError = 'このアカウントは無効にされています。'
-          } else if (errorCode === 'auth/invalid-email') {
-            self.emailError = 'このメールアドレスは使用できません。'
-          } else if (
-            errorCode === 'auth/user-not-found' ||
-            errorCode === 'auth/wrong-password'
-          ) {
-            self.passwordError =
-              'メールアドレスまたはパスワードが正しくありません。'
-          } else if (errorCode != null && errorCode !== '') {
-            self.emailError = 'エラーが発生しました。'
-          }
-        })
-    },
-    annonymouslySignin() {
-      const self = this
-      auth
-        .signInAnonymously()
-        .then(function() {
-          self.$router.replace({ path: '/' })
-        })
-        .catch(function() {
-          self.annonymouslyError = 'エラーが発生しました。'
-        })
-    },
-    openTermsModal() {
-      var modal = document.querySelector('#terms-modal')
-      var html = document.querySelector('html')
-      modal.classList.add('is-active')
-      html.classList.add('is-clipped')
+useHead({
+  title: 'ログイン'
+})
 
-      modal
-        .querySelector('.modal-background')
-        .addEventListener('click', function(e) {
-          e.preventDefault()
-          modal.classList.remove('is-active')
-          html.classList.remove('is-clipped')
-        })
-    },
-    openPolicyModal() {
-      var modal = document.querySelector('#policy-modal')
-      var html = document.querySelector('html')
-      modal.classList.add('is-active')
-      html.classList.add('is-clipped')
+const router = useRouter()
+const auth = useFirebaseAuth()!
 
-      modal
-        .querySelector('.modal-background')
-        .addEventListener('click', function(e) {
-          e.preventDefault()
-          modal.classList.remove('is-active')
-          html.classList.remove('is-clipped')
-        })
+// data
+const email = ref<string | null>(null)
+const emailError = ref<string | null>(null)
+const password = ref<string | null>(null)
+const passwordError = ref<string | null>(null)
+const termsandpolicy = ref(false)
+const annonymouslyError = ref<string | null>(null)
+
+// computed
+const hasEmailInput = computed(() => email.value != null && email.value !== '')
+const hasEmailError = computed(() => emailError.value != null)
+const hasPasswordInput = computed(() => password.value != null && password.value !== '')
+const hasPasswordError = computed(() => passwordError.value != null)
+const canSubmit = computed(() =>
+  hasEmailInput.value &&
+  hasPasswordInput.value &&
+  !hasEmailError.value &&
+  !hasPasswordError.value
+)
+const canAnnonymouslySubmit = computed(() => !!termsandpolicy.value)
+
+// methods
+function validEmail(emailStr: string): boolean {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(String(emailStr).toLowerCase())
+}
+
+function validateEmail() {
+  if (email.value == null || email.value === '') {
+    return
+  }
+  if (!validEmail(email.value)) {
+    emailError.value = '正しいメールアドレス形式で入力してください。'
+  } else {
+    emailError.value = null
+  }
+}
+
+function validPassword(pw: string): boolean {
+  if (pw.length < 7 || pw.length > 20) {
+    return false
+  }
+  const re = /^[a-zA-Z0-9]*$/
+  return re.test(String(pw))
+}
+
+function validatePassword() {
+  if (password.value == null || password.value === '') {
+    return
+  }
+  if (!validPassword(password.value)) {
+    passwordError.value = '7文字以上20文字以内の英数で入力してください。'
+  } else {
+    passwordError.value = null
+  }
+}
+
+async function signin() {
+  if (!email.value || !password.value) return
+
+  try {
+    await signInWithEmailAndPassword(auth, email.value, password.value)
+    router.replace({ path: '/' })
+  } catch (error: any) {
+    const errorCode = error.code
+    if (errorCode === 'auth/user-disabled') {
+      emailError.value = 'このアカウントは無効にされています。'
+    } else if (errorCode === 'auth/invalid-email') {
+      emailError.value = 'このメールアドレスは使用できません。'
+    } else if (
+      errorCode === 'auth/user-not-found' ||
+      errorCode === 'auth/wrong-password'
+    ) {
+      passwordError.value = 'メールアドレスまたはパスワードが正しくありません。'
+    } else if (errorCode != null && errorCode !== '') {
+      emailError.value = 'エラーが発生しました。'
     }
   }
+}
+
+async function annonymouslySignin() {
+  try {
+    await signInAnonymously(auth)
+    router.replace({ path: '/' })
+  } catch {
+    annonymouslyError.value = 'エラーが発生しました。'
+  }
+}
+
+function openTermsModal() {
+  const modal = document.querySelector('#terms-modal')
+  const html = document.querySelector('html')
+  modal?.classList.add('is-active')
+  html?.classList.add('is-clipped')
+}
+
+function closeTermsModal() {
+  const modal = document.querySelector('#terms-modal')
+  const html = document.querySelector('html')
+  modal?.classList.remove('is-active')
+  html?.classList.remove('is-clipped')
+}
+
+function openPolicyModal() {
+  const modal = document.querySelector('#policy-modal')
+  const html = document.querySelector('html')
+  modal?.classList.add('is-active')
+  html?.classList.add('is-clipped')
+}
+
+function closePolicyModal() {
+  const modal = document.querySelector('#policy-modal')
+  const html = document.querySelector('html')
+  modal?.classList.remove('is-active')
+  html?.classList.remove('is-clipped')
 }
 </script>
 

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="section">
     <div class="container">
       <h1 class="title is-5">部屋を作成</h1>
@@ -43,7 +43,7 @@
               </span>
             </div>
             <p class="help is-danger" v-if="hasRoomName">
-              {{ this.roomNameError }}
+              {{ roomNameError }}
             </p>
           </div>
           <div class="field">
@@ -75,7 +75,7 @@
               </span>
             </div>
             <p class="help is-danger" v-if="hasPlayerName">
-              {{ this.playerNameError }}
+              {{ playerNameError }}
             </p>
           </div>
           <div class="field">
@@ -107,7 +107,7 @@
               </span>
             </div>
             <p class="help is-danger" v-if="hasRoomPassword">
-              {{ this.roomPasswordError }}
+              {{ roomPasswordError }}
             </p>
           </div>
           <div class="field">
@@ -121,9 +121,6 @@
                 </select>
               </div>
             </div>
-            <p class="help is-danger" v-if="hasRoomPassword">
-              {{ this.roomPasswordError }}
-            </p>
           </div>
           <div class="field" style="margin-top: 40px;">
             <div class="control has-text-centered">
@@ -142,201 +139,195 @@
   </section>
 </template>
 
-<script>
-import {
-  ADD_ROOM,
-  ADD_MEMBER,
-  ADD_MESSAGE,
-  INIT_MASTER,
-  LOGINOUT
-} from '../store/action-types'
-import firebase from '~/plugins/firebase'
-const auth = firebase.auth()
-export default {
-  data() {
-    return {
-      roomName: null,
-      roomNameError: null,
-      roomPassword: null,
-      roomPasswordError: null,
-      playerName: null,
-      playerNameError: null,
-      roomRating: '',
-      submitting: false
+<script setup lang="ts">
+import bcrypt from 'bcryptjs'
+import { updateProfile, onAuthStateChanged } from 'firebase/auth'
+import { useAuthStore } from '~/stores/auth'
+import { useMasterStore } from '~/stores/master'
+import { useRoomsStore } from '~/stores/rooms'
+import { useMembersStore } from '~/stores/members'
+import { useMessagesStore } from '~/stores/messages'
+
+useHead({
+  title: '部屋を作成'
+})
+
+const auth = useFirebaseAuth()!
+const authStore = useAuthStore()
+const masterStore = useMasterStore()
+const roomsStore = useRoomsStore()
+const membersStore = useMembersStore()
+const messagesStore = useMessagesStore()
+
+// data
+const roomName = ref<string | null>(null)
+const roomNameError = ref<string | null>(null)
+const roomPassword = ref<string | null>(null)
+const roomPasswordError = ref<string | null>(null)
+const playerName = ref<string | null>(null)
+const playerNameError = ref<string | null>(null)
+const roomRating = ref('')
+const submitting = ref(false)
+
+// computed
+const master = computed(() => masterStore.master)
+const user = computed(() => authStore.user)
+const isLogin = computed(() => authStore.isLogin)
+const bans = computed(() => masterStore.bans)
+
+const hasRoomName = computed(() => roomName.value != null && roomName.value !== '')
+const hasRoomNameError = computed(() => roomNameError.value != null)
+const hasRoomPassword = computed(() => roomPassword.value != null && roomPassword.value !== '')
+const hasRoomPasswordError = computed(() => roomPasswordError.value != null)
+const hasPlayerName = computed(() => playerName.value != null && playerName.value !== '')
+const hasPlayerNameError = computed(() => playerNameError.value != null)
+
+const isGlobalBaned = computed(() => {
+  // client-token の代わりに localStorage を使用
+  const clientToken = typeof window !== 'undefined' ? localStorage.getItem('client-token') : null
+  return bans.value.some(b => b === clientToken)
+})
+
+const canSubmit = computed(() => {
+  return (
+    hasRoomName.value &&
+    hasPlayerName.value &&
+    !hasRoomNameError.value &&
+    !hasRoomPasswordError.value &&
+    !hasPlayerNameError.value &&
+    validRoomRating(roomRating.value) &&
+    isLogin.value &&
+    !isGlobalBaned.value
+  )
+})
+
+// init master
+await masterStore.initMaster()
+
+// watch auth state
+onMounted(() => {
+  onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      authStore.login(firebaseUser)
+    } else {
+      authStore.logout()
     }
-  },
-  computed: {
-    master() {
-      return this.$store.getters.getMaster
-    },
-    hasRoomName() {
-      return this.roomName != null && this.roomName !== ''
-    },
-    hasRoomNameError() {
-      return this.roomNameError != null
-    },
-    hasRoomPassword() {
-      return this.roomPassword != null && this.roomPassword !== ''
-    },
-    hasRoomPasswordError() {
-      return this.roomPasswordError != null
-    },
-    hasPlayerName() {
-      return this.playerName != null && this.playerName !== ''
-    },
-    hasPlayerNameError() {
-      return this.playerNameError != null
-    },
-    user() {
-      return this.$store.getters.getUser
-    },
-    isLogin() {
-      return this.$store.getters.isLogin
-    },
-    isGlobalBaned() {
-      const bans = this.$store.getters.getBans
-      const clientToken = this.$cookies.get('client-token')
-      return bans.some(b => b === clientToken)
-    },
-    canSubmit() {
-      return (
-        this.hasRoomName &&
-        this.hasPlayerName &&
-        !this.hasRoomNameError &&
-        !this.hasPasswordError &&
-        !this.hasPlayerNameError &&
-        this.validRoomRating &&
-        this.isLogin &&
-        !this.isGlobalBaned
-      )
-    }
-  },
-  created() {
-    this.$store.dispatch(INIT_MASTER)
-    firebase.auth().onAuthStateChanged(user => {
-      this.$store.dispatch(LOGINOUT, {
-        user: user
-      })
-    })
-  },
-  methods: {
-    validateRoomName() {
-      if (!this.validRoomName(this.roomName)) {
-        this.roomNameError = '4文字以上20文字以内で入力してください'
-      } else {
-        this.roomNameError = null
-      }
-    },
-    validRoomName(roomName) {
-      if (
-        roomName == null ||
-        roomName.trim().length < 4 ||
-        roomName.length > 20
-      ) {
-        return false
-      }
-      return true
-    },
-    validateRoomPassword() {
-      if (this.roomPassword == null || this.roomPassword === '') {
-        return
-      }
-      if (!this.validPassword(this.roomPassword)) {
-        this.roomPasswordError = '10文字以内で入力してください'
-      } else {
-        this.roomPasswordError = null
-      }
-    },
-    validPassword(password) {
-      if (password.length > 10) {
-        return false
-      }
-      return true
-    },
-    validatePlayerName() {
-      if (!this.validPlayerName(this.playerName)) {
-        this.playerNameError = '3文字以上10文字以内で入力してください'
-      } else if (
-        this.playerName.trim() === 'ort' &&
-        this.user.uid !== this.master
-      ) {
-        this.playerNameError = 'その名前は使用できません'
-      } else {
-        this.playerNameError = null
-      }
-    },
-    validPlayerName(playerName) {
-      if (
-        playerName == null ||
-        playerName.trim().length < 1 ||
-        playerName.length > 10
-      ) {
-        return false
-      }
-      return true
-    },
-    validRoomRating(rating) {
-      return rating === '' || rating === 'R15' || rating === 'R18'
-    },
-    createRoom() {
-      this.validateRoomName()
-      this.validateRoomPassword()
-      this.validatePlayerName()
-      if (!this.canSubmit) {
-        return
-      }
-      this.submitting = true
-      this.createRoomAndJoin(
-        this.roomName.trim(),
-        this.roomPassword,
-        this.hasRoomPassword ? this.roomRating : '',
-        this.user.uid,
-        this.playerName.trim()
-      )
-    },
-    createRoomAndJoin(roomName, roomPassword, roomRating, userId, userName) {
-      const self = this
-      auth.currentUser
-        .updateProfile({
-          displayName: userName
-        })
-        .then(function() {
-          self.$store.dispatch(ADD_ROOM, {
-            roomName: roomName,
-            roomPassword: self.hased(roomPassword),
-            roomRating: roomRating,
-            userId: userId,
-            userName: userName,
-            callback: key => self.joinRoom(userId, userName, key)
-          })
-        })
-    },
-    joinRoom(userId, userName, roomKey) {
-      const self = this
-      this.$store.dispatch(ADD_MEMBER, {
-        userName: userName,
-        userId: userId,
-        roomKey: roomKey,
-        callback: () => self.addMessage(roomKey, userName)
-      })
-    },
-    addMessage(roomKey, userName) {
-      this.$store.dispatch(ADD_MESSAGE, {
-        roomKey: roomKey,
-        name: '',
-        message: userName + 'さんが入室しました',
-        memberKey: null,
-        color: null,
-        callback: () => {
-          location.href = '/room?id=' + roomKey
-        }
-      })
-    },
-    hased(str) {
-      if (!str || str === '') return str
-      const bcrypt = require('bcryptjs')
-      return bcrypt.hashSync(str, 10)
-    }
+  })
+})
+
+// methods
+function validateRoomName() {
+  if (!validRoomName(roomName.value)) {
+    roomNameError.value = '4文字以上20文字以内で入力してください'
+  } else {
+    roomNameError.value = null
+  }
+}
+
+function validRoomName(name: string | null): boolean {
+  if (name == null || name.trim().length < 4 || name.length > 20) {
+    return false
+  }
+  return true
+}
+
+function validateRoomPassword() {
+  if (roomPassword.value == null || roomPassword.value === '') {
+    return
+  }
+  if (!validPassword(roomPassword.value)) {
+    roomPasswordError.value = '10文字以内で入力してください'
+  } else {
+    roomPasswordError.value = null
+  }
+}
+
+function validPassword(password: string): boolean {
+  if (password.length > 10) {
+    return false
+  }
+  return true
+}
+
+function validatePlayerName() {
+  if (!validPlayerName(playerName.value)) {
+    playerNameError.value = '3文字以上10文字以内で入力してください'
+  } else if (
+    playerName.value?.trim() === 'ort' &&
+    user.value?.uid !== master.value
+  ) {
+    playerNameError.value = 'その名前は使用できません'
+  } else {
+    playerNameError.value = null
+  }
+}
+
+function validPlayerName(name: string | null): boolean {
+  if (name == null || name.trim().length < 1 || name.length > 10) {
+    return false
+  }
+  return true
+}
+
+function validRoomRating(rating: string): boolean {
+  return rating === '' || rating === 'R15' || rating === 'R18'
+}
+
+function hashed(str: string | null): string {
+  if (!str || str === '') return str || ''
+  return bcrypt.hashSync(str, 10)
+}
+
+async function createRoom() {
+  validateRoomName()
+  validateRoomPassword()
+  validatePlayerName()
+  if (!canSubmit.value) {
+    return
+  }
+  submitting.value = true
+
+  const currentUser = auth.currentUser
+  if (!currentUser || !user.value || !roomName.value || !playerName.value) return
+
+  const trimmedRoomName = roomName.value.trim()
+  const trimmedPlayerName = playerName.value.trim()
+  const finalRating = hasRoomPassword.value ? roomRating.value : ''
+
+  try {
+    // Update profile
+    await updateProfile(currentUser, { displayName: trimmedPlayerName })
+
+    // Create room
+    const roomKey = await roomsStore.addRoom(
+      trimmedRoomName,
+      user.value.uid,
+      trimmedPlayerName,
+      hashed(roomPassword.value),
+      finalRating
+    )
+
+    // Join room
+    await membersStore.addMember(
+      trimmedPlayerName,
+      user.value.uid,
+      roomKey
+    )
+
+    // Add message
+    await messagesStore.addMessage(
+      roomKey,
+      '',
+      null,
+      trimmedPlayerName + 'さんが入室しました',
+      null
+    )
+
+    // Navigate to room
+    navigateTo('/room?id=' + roomKey)
+  } catch (error) {
+    console.error('Failed to create room:', error)
+    submitting.value = false
   }
 }
 </script>

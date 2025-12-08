@@ -398,56 +398,60 @@ onMounted(() => {
 ## 作業チェックリスト
 
 ### 事前準備
-- [ ] gitでタグ付けバックアップ
-- [ ] node_modules, package-lock.json, .nuxt, dist 削除
-- [ ] nuxt.config.js, .eslintrc.js をバックアップ
-- [ ] package.json 書き換え
-- [ ] npm install
-- [ ] app.vue 作成
+- [x] gitでタグ付けバックアップ
+- [x] node_modules, package-lock.json, .nuxt, dist 削除
+- [x] nuxt.config.js, .eslintrc.js をバックアップ
+- [x] package.json 書き換え
+- [x] pnpm install (pnpmに変更)
+- [x] app.vue 作成
 
 ### 設定・インフラ
-- [ ] nuxt.config.ts作成
-- [ ] Firebase/VueFire設定
-- [ ] 環境変数(.env)設定
-- [ ] ESLint/Prettier設定
-- [ ] Sass/Bulma設定
+- [x] nuxt.config.ts作成
+- [x] Firebase/VueFire設定 (nuxt-vuefire使用)
+- [x] 環境変数(.env)設定
+- [x] ESLint設定 (@nuxt/eslint使用)
+- [x] Sass/Bulma設定
+- [x] tsconfig.json作成
 
 ### 状態管理
-- [ ] Piniaセットアップ
-- [ ] stores/auth.ts作成
-- [ ] stores/rooms.ts作成
-- [ ] stores/members.ts作成
-- [ ] stores/messages.ts作成
-- [ ] stores/votes.ts作成
-- [ ] stores/master.ts作成
+- [x] Piniaセットアップ (@pinia/nuxt使用)
+- [x] stores/types.ts作成 (型定義)
+- [x] stores/consts.ts作成 (定数)
+- [x] stores/auth.ts作成
+- [x] stores/rooms.ts作成
+- [x] stores/members.ts作成
+- [x] stores/messages.ts作成
+- [x] stores/votes.ts作成
+- [x] stores/master.ts作成
 
 ### 共通コンポーネント
-- [ ] layouts/default.vue作成
-- [ ] components/NavBar.vue移行
+- [x] layouts/default.vue作成
+- [x] components/NavBar.vue移行
 - [ ] components/Footer.vue移行
-- [ ] components/Terms.vue移行
-- [ ] components/Policy.vue移行
+- [x] components/Terms.vue移行
+- [x] components/Policy.vue移行
+- [x] components/GoogleAds.vue移行
 
 ### ページ移行
-- [ ] pages/index.vue移行
-- [ ] pages/intro.vue移行
-- [ ] pages/faq.vue移行
-- [ ] pages/release-note.vue移行
-- [ ] pages/signin.vue移行
-- [ ] pages/user.vue移行
-- [ ] pages/remind.vue移行
-- [ ] pages/create-room.vue移行
-- [ ] pages/room-list.vue移行
-- [ ] pages/room.vue移行
+- [x] pages/index.vue移行
+- [x] pages/intro.vue移行
+- [x] pages/faq.vue移行
+- [x] pages/release-note.vue移行
+- [x] pages/signin.vue移行
+- [x] pages/user.vue移行
+- [x] pages/remind.vue移行
+- [x] pages/create-room.vue移行
+- [x] pages/room-list.vue移行
+- [x] pages/room.vue移行
 
 ### ゲームコンポーネント
-- [ ] components/room/Members.vue移行
-- [ ] components/room/Chat.vue移行
-- [ ] components/room/Prepare.vue移行
-- [ ] components/room/Progress.vue移行
-- [ ] components/room/Counter.vue移行
-- [ ] components/room/Proepi.vue移行
-- [ ] components/room/Reset.vue移行
+- [x] components/room/Members.vue移行
+- [x] components/room/Chat.vue移行
+- [x] components/room/Prepare.vue移行
+- [x] components/room/Progress.vue移行
+- [x] components/room/Counter.vue移行
+- [x] components/room/Proepi.vue移行
+- [x] components/room/Reset.vue移行
 
 ### 動作確認
 - [ ] 認証フロー確認
@@ -456,8 +460,8 @@ onMounted(() => {
 - [ ] チャット送信確認
 - [ ] 投票機能確認
 - [ ] ゲーム進行確認
-- [ ] npm run build成功
-- [ ] npm audit脆弱性確認
+- [x] pnpm run build成功
+- [ ] pnpm audit脆弱性確認
 
 ---
 

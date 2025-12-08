@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <section class="section">
       <div class="container">
@@ -8,8 +8,14 @@
             <div class="field">
               <label class="label">メールアドレス</label>
               <div class="control has-icons-left has-icons-right">
-                <input class="input" :class="!hasEmailInput ? '' : hasEmailError ? 'is-danger': 'is-success'"
-                  type="email" placeholder="Email" v-model="email" @keyup="validateEmail">
+                <input
+                  class="input"
+                  :class="!hasEmailInput ? '' : hasEmailError ? 'is-danger' : 'is-success'"
+                  type="email"
+                  placeholder="Email"
+                  v-model="email"
+                  @keyup="validateEmail"
+                />
                 <span class="icon is-small is-left">
                   <i class="fas fa-envelope"></i>
                 </span>
@@ -18,11 +24,17 @@
                   <i v-if="!hasEmailError" class="fas fa-check"></i>
                 </span>
               </div>
-              <p class="help is-danger">{{this.emailError}}</p>
+              <p class="help is-danger">{{ emailError }}</p>
             </div>
             <div class="field">
               <div class="control has-text-centered">
-                <button class="button is-primary" :disabled="!canSubmit" @click="remindMail">再発行メール送信</button>
+                <button
+                  class="button is-primary"
+                  :disabled="!canSubmit"
+                  @click="remindMail"
+                >
+                  再発行メール送信
+                </button>
               </div>
             </div>
           </div>
@@ -32,60 +44,53 @@
   </div>
 </template>
 
-<script>
-import firebase from '~/plugins/firebase'
-const auth = firebase.auth()
-export default {
-  head() {
-    return { title: 'パスワード再発行' }
-  },
-  data() {
-    return {
-      email: null,
-      emailError: null
-    }
-  },
-  computed: {
-    hasEmailInput() {
-      return this.email != null && this.email !== ''
-    },
-    hasEmailError() {
-      return this.emailError != null
-    },
-    canSubmit() {
-      return this.hasEmailInput && !this.hasEmailError
-    }
-  },
-  methods: {
-    validateEmail() {
-      if (this.email == null || this.email === '') {
-        return
-      }
-      if (!this.validEmail(this.email)) {
-        this.emailError = '正しいメールアドレス形式で入力してください。'
-      } else {
-        this.emailError = null
-      }
-    },
-    validEmail(email) {
-      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      return re.test(String(email).toLowerCase())
-    },
-    remindMail() {
-      const self = this
-      auth
-        .sendPasswordResetEmail(self.email)
-        .then(function() {
-          self.$router.replace({ path: '/' })
-        })
-        .catch(function() {
-          // 悪用防止のためエラーはハンドリングしない
-          self.$router.replace({ path: '/' })
-        })
-    }
+<script setup lang="ts">
+import { sendPasswordResetEmail } from 'firebase/auth'
+
+useHead({
+  title: 'パスワード再発行'
+})
+
+const router = useRouter()
+const auth = useFirebaseAuth()!
+
+// data
+const email = ref<string | null>(null)
+const emailError = ref<string | null>(null)
+
+// computed
+const hasEmailInput = computed(() => email.value != null && email.value !== '')
+const hasEmailError = computed(() => emailError.value != null)
+const canSubmit = computed(() => hasEmailInput.value && !hasEmailError.value)
+
+// methods
+function validEmail(emailStr: string): boolean {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(String(emailStr).toLowerCase())
+}
+
+function validateEmail() {
+  if (email.value == null || email.value === '') {
+    return
+  }
+  if (!validEmail(email.value)) {
+    emailError.value = '正しいメールアドレス形式で入力してください。'
+  } else {
+    emailError.value = null
+  }
+}
+
+async function remindMail() {
+  if (!email.value) return
+
+  try {
+    await sendPasswordResetEmail(auth, email.value)
+    router.replace({ path: '/' })
+  } catch {
+    // 悪用防止のためエラーはハンドリングしない
+    router.replace({ path: '/' })
   }
 }
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>

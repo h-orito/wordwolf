@@ -4,9 +4,9 @@
     <div class="panel-block is-size-7 has-text-left" v-if="isGameMaster">
       <p>
         村人のワードは
-        <span class="has-text-weight-bold is-size-6">{{ room.villagersWord }}</span> です。
+        <span class="has-text-weight-bold is-size-6">{{ room?.villagersWord }}</span> です。
         <br>人狼のワードは
-        <span class="has-text-weight-bold is-size-6">{{ room.wolfWord }}</span> です。
+        <span class="has-text-weight-bold is-size-6">{{ room?.wolfWord }}</span> です。
         <br>
       </p>
     </div>
@@ -33,14 +33,14 @@
         <div class="control">
           <input
             class="input is-small"
-            :class="counterWord == '' ? '' : counterWordError != null ? 'is-danger': 'is-success'"
+            :class="counterWord === '' ? '' : counterWordError != null ? 'is-danger': 'is-success'"
             v-model="counterWord"
             placeholder="村人（多数派）のワード"
             type="text"
             @keyup="validateCounterWord"
           >
         </div>
-        <p class="help is-danger has-text-left">{{this.counterWordError}}</p>
+        <p class="help is-danger has-text-left">{{ counterWordError }}</p>
       </div>
       <button class="button is-primary is-small" @click="submit" :disabled="!canSubmitCounterWord">決定</button>
       <br>
@@ -54,94 +54,103 @@
   </div>
 </template>
 
-<script>
-import * as consts from '~/store/consts'
-export default {
-  props: ['room', 'members', 'user'],
-  data: function() {
-    return {
-      counterWord: '',
-      counterWordError: null
-    }
-  },
-  computed: {
-    roomStatus() {
-      if (this.room == null) {
-        return ''
-      }
-      return this.room.status
-    },
-    isCounter() {
-      return this.roomStatus === consts.STATUS_COUNTER
-    },
-    isMember() {
-      return (
-        this.user != null && this.members.some(mem => mem.key === this.user.uid)
-      )
-    },
-    isGameMaster() {
-      return (
-        this.room != null &&
-        this.user != null &&
-        this.room.gameMaster.key === this.user.uid
-      )
-    },
-    myWord() {
-      if (isVillagers(this.room.villagers, this.user)) {
-        return this.room.villagersWord
-      } else if (this.isWolfs) {
-        return this.room.wolfWord
-      } else {
-        return ''
-      }
-    },
-    isWolfs() {
-      return (
-        this.room != null &&
-        this.user != null &&
-        this.room.wolfs.some(w => w.key === this.user.uid)
-      )
-    },
-    isCounterPerson() {
-      return this.isWolfs && this.room.counterPerson === this.user.uid
-    },
-    canSubmitCounterWord() {
-      return (
-        !!this.counterWord && this.counterWord !== '' && !this.counterWordError
-      )
-    }
-  },
-  created: function() {},
-  methods: {
-    validateCounterWord() {
-      if (this.counterWord == null || this.counterWord === '') {
-        return
-      }
-      if (this.counterWord.length > 20) {
-        this.counterWordError = '20文字以内で入力してください。'
-      } else if (!isOnlyHiragana(this.counterWord)) {
-        this.counterWordError = 'ひらがなと半角数字で入力してください。'
-      } else {
-        this.counterWordError = null
-      }
-    },
-    submit() {
-      if (!this.canSubmitCounterWord) return
-      this.$emit('submitCounterWord', this.counterWord)
-      this.counterWord = ''
-    }
+<script setup lang="ts">
+import * as consts from '~/stores/consts'
+import type { Room, Member } from '~/stores/types'
+
+interface Props {
+  room: Room | null
+  members: Member[]
+  user: { uid: string } | null
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  submitCounterWord: [string]
+}>()
+
+// data
+const counterWord = ref('')
+const counterWordError = ref<string | null>(null)
+
+// computed
+const roomStatus = computed(() => {
+  if (props.room == null) {
+    return ''
   }
-}
+  return props.room.status
+})
 
-const isVillagers = function(villagers, user) {
-  return villagers.some(vil => vil.key === user.uid)
-}
+const isCounter = computed(() => {
+  return roomStatus.value === consts.STATUS_COUNTER
+})
 
-const isOnlyHiragana = function(word) {
+const isMember = computed(() => {
+  return props.user != null && props.members.some(mem => mem.key === props.user!.uid)
+})
+
+const isGameMaster = computed(() => {
+  return (
+    props.room != null &&
+    props.user != null &&
+    props.room.gameMaster != null &&
+    props.room.gameMaster.key === props.user.uid
+  )
+})
+
+const myWord = computed(() => {
+  if (!props.room || !props.user) return ''
+  if (props.room.villagers.some(vil => vil.key === props.user!.uid)) {
+    return props.room.villagersWord
+  } else if (isWolfs.value) {
+    return props.room.wolfWord
+  } else {
+    return ''
+  }
+})
+
+const isWolfs = computed(() => {
+  return (
+    props.room != null &&
+    props.user != null &&
+    props.room.wolfs.some(w => w.key === props.user!.uid)
+  )
+})
+
+const isCounterPerson = computed(() => {
+  return isWolfs.value && props.room?.counterPerson === props.user?.uid
+})
+
+const canSubmitCounterWord = computed(() => {
+  return (
+    !!counterWord.value && counterWord.value !== '' && !counterWordError.value
+  )
+})
+
+// methods
+function isOnlyHiragana(word: string): boolean {
   const re = /^[ぁ-ゞ0-9ー]+$/u
   return re.test(word)
 }
+
+function validateCounterWord() {
+  if (counterWord.value == null || counterWord.value === '') {
+    return
+  }
+  if (counterWord.value.length > 20) {
+    counterWordError.value = '20文字以内で入力してください。'
+  } else if (!isOnlyHiragana(counterWord.value)) {
+    counterWordError.value = 'ひらがなと半角数字で入力してください。'
+  } else {
+    counterWordError.value = null
+  }
+}
+
+function submit() {
+  if (!canSubmitCounterWord.value) return
+  emit('submitCounterWord', counterWord.value)
+  counterWord.value = ''
+}
 </script>
 
-<style>
-</style>
+<style></style>

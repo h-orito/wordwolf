@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <section class="section">
       <div class="container">
@@ -6,7 +6,7 @@
         <div class="columns">
           <div class="column">
             <div>
-              <hr>
+              <hr />
               <h2 class="title is-6">パスワード変更</h2>
               <div class="notification is-size-7">
                 メールアドレス / パスワードの組み合わせは他サービスで利用していないものにしてください。
@@ -14,8 +14,14 @@
               <div class="field">
                 <label class="label">旧パスワード</label>
                 <div class="control has-icons-left has-icons-right">
-                  <input class="input" :class="!hasOldPasswordInput ? '' : hasOldPasswordError ? 'is-danger': 'is-success'"
-                    type="password" placeholder="Old Password" v-model="oldPassword" @keyup="validatePassword">
+                  <input
+                    class="input"
+                    :class="!hasOldPasswordInput ? '' : hasOldPasswordError ? 'is-danger' : 'is-success'"
+                    type="password"
+                    placeholder="Old Password"
+                    v-model="oldPassword"
+                    @keyup="validatePassword"
+                  />
                   <span class="icon is-small is-left">
                     <i class="fas fa-key"></i>
                   </span>
@@ -24,13 +30,19 @@
                     <i v-if="!hasOldPasswordError" class="fas fa-check"></i>
                   </span>
                 </div>
-                <p class="help is-danger">{{this.oldPasswordError}}</p>
+                <p class="help is-danger">{{ oldPasswordError }}</p>
               </div>
               <div class="field">
                 <label class="label">新パスワード</label>
                 <div class="control has-icons-left has-icons-right">
-                  <input class="input" :class="!hasPasswordInput ? '' : hasPasswordError ? 'is-danger': 'is-success'"
-                    type="password" placeholder="New Password" v-model="password" @keyup="validatePassword">
+                  <input
+                    class="input"
+                    :class="!hasPasswordInput ? '' : hasPasswordError ? 'is-danger' : 'is-success'"
+                    type="password"
+                    placeholder="New Password"
+                    v-model="password"
+                    @keyup="validatePassword"
+                  />
                   <span class="icon is-small is-left">
                     <i class="fas fa-key"></i>
                   </span>
@@ -39,13 +51,19 @@
                     <i v-if="!hasPasswordError" class="fas fa-check"></i>
                   </span>
                 </div>
-                <p class="help is-danger">{{this.passwordError}}</p>
+                <p class="help is-danger">{{ passwordError }}</p>
               </div>
               <div class="field">
                 <label class="label">新パスワード（確認）</label>
                 <div class="control has-icons-left has-icons-right">
-                  <input class="input" :class="!hasConfirmPasswordInput ? '' : hasConfirmPasswordError ? 'is-danger': 'is-success'"
-                    type="password" placeholder="New Password" v-model="confirmPassword" @keyup="validatePassword">
+                  <input
+                    class="input"
+                    :class="!hasConfirmPasswordInput ? '' : hasConfirmPasswordError ? 'is-danger' : 'is-success'"
+                    type="password"
+                    placeholder="New Password"
+                    v-model="confirmPassword"
+                    @keyup="validatePassword"
+                  />
                   <span class="icon is-small is-left">
                     <i class="fas fa-key"></i>
                   </span>
@@ -54,16 +72,22 @@
                     <i v-if="!hasConfirmPasswordError" class="fas fa-check"></i>
                   </span>
                 </div>
-                <p class="help is-danger">{{this.confirmPasswordError}}</p>
+                <p class="help is-danger">{{ confirmPasswordError }}</p>
               </div>
               <div class="field">
                 <div class="control has-text-centered">
-                  <button class="button is-primary" :disabled="!canChangePasswordSubmit" @click="changePassword">パスワード変更</button>
+                  <button
+                    class="button is-primary"
+                    :disabled="!canChangePasswordSubmit"
+                    @click="changePassword"
+                  >
+                    パスワード変更
+                  </button>
                 </div>
               </div>
             </div>
             <div>
-              <hr>
+              <hr />
               <h2 class="title is-6">退会</h2>
               <div class="field">
                 <div class="control has-text-centered">
@@ -72,8 +96,8 @@
               </div>
             </div>
           </div>
-          <div class="column" v-if="user != null && !user.emailVerified">
-            <hr>
+          <div class="column" v-if="isUserNotVerified">
+            <hr />
             <h2 class="title is-6">確認メール再送</h2>
             <div class="notification is-size-7">
               ユーザ新規登録時の確認メールを再送します。
@@ -86,146 +110,132 @@
   </div>
 </template>
 
-<script>
-import firebase from '~/plugins/firebase'
-export default {
-  head() {
-    return { title: 'ユーザ情報編集' }
-  },
-  data() {
-    return {
-      oldPassword: null,
-      oldPasswordError: null,
-      password: null,
-      passwordError: null,
-      confirmPassword: null,
-      confirmPasswordError: null
+<script setup lang="ts">
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  sendEmailVerification,
+  deleteUser as firebaseDeleteUser
+} from 'firebase/auth'
+import { useAuthStore } from '~/stores/auth'
+
+useHead({
+  title: 'ユーザ情報編集'
+})
+
+const router = useRouter()
+const auth = useFirebaseAuth()!
+const authStore = useAuthStore()
+
+// data
+const oldPassword = ref<string | null>(null)
+const oldPasswordError = ref<string | null>(null)
+const password = ref<string | null>(null)
+const passwordError = ref<string | null>(null)
+const confirmPassword = ref<string | null>(null)
+const confirmPasswordError = ref<string | null>(null)
+
+// computed
+const user = computed(() => authStore.user)
+const isLogin = computed(() => authStore.isLogin)
+
+const hasOldPasswordInput = computed(() => oldPassword.value != null && oldPassword.value !== '')
+const hasOldPasswordError = computed(() => oldPasswordError.value != null)
+const hasPasswordInput = computed(() => password.value != null && password.value !== '')
+const hasPasswordError = computed(() => passwordError.value != null)
+const hasConfirmPasswordInput = computed(() => confirmPassword.value != null && confirmPassword.value !== '')
+const hasConfirmPasswordError = computed(() => confirmPasswordError.value != null)
+
+const canChangePasswordSubmit = computed(() =>
+  hasOldPasswordInput.value &&
+  hasPasswordInput.value &&
+  hasConfirmPasswordInput.value &&
+  !hasOldPasswordError.value &&
+  !hasPasswordError.value &&
+  !hasConfirmPasswordError.value
+)
+
+const isUserNotVerified = computed(() => user.value != null && !user.value.emailVerified)
+
+// methods
+function validPassword(pw: string): boolean {
+  if (pw.length < 7 || pw.length > 20) {
+    return false
+  }
+  const re = /^[a-zA-Z0-9]*$/
+  return re.test(String(pw))
+}
+
+function validatePassword() {
+  if (oldPassword.value != null && oldPassword.value !== '') {
+    if (!validPassword(oldPassword.value)) {
+      oldPasswordError.value = '7文字以上20文字以内の英数で入力してください。'
+    } else {
+      oldPasswordError.value = null
     }
-  },
-  computed: {
-    user() {
-      return this.$store.getters.getUser
-    },
-    isLogin() {
-      return this.$store.getters.isLogin
-    },
-    hasOldPasswordInput() {
-      return this.oldPassword != null && this.oldPassword !== ''
-    },
-    hasOldPasswordError() {
-      return this.oldPasswordError != null
-    },
-    hasPasswordInput() {
-      return this.password != null && this.password !== ''
-    },
-    hasPasswordError() {
-      return this.passwordError != null
-    },
-    hasConfirmPasswordInput() {
-      return this.confirmPassword != null && this.confirmPassword !== ''
-    },
-    hasConfirmPasswordError() {
-      return this.confirmPasswordError != null
-    },
-    canChangePasswordSubmit() {
-      return (
-        this.hasOldPasswordInput &&
-        this.hasPasswordInput &&
-        this.hasConfirmPasswordInput &&
-        !this.hasOldPasswordError &&
-        !this.hasPasswordError &&
-        !this.hasConfirmPasswordError
-      )
-    },
-    isUserNotVerified() {
-      return this.user != null && !this.user.emailVerified
+  }
+  if (password.value != null && password.value !== '') {
+    if (!validPassword(password.value)) {
+      passwordError.value = '7文字以上20文字以内の英数で入力してください。'
+    } else {
+      passwordError.value = null
     }
-  },
-  methods: {
-    validatePassword() {
-      if (this.oldPassword != null && this.oldPassword !== '') {
-        if (!this.validPassword(this.oldPassword)) {
-          this.oldPasswordError =
-            '7文字以上20文字以内の英数で入力してください。'
-        } else {
-          this.oldPasswordError = null
-        }
-      }
-      if (this.password != null && this.password !== '') {
-        if (!this.validPassword(this.password)) {
-          this.passwordError = '7文字以上20文字以内の英数で入力してください。'
-        } else {
-          this.passwordError = null
-        }
-      }
-      if (this.confirmPassword != null && this.confirmPassword !== '') {
-        if (this.password !== this.confirmPassword) {
-          this.confirmPasswordError = 'パスワードが一致しません。'
-        } else {
-          this.confirmPasswordError = null
-        }
-      }
-    },
-    validPassword(password) {
-      if (password.length < 7 || password.length > 20) {
-        return false
-      }
-      const re = /^[a-zA-Z0-9]*$/
-      return re.test(String(password))
-    },
-    changePassword() {
-      const self = this
-      const credential = firebase.auth.EmailAuthProvider.credential(
-        this.user.email,
-        this.oldPassword
-      )
-      this.user
-        .reauthenticateAndRetrieveDataWithCredential(credential)
-        .then(function() {
-          self.user
-            .updatePassword(self.password)
-            .then(function() {
-              // トップページに戻る
-              self.$router.replace({ path: '/' })
-            })
-            .catch(function() {
-              self.passwordError = 'エラーが発生しました。'
-            })
-        })
-        .catch(function() {
-          self.oldPasswordError = '旧パスワードが正しくありません。'
-        })
-    },
-    resendVerifyMail() {
-      const self = this
-      this.user
-        .sendEmailVerification()
-        .then(function() {
-          // トップページに戻る
-          self.$router.replace({ path: '/' })
-        })
-        .catch(function() {})
-    },
-    deleteUser() {
-      if (
-        !window.confirm(
-          '本当に退会しますか？ユーザが削除され、元に戻せません。'
-        )
-      ) {
-        return
-      }
-      const self = this
-      firebase
-        .auth()
-        .currentUser.delete()
-        .then(function() {
-          self.$router.replace({ path: '/' })
-        })
-        .catch(function() {})
+  }
+  if (confirmPassword.value != null && confirmPassword.value !== '') {
+    if (password.value !== confirmPassword.value) {
+      confirmPasswordError.value = 'パスワードが一致しません。'
+    } else {
+      confirmPasswordError.value = null
     }
+  }
+}
+
+async function changePassword() {
+  const currentUser = auth.currentUser
+  if (!currentUser || !currentUser.email || !oldPassword.value || !password.value) return
+
+  try {
+    const credential = EmailAuthProvider.credential(currentUser.email, oldPassword.value)
+    await reauthenticateWithCredential(currentUser, credential)
+    await updatePassword(currentUser, password.value)
+    router.replace({ path: '/' })
+  } catch (error: any) {
+    if (error.code === 'auth/wrong-password') {
+      oldPasswordError.value = '旧パスワードが正しくありません。'
+    } else {
+      passwordError.value = 'エラーが発生しました。'
+    }
+  }
+}
+
+async function resendVerifyMail() {
+  const currentUser = auth.currentUser
+  if (!currentUser) return
+
+  try {
+    await sendEmailVerification(currentUser)
+    router.replace({ path: '/' })
+  } catch {
+    // エラーハンドリングなし
+  }
+}
+
+async function deleteUser() {
+  if (!window.confirm('本当に退会しますか？ユーザが削除され、元に戻せません。')) {
+    return
+  }
+
+  const currentUser = auth.currentUser
+  if (!currentUser) return
+
+  try {
+    await firebaseDeleteUser(currentUser)
+    router.replace({ path: '/' })
+  } catch {
+    // エラーハンドリングなし
   }
 }
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>

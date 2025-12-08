@@ -47,17 +47,18 @@ export const useMessagesStore = defineStore('messages', () => {
   }
 
   async function addMessage(
-    name: string,
     roomKey: string,
-    color: string,
+    name: string,
+    color: string | null,
     message: string,
-    memberKey: string,
-    clientToken: string
+    memberKey: string | null
   ) {
     const database = useDatabase()
     if (!messagesRef) {
       messagesRef = dbRef(database, `messages/${roomKey}/`)
     }
+
+    const clientToken = typeof localStorage !== 'undefined' ? localStorage.getItem('client-token') : null
 
     const key = generateKey()
     await push(messagesRef, {
@@ -67,7 +68,7 @@ export const useMessagesStore = defineStore('messages', () => {
       message,
       memberKey,
       createdAt: Date.now(),
-      clientToken
+      clientToken: clientToken || ''
     })
 
     return key

@@ -15,135 +15,141 @@
     >
       <span
         class="membername"
-        :class="
-          (isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color
-        "
-        >{{ member.name }}</span
-      ><span v-if="member.winNum != null" :class="member.color">{{
-        `（${member.winNum}勝）`
-      }}</span>
+        :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
+      >{{ member.name }}</span>
+      <span v-if="member.winNum != null" :class="member.color">
+        {{ `（${member.winNum}勝）` }}
+      </span>
       <button
         v-if="canKick"
         class="tag is-small is-pulled-right"
         :class="isCreator(member) ? 'is-default' : 'is-danger'"
         style="cursor: pointer;"
         :disabled="isCreator(member)"
-        @click="
-          $emit('kick', { memberKey: member.key, memberName: member.name })
-        "
+        @click="emit('kick', { memberKey: member.key, memberName: member.name })"
       >
         ×
       </button>
       <span
         v-if="isGameMaster(member)"
         class="tag reverse-success is-pulled-right"
-        >GM</span
-      >
+      >GM</span>
       <span
         v-if="allowOpenSkill && isVillagers(member)"
         class="tag reverse-info is-pulled-right"
-        >村人</span
-      >
+      >村人</span>
       <span
         v-if="allowOpenSkill && isWolfs(member)"
         class="tag reverse-danger is-pulled-right"
-        >人狼</span
-      >
+      >人狼</span>
       <span
         v-if="displayDoneVote(member)"
         class="tag reverse-info is-pulled-right"
-        >投票済</span
-      >
+      >投票済</span>
       <span
         v-if="displayDoneReady(member)"
         class="tag reverse-info is-pulled-right"
-        >準備完了</span
-      >
+      >準備完了</span>
       <span
         v-if="isNotProgress && isCreator(member)"
         class="tag reverse-success is-pulled-right"
-        >部屋主</span
-      >
+      >部屋主</span>
     </div>
   </div>
 </template>
 
-<script>
-import * as consts from '~/store/consts'
-export default {
-  props: ['room', 'members', 'voteKeys', 'user'],
-  data: () => ({}),
-  computed: {
-    roomStatus() {
-      if (this.room == null) {
-        return ''
-      }
-      return this.room.status
-    },
-    isNotProgress: function() {
-      return (
-        this.room != null &&
-        (this.roomStatus === consts.STATUS_PROLOGUE ||
-          this.roomStatus === consts.STATUS_EPILOGUE)
-      )
-    },
-    allowOpenSkill: function() {
-      return (
-        this.room != null &&
-        (this.roomStatus === consts.STATUS_EPILOGUE ||
-          this.roomStatus === consts.STATUS_COUNTER)
-      )
-    },
-    canKick: function() {
-      return (
-        this.room != null &&
-        this.user != null &&
-        (this.roomStatus === consts.STATUS_EPILOGUE ||
-          this.roomStatus === consts.STATUS_PROLOGUE) &&
-        this.room.creatorRef === this.user.uid
-      )
-    }
-  },
-  created: function() {},
-  methods: {
-    isMe: function(member) {
-      return this.user != null && this.user.uid === member.key
-    },
-    isCreator: function(member) {
-      return member.key === this.room.creatorRef
-    },
-    isGameMaster: function(member) {
-      return (
-        this.room != null &&
-        this.room.gameMaster != null &&
-        member.key === this.room.gameMaster.key
-      )
-    },
-    isVillagers: function(member) {
-      return this.room.villagers.some(v => v.key === member.key)
-    },
-    isWolfs: function(member) {
-      return this.room.wolfs.some(w => w.key === member.key)
-    },
-    doneVote: function(member) {
-      return this.voteKeys.some(v => v.uid === member.key)
-    },
-    displayDoneVote: function(member) {
-      return (
-        this.doneVote(member) &&
-        this.room != null &&
-        this.roomStatus !== consts.STATUS_EPILOGUE
-      )
-    },
-    displayDoneReady: function(member) {
-      return (
-        this.room != null &&
-        (this.roomStatus == consts.STATUS_EPILOGUE ||
-          this.roomStatus == consts.STATUS_PROLOGUE) &&
-        member.ready
-      )
-    }
+<script setup lang="ts">
+import * as consts from '~/stores/consts'
+import type { Room, Member, Vote } from '~/stores/types'
+
+interface Props {
+  room: Room | null
+  members: Member[]
+  voteKeys: Vote[]
+  user: { uid: string } | null
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  kick: [{ memberKey: string; memberName: string }]
+}>()
+
+const roomStatus = computed(() => {
+  if (props.room == null) {
+    return ''
   }
+  return props.room.status
+})
+
+const isNotProgress = computed(() => {
+  return (
+    props.room != null &&
+    (roomStatus.value === consts.STATUS_PROLOGUE ||
+      roomStatus.value === consts.STATUS_EPILOGUE)
+  )
+})
+
+const allowOpenSkill = computed(() => {
+  return (
+    props.room != null &&
+    (roomStatus.value === consts.STATUS_EPILOGUE ||
+      roomStatus.value === consts.STATUS_COUNTER)
+  )
+})
+
+const canKick = computed(() => {
+  return (
+    props.room != null &&
+    props.user != null &&
+    (roomStatus.value === consts.STATUS_EPILOGUE ||
+      roomStatus.value === consts.STATUS_PROLOGUE) &&
+    props.room.creatorRef === props.user.uid
+  )
+})
+
+function isMe(member: Member): boolean {
+  return props.user != null && props.user.uid === member.key
+}
+
+function isCreator(member: Member): boolean {
+  return props.room != null && member.key === props.room.creatorRef
+}
+
+function isGameMaster(member: Member): boolean {
+  return (
+    props.room != null &&
+    props.room.gameMaster != null &&
+    member.key === props.room.gameMaster.key
+  )
+}
+
+function isVillagers(member: Member): boolean {
+  return props.room != null && props.room.villagers.some(v => v.key === member.key)
+}
+
+function isWolfs(member: Member): boolean {
+  return props.room != null && props.room.wolfs.some(w => w.key === member.key)
+}
+
+function doneVote(member: Member): boolean {
+  return props.voteKeys.some(v => v.uid === member.key)
+}
+
+function displayDoneVote(member: Member): boolean {
+  return (
+    doneVote(member) &&
+    props.room != null &&
+    roomStatus.value !== consts.STATUS_EPILOGUE
+  )
+}
+
+function displayDoneReady(member: Member): boolean {
+  return (
+    props.room != null &&
+    (roomStatus.value === consts.STATUS_EPILOGUE ||
+      roomStatus.value === consts.STATUS_PROLOGUE) &&
+    member.ready
+  )
 }
 </script>
 

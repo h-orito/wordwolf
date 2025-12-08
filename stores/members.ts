@@ -38,7 +38,7 @@ export const useMembersStore = defineStore('members', () => {
     members.value = []
   }
 
-  async function initMembers(roomKey: string) {
+  async function initMembers(roomKey: string, isComplete = false) {
     if (unsubscribe) {
       unsubscribe()
       members.value = []
@@ -65,7 +65,7 @@ export const useMembersStore = defineStore('members', () => {
     userName: string,
     userId: string,
     roomKey: string,
-    clientToken: string
+    callback?: (members: Member[]) => Promise<void>
   ) {
     const leftColor = COLORS.filter((c) => {
       return !members.value.some((m) => m.color === c)
@@ -74,6 +74,8 @@ export const useMembersStore = defineStore('members', () => {
       leftColor.length > 0
         ? leftColor[0]
         : COLORS[Math.floor(Math.random() * COLORS.length)]
+
+    const clientToken = typeof localStorage !== 'undefined' ? localStorage.getItem('client-token') : null
 
     const db = useFirestore()
     const memberDoc = doc(db, 'members', userId)
@@ -85,8 +87,24 @@ export const useMembersStore = defineStore('members', () => {
       color: color,
       ready: false,
       winNum: 0,
-      clientToken: clientToken
+      clientToken: clientToken || ''
     })
+
+    // 新しいメンバーリストを計算してコールバックを呼び出す
+    if (callback) {
+      const newMember: Member = {
+        name: userName,
+        key: userId,
+        roomKey: roomKey,
+        createdAt: new Date(),
+        color: color || '',
+        ready: false,
+        winNum: 0,
+        clientToken: clientToken || ''
+      }
+      const updatedMembers = [...members.value, newMember]
+      await callback(updatedMembers)
+    }
   }
 
   async function addReady(userId: string) {
@@ -109,10 +127,16 @@ export const useMembersStore = defineStore('members', () => {
     }
   }
 
-  async function removeMember(key: string) {
+  async function removeMember(key: string, callback?: (members: Member[]) => Promise<void>) {
     const db = useFirestore()
     const memberDoc = doc(db, 'members', key)
     await deleteDoc(memberDoc)
+
+    // 残りのメンバーリストを計算してコールバックを呼び出す
+    if (callback) {
+      const remainingMembers = members.value.filter(m => m.key !== key)
+      await callback(remainingMembers)
+    }
   }
 
   async function addWinNum(keys: string[]) {

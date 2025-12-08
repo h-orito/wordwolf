@@ -4,9 +4,9 @@
     <div class="panel-block is-size-7 has-text-left" v-if="isGameMaster">
       <p>
         村人のワードは
-        <span class="has-text-weight-bold is-size-6">{{ room.villagersWord }}</span> です。
+        <span class="has-text-weight-bold is-size-6">{{ room?.villagersWord }}</span> です。
         <br>人狼のワードは
-        <span class="has-text-weight-bold is-size-6">{{ room.wolfWord }}</span> です。
+        <span class="has-text-weight-bold is-size-6">{{ room?.wolfWord }}</span> です。
         <br>
       </p>
     </div>
@@ -26,9 +26,9 @@
       </p>
       <progress
         class="progress is-small"
-        :class="leftTime < room.talkMinutes * 15 ? 'is-danger' : leftTime < room.talkMinutes * 30 ? 'is-warning' : 'is-primary'"
+        :class="leftTime < (room?.talkMinutes || 2) * 15 ? 'is-danger' : leftTime < (room?.talkMinutes || 2) * 30 ? 'is-warning' : 'is-primary'"
         :value="leftTime"
-        :max="room.talkMinutes * 60"
+        :max="(room?.talkMinutes || 2) * 60"
         style="margin-bottom: 0.5rem;"
       ></progress>
     </div>
@@ -44,7 +44,7 @@
           :key="mem.key"
           class="button is-default is-small has-text-weight-bold"
           :class="mem.color"
-          @click="$emit('vote', mem.key)"
+          @click="emit('vote', mem.key)"
         >{{ mem.name }}</button>
       </div>
     </div>
@@ -58,92 +58,105 @@
     </div>
     <div v-if="isOwner || isGameMaster" class="panel-block is-size-7 has-text-left">
       <p style="margin-bottom: 5px;">強制的に投票を打ち切って進行させることもできます。</p>
-      <button class="button is-danger is-small" @click="$emit('end-vote')">投票を打ち切る</button>
+      <button class="button is-danger is-small" @click="emit('end-vote')">投票を打ち切る</button>
     </div>
   </div>
 </template>
 
-<script>
-import * as consts from '~/store/consts'
-export default {
-  props: ['room', 'members', 'voteKeys', 'user', 'leftTime'],
-  data: function() {
-    return {}
-  },
-  computed: {
-    roomStatus() {
-      if (this.room == null) {
-        return ''
-      }
-      return this.room.status
-    },
-    isProgress() {
-      return this.roomStatus === consts.STATUS_PROGRESS
-    },
-    isMember() {
-      return (
-        this.user != null && this.members.some(mem => mem.key === this.user.uid)
-      )
-    },
-    isOwner: function() {
-      return (
-        this.user != null &&
-        this.room != null &&
-        this.room.creatorRef === this.user.uid
-      )
-    },
-    isGameMaster() {
-      return (
-        this.room != null &&
-        this.user != null &&
-        this.room.gameMaster.key === this.user.uid
-      )
-    },
-    myWord() {
-      if (isVillagers(this.room.villagers, this.user)) {
-        return this.room.villagersWord
-      } else if (this.isWolfs) {
-        return this.room.wolfWord
-      } else {
-        return ''
-      }
-    },
-    isWolfs() {
-      return (
-        this.room != null &&
-        this.user != null &&
-        this.room.wolfs.some(w => w.key === this.user.uid)
-      )
-    },
-    votes() {
-      if (this.voteKeys == null) {
-        return []
-      }
-      return this.voteKeys.map(v => {
-        return {
-          from: this.members.filter(m => m.key === v.uid)[0],
-          to: this.members.filter(m => m.key === v.target)[0]
-        }
-      })
-    },
-    doneVote() {
-      return this.votes.some(
-        v => v.from != null && v.from.key === this.user.uid
-      )
-    },
-    gameMember() {
-      return this.members.filter(m => {
-        return m.key !== this.room.gameMaster.key && m.key !== this.user.uid
-      })
-    }
-  },
-  created: function() {},
-  methods: {}
+<script setup lang="ts">
+import * as consts from '~/stores/consts'
+import type { Room, Member, Vote } from '~/stores/types'
+
+interface Props {
+  room: Room | null
+  members: Member[]
+  voteKeys: Vote[]
+  user: { uid: string } | null
+  leftTime: number
 }
 
-const isVillagers = function(villagers, user) {
-  return villagers.some(vil => vil.key === user.uid)
-}
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  vote: [string]
+  'end-vote': []
+}>()
+
+// computed
+const roomStatus = computed(() => {
+  if (props.room == null) {
+    return ''
+  }
+  return props.room.status
+})
+
+const isProgress = computed(() => {
+  return roomStatus.value === consts.STATUS_PROGRESS
+})
+
+const isMember = computed(() => {
+  return props.user != null && props.members.some(mem => mem.key === props.user!.uid)
+})
+
+const isOwner = computed(() => {
+  return (
+    props.user != null &&
+    props.room != null &&
+    props.room.creatorRef === props.user.uid
+  )
+})
+
+const isGameMaster = computed(() => {
+  return (
+    props.room != null &&
+    props.user != null &&
+    props.room.gameMaster != null &&
+    props.room.gameMaster.key === props.user.uid
+  )
+})
+
+const myWord = computed(() => {
+  if (!props.room || !props.user) return ''
+  if (props.room.villagers.some(vil => vil.key === props.user!.uid)) {
+    return props.room.villagersWord
+  } else if (isWolfs.value) {
+    return props.room.wolfWord
+  } else {
+    return ''
+  }
+})
+
+const isWolfs = computed(() => {
+  return (
+    props.room != null &&
+    props.user != null &&
+    props.room.wolfs.some(w => w.key === props.user!.uid)
+  )
+})
+
+const votes = computed(() => {
+  if (props.voteKeys == null) {
+    return []
+  }
+  return props.voteKeys.map(v => {
+    return {
+      from: props.members.find(m => m.key === v.uid),
+      to: props.members.find(m => m.key === v.target)
+    }
+  })
+})
+
+const doneVote = computed(() => {
+  return votes.value.some(
+    v => v.from != null && v.from.key === props.user?.uid
+  )
+})
+
+const gameMember = computed(() => {
+  if (!props.room || !props.room.gameMaster || !props.user) return []
+  return props.members.filter(m => {
+    return m.key !== props.room!.gameMaster!.key && m.key !== props.user!.uid
+  })
+})
 </script>
 
 <style>

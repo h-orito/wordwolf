@@ -1,25 +1,25 @@
-<template lang="html">
+<template>
   <section class="section" style="padding: 1rem 1rem;">
     <div class="container">
       <span v-if="requiredPassword" class="fas fa-key"></span>
       <span v-if="isRatingRoom" class="has-text-danger">{{
-        room.roomRating
+        room?.roomRating
       }}</span>
-      <h1 class="title is-6">{{ !!room ? room.name : '' }}</h1>
+      <h1 class="title is-6">{{ room?.name ?? '' }}</h1>
       <div class="columns is-tablet" v-if="isPasswordCollect">
         <!-- left tab -->
         <div
           class="column is-one-thirds-tablet"
-          v-if="!!room && !room.isComplete"
+          v-if="room && !room.isComplete"
         >
-          <Members
+          <RoomMembers
             :room="room"
             :members="members"
             :voteKeys="votes"
             :user="user"
             @kick="confirmToKick"
-          ></Members>
-          <Proepi
+          />
+          <RoomProepi
             :room="room"
             :members="members"
             :user="user"
@@ -30,14 +30,14 @@
             @ready="ready"
             @cancelReady="cancelReady"
             @gameStart="gameStart"
-          ></Proepi>
-          <Prepare
+          />
+          <RoomPrepare
             :room="room"
             :members="members"
             :user="user"
             @setWord="setWord"
-          ></Prepare>
-          <Progress
+          />
+          <RoomProgress
             :room="room"
             :members="members"
             :voteKeys="votes"
@@ -45,18 +45,18 @@
             :leftTime="leftTime"
             @vote="vote"
             @end-vote="endVote"
-          ></Progress>
-          <Counter
+          />
+          <RoomCounter
             :room="room"
             :members="members"
             :user="user"
             @submitCounterWord="submitCounterWord"
-          ></Counter>
-          <Reset
+          />
+          <RoomReset
             :room="room"
             :user="user"
             @submitRoomReset="submitRoomReset"
-          ></Reset>
+          />
         </div>
         <!-- end left tab -->
         <!-- right tab -->
@@ -64,7 +64,7 @@
           class="column"
           :class="!room || !room.isComplete ? 'is-two-thirds-tablet' : ''"
         >
-          <Chat
+          <RoomChat
             :room="room"
             :members="members"
             :user="user"
@@ -72,32 +72,16 @@
             :leftTime="leftTime"
             @say="say"
             @kick="kick"
-          ></Chat>
+          />
         </div>
         <!-- end right tab -->
       </div>
-      <div v-if="!!room && room.isComplete">
-        <nuxt-link class="button is-primary is-small" to="/room-list"
-          >終了した部屋一覧に戻る</nuxt-link
+      <div v-if="room?.isComplete">
+        <NuxtLink class="button is-primary is-small" to="/room-list"
+          >終了した部屋一覧に戻る</NuxtLink
         >
       </div>
-      <!-- <Footer/> -->
-      <script
-        async
-        src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-      ></script>
-      <!-- wordwolf-footer -->
-      <ins
-        class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-0917187897820609"
-        data-ad-slot="1231685842"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
-      <script>
-        ;(adsbygoogle = window.adsbygoogle || []).push({})
-      </script>
+      <GoogleAds />
     </div>
     <div class="modal" id="password-modal">
       <div class="modal-background is-cli"></div>
@@ -113,7 +97,7 @@
           >
             {{
               'この部屋は暴力表現' +
-                (room.roomRating == 'R18' ? '、性的表現' : '') +
+                (room?.roomRating === 'R18' ? '、性的表現' : '') +
                 'が投稿される可能性があります。'
             }}<br />
           </div>
@@ -141,7 +125,7 @@
               class="help is-danger has-text-left is-size-7"
               v-if="hasRoomPassword"
             >
-              {{ this.roomPasswordError }}
+              {{ roomPasswordError }}
             </p>
           </div>
         </section>
@@ -161,408 +145,328 @@
   </section>
 </template>
 
-<script>
-import {
-  LOGINOUT,
-  INIT_ROOM,
-  INIT_MEMBER,
-  RESET_MEMBER,
-  INIT_MESSAGE,
-  RESET_MESSAGE,
-  INIT_VOTE,
-  DELETE_VOTE,
-  ADD_READY,
-  DELETE_READY,
-  DELETE_READIES,
-  ADD_MEMBER,
-  REMOVE_MEMBER,
-  ADD_MESSAGE,
-  TO_PREPARE_ROOM,
-  TO_PROGRESS_ROOM,
-  VOTE_ROOM,
-  END_VOTE_ROOM,
-  COUNTER_ROOM,
-  CHANGE_ROOM_MEMBER,
-  BAN_ROOM_MEMBER,
-  RESET_ROOM,
-  COMPLETE_ROOM,
-  INIT_MASTER
-} from '../store/action-types'
-import firebase from '~/plugins/firebase'
+<script setup lang="ts">
+import { onAuthStateChanged, updateProfile } from 'firebase/auth'
 import bcrypt from 'bcryptjs'
-import Members from '~/components/room/Members'
-import Proepi from '~/components/room/Proepi'
-import Prepare from '~/components/room/Prepare'
-import Progress from '~/components/room/Progress'
-import Counter from '~/components/room/Counter'
-import Reset from '~/components/room/Reset'
-import Chat from '~/components/room/Chat'
-import Footer from '~/components/Footer'
-const auth = firebase.auth()
-export default {
-  head() {
-    return { title: 'ワードウルフオンライン', titleTemplate: '' }
-  },
-  components: {
-    Members,
-    Proepi,
-    Prepare,
-    Progress,
-    Counter,
-    Reset,
-    Chat,
-    Footer
-  },
-  data() {
-    return {
-      roomKey: '',
-      isComplete: false,
-      leftTime: 0,
-      timerObj: null,
-      roomPassword: '',
-      roomPasswordError: null,
-      isPasswordCollect: false
-    }
-  },
-  computed: {
-    user() {
-      return this.$store.getters.getUser
-    },
-    room() {
-      return this.$store.getters.getRoom
-    },
-    members() {
-      return this.$store.getters.getMembers
-    },
-    master() {
-      return this.$store.getters.getMaster
-    },
-    votes() {
-      return this.$store.getters.getVotes
-    },
-    isLogin() {
-      return this.$store.getters.isLogin
-    },
-    isMember() {
-      return !!this.user && this.members.some(mem => mem.key === this.user.uid)
-    },
-    isOwner: function() {
-      return (
-        !!this.user && !!this.room && this.room.creatorRef === this.user.uid
-      )
-    },
-    isGameMaster() {
-      return (
-        !!this.room && !!this.user && this.room.gameMaster.key === this.user.uid
-      )
-    },
-    messages() {
-      return this.$store.getters.getMessages
-    },
-    hasRoomPassword() {
-      return !!this.roomPassword && this.roomPassword !== ''
-    },
-    hasRoomPasswordError() {
-      return !!this.roomPasswordError
-    },
-    canView() {
-      if (!!this.user && this.user.uid === this.master) {
-        return true
-      }
-      this.validateRoomPassword()
-      return this.hasRoomPassword && !this.hasRoomPasswordError && this.isLogin
-    },
-    requiredPassword() {
-      return (
-        !!this.room &&
-        this.room.roomPassword != null &&
-        this.room.roomPassword !== ''
-      )
-    },
-    isRatingRoom() {
-      return !!this.room && ['R15', 'R18'].some(r => r === this.room.roomRating)
-    }
-  },
-  asyncData({ query }) {
-    return { roomKey: query.id, isComplete: query.complete }
-  },
-  async mounted() {
-    const self = this
-    this.timerObj = setInterval(function() {
-      self.timerCount()
-    }, 1000)
-    firebase.auth().onAuthStateChanged(user => {
-      this.$store.dispatch(LOGINOUT, {
-        user: user
-      })
-    })
+import { useAuthStore } from '~/stores/auth'
+import { useRoomsStore } from '~/stores/rooms'
+import { useMembersStore } from '~/stores/members'
+import { useMessagesStore } from '~/stores/messages'
+import { useVotesStore } from '~/stores/votes'
+import { useMasterStore } from '~/stores/master'
+import type { Member } from '~/stores/types'
 
-    const fetchQuery = {
-      roomKey: this.roomKey,
-      isComplete: this.isComplete
-    }
-    await this.$store.dispatch(INIT_ROOM, fetchQuery)
-    await this.$store.dispatch(INIT_MASTER)
-    if (this.room.roomPassword != null && this.room.roomPassword != '') {
-      await this.$store.dispatch(RESET_MEMBER, fetchQuery)
-      await this.$store.dispatch(RESET_MESSAGE, fetchQuery)
-      this.openPasswordModal()
-      return
-    } else {
-      this.initMemberAndMessage()
-    }
-  },
-  methods: {
-    joinRoom: function(playerName) {
-      if (!this.user || this.isMember) return
-      join(this.user.uid, playerName, this.room.key, this.$store)
-    },
-    leaveRoom: function() {
-      if (!window.confirm('本当に退出しますか？')) return
-      if (!this.user || !this.isMember) return
-      leave(
-        this.user.uid,
-        this.user.displayName,
-        this.room.key,
-        this.$store,
-        this.room.creatorRef
-      )
-    },
-    confirmToKick({ memberKey, memberName }) {
-      if (
-        !window.confirm(
-          '本当に強制退出させますか？退出させた人はこの部屋に参加できなくなります。'
-        )
-      ) {
-        return
-      }
-      if (!this.isOwner) {
-        return // 何もしない
-      }
-      this.kick({
-        memberKey,
-        memberName
-      })
-    },
-    kick: function({ memberKey, memberName }) {
-      this.$store.dispatch(BAN_ROOM_MEMBER, {
-        roomKey: this.room.key,
-        target: memberKey
-      })
-      leave(
-        memberKey,
-        memberName,
-        this.room.key,
-        this.$store,
-        this.room.creatorRef
-      )
-    },
-    submitRoomReset: function() {
-      if (
-        !window.confirm(
-          '進行不可能になった場合のみ使用してください。本当に開始前の状態に戻しますか？'
-        )
-      ) {
-        return
-      }
-      if (!this.isOwner) {
-        return // 何もしない
-      }
-      this.$store.dispatch(RESET_ROOM, {
-        roomKey: this.room.key,
-        members: this.members
-      })
-    },
-    gameStart: function({ talkMinutes, wolfNum }) {
-      const roomKey = this.room.key
-      this.$store
-        .dispatch(TO_PREPARE_ROOM, {
-          roomKey: roomKey,
-          members: this.members,
-          talkMinutes: talkMinutes,
-          wolfNum: wolfNum
-        })
-        .then(() => {
-          this.$store.dispatch(DELETE_VOTE, {
-            roomKey: roomKey
-          })
-          this.$store.dispatch(DELETE_READIES, {
-            members: this.members
-          })
-        })
-    },
-    setWord: function({ villagersWord, wolfWord }) {
-      const self = this
-      this.$store.dispatch(TO_PROGRESS_ROOM, {
-        roomKey: this.room.key,
-        villagersWord: villagersWord,
-        wolfWord: wolfWord,
-        callback: () => {
-          self.villagersWord = ''
-          self.wolfWord = ''
-        }
-      })
-    },
-    timerCount: function() {
-      if (!this.room || !this.room.endingTime) return
-      const endTime = this.room.endingTime.toDate()
-      const now = new Date()
-      const leftTime = Math.floor((endTime.getTime() - now.getTime()) / 1000)
-      this.leftTime = leftTime < 0 ? 0 : leftTime
-    },
-    cancelReady: function() {
-      this.$store.dispatch(DELETE_READY, {
-        userId: this.user.uid
-      })
-    },
-    ready: function() {
-      this.$store.dispatch(ADD_READY, {
-        userId: this.user.uid
-      })
-    },
-    vote: async function(key) {
-      await this.$store.dispatch(VOTE_ROOM, {
-        roomKey: this.room.key,
-        uid: this.user.uid,
-        targetKey: key,
-        members: this.members
-      })
-    },
-    endVote: async function() {
-      if (!window.confirm('本当に投票を打ち切って進行させますか？')) {
-        return
-      }
-      if (!this.isOwner && !this.isGameMaster) return
-      await this.$store.dispatch(END_VOTE_ROOM, {
-        roomKey: this.room.key,
-        members: this.members
-      })
-    },
-    submitCounterWord: function(counterWord) {
-      this.$store.dispatch(COUNTER_ROOM, {
-        roomKey: this.room.key,
-        counterWord: counterWord
-      })
-    },
-    say: function({ message }) {
-      const member = this.members.find(m => m.key === this.user.uid)
-      const color = !member ? null : member.color
-      return this.$store.dispatch(ADD_MESSAGE, {
-        roomKey: this.room.key,
-        name: this.user.displayName,
-        color: color,
-        message: message,
-        memberKey: this.user.uid,
-        callback: () => {}
-      })
-    },
-    openPasswordModal() {
-      var modal = document.querySelector('#password-modal')
-      var html = document.querySelector('html')
-      modal.classList.add('is-active')
-      html.classList.add('is-clipped')
-    },
-    backToTop() {
-      location.href = '/'
-    },
-    validateRoomPassword() {
-      if (!this.requiredPassword) return
-      if (!bcrypt.compareSync(this.roomPassword, this.room.roomPassword)) {
-        this.roomPasswordError = '正しくありません'
-      } else {
-        this.roomPasswordError = null
-      }
-    },
-    async submitPassword() {
-      this.validateRoomPassword()
-      if (!this.canView) return
-      await this.initMemberAndMessage()
-      document.querySelector('#password-modal').classList.remove('is-active')
-      document.querySelector('html').classList.remove('is-clipped')
-    },
-    async initMemberAndMessage() {
-      this.isPasswordCollect = true
-      const fetchQuery = {
-        roomKey: this.roomKey,
-        isComplete: this.isComplete
-      }
-      await this.$store.dispatch(INIT_MEMBER, fetchQuery)
-      if (!this.isComplete) {
-        await this.$store.dispatch(INIT_VOTE, fetchQuery)
-      }
-      await this.$store.dispatch(INIT_MESSAGE, fetchQuery)
-    }
+useHead({
+  title: 'ワードウルフオンライン'
+})
+
+const route = useRoute()
+const router = useRouter()
+const auth = useFirebaseAuth()!
+
+const authStore = useAuthStore()
+const roomsStore = useRoomsStore()
+const membersStore = useMembersStore()
+const messagesStore = useMessagesStore()
+const votesStore = useVotesStore()
+const masterStore = useMasterStore()
+
+// route params
+const roomKey = computed(() => route.query.id as string)
+const isComplete = computed(() => route.query.complete === 'true')
+
+// data
+const leftTime = ref(0)
+let timerObj: ReturnType<typeof setInterval> | null = null
+const roomPassword = ref('')
+const roomPasswordError = ref<string | null>(null)
+const isPasswordCollect = ref(false)
+
+// computed from stores
+const user = computed(() => authStore.user)
+const room = computed(() => roomsStore.room)
+const members = computed(() => membersStore.members)
+const master = computed(() => masterStore.master)
+const votes = computed(() => votesStore.votes)
+const messages = computed(() => messagesStore.messages)
+const isLogin = computed(() => authStore.isLogin)
+
+const isMember = computed(() => {
+  return !!user.value && members.value.some(mem => mem.key === user.value!.uid)
+})
+
+const isOwner = computed(() => {
+  return !!user.value && !!room.value && room.value.creatorRef === user.value.uid
+})
+
+const isGameMaster = computed(() => {
+  return (
+    !!room.value &&
+    !!user.value &&
+    room.value.gameMaster?.key === user.value.uid
+  )
+})
+
+const hasRoomPassword = computed(() => {
+  return !!roomPassword.value && roomPassword.value !== ''
+})
+
+const hasRoomPasswordError = computed(() => {
+  return !!roomPasswordError.value
+})
+
+const canView = computed(() => {
+  if (!!user.value && user.value.uid === master.value) {
+    return true
+  }
+  validateRoomPassword()
+  return hasRoomPassword.value && !hasRoomPasswordError.value && isLogin.value
+})
+
+const requiredPassword = computed(() => {
+  return (
+    !!room.value &&
+    room.value.roomPassword != null &&
+    room.value.roomPassword !== ''
+  )
+})
+
+const isRatingRoom = computed(() => {
+  return !!room.value && ['R15', 'R18'].some(r => r === room.value!.roomRating)
+})
+
+// lifecycle
+onMounted(async () => {
+  timerObj = setInterval(() => {
+    timerCount()
+  }, 1000)
+
+  onAuthStateChanged(auth, (firebaseUser) => {
+    authStore.loginout(firebaseUser)
+  })
+
+  await roomsStore.initRoom(roomKey.value, isComplete.value)
+  await masterStore.initMaster()
+
+  if (room.value?.roomPassword != null && room.value.roomPassword !== '') {
+    membersStore.resetMembers()
+    messagesStore.resetMessages()
+    openPasswordModal()
+    return
+  } else {
+    await initMemberAndMessage()
+  }
+})
+
+onUnmounted(() => {
+  if (timerObj) {
+    clearInterval(timerObj)
+  }
+})
+
+// methods
+function joinRoom(playerName: string) {
+  if (!user.value || isMember.value) return
+  join(user.value.uid, playerName, room.value!.key)
+}
+
+function leaveRoom() {
+  if (!window.confirm('本当に退出しますか？')) return
+  if (!user.value || !isMember.value) return
+  leave(
+    user.value.uid,
+    user.value.displayName || '',
+    room.value!.key,
+    room.value!.creatorRef
+  )
+}
+
+function confirmToKick({ memberKey, memberName }: { memberKey: string; memberName: string }) {
+  if (
+    !window.confirm(
+      '本当に強制退出させますか？退出させた人はこの部屋に参加できなくなります。'
+    )
+  ) {
+    return
+  }
+  if (!isOwner.value) {
+    return
+  }
+  kick({ memberKey, memberName })
+}
+
+function kick({ memberKey, memberName }: { memberKey: string; memberName: string }) {
+  roomsStore.banRoomMember(room.value!.key, memberKey)
+  leave(memberKey, memberName, room.value!.key, room.value!.creatorRef)
+}
+
+function submitRoomReset() {
+  if (
+    !window.confirm(
+      '進行不可能になった場合のみ使用してください。本当に開始前の状態に戻しますか？'
+    )
+  ) {
+    return
+  }
+  if (!isOwner.value) {
+    return
+  }
+  roomsStore.resetRoom(room.value!.key, members.value)
+}
+
+async function gameStart({ talkMinutes, wolfNum }: { talkMinutes: number; wolfNum: number }) {
+  const key = room.value!.key
+  await roomsStore.toPrepareRoom(key, members.value, talkMinutes, wolfNum)
+  await votesStore.deleteVotes(key)
+  await membersStore.deleteReadies(members.value)
+}
+
+function setWord({ villagersWord, wolfWord }: { villagersWord: string; wolfWord: string }) {
+  roomsStore.toProgressRoom(room.value!.key, villagersWord, wolfWord)
+}
+
+function timerCount() {
+  if (!room.value || !room.value.endingTime) return
+  const endTime = room.value.endingTime.toDate()
+  const now = new Date()
+  const left = Math.floor((endTime.getTime() - now.getTime()) / 1000)
+  leftTime.value = left < 0 ? 0 : left
+}
+
+function cancelReady() {
+  membersStore.deleteReady(user.value!.uid)
+}
+
+function ready() {
+  membersStore.addReady(user.value!.uid)
+}
+
+async function vote(key: string) {
+  await roomsStore.voteRoom(room.value!.key, user.value!.uid, key, members.value)
+}
+
+async function endVote() {
+  if (!window.confirm('本当に投票を打ち切って進行させますか？')) {
+    return
+  }
+  if (!isOwner.value && !isGameMaster.value) return
+  await roomsStore.endVoteRoom(room.value!.key, members.value)
+}
+
+function submitCounterWord(counterWord: string) {
+  roomsStore.counterRoom(room.value!.key, counterWord)
+}
+
+function say({ message }: { message: string }) {
+  const member = members.value.find(m => m.key === user.value?.uid)
+  const color = member?.color || null
+  messagesStore.addMessage(
+    room.value!.key,
+    user.value?.displayName || '',
+    color,
+    message,
+    user.value?.uid || null
+  )
+}
+
+function openPasswordModal() {
+  const modal = document.querySelector('#password-modal')
+  const html = document.querySelector('html')
+  modal?.classList.add('is-active')
+  html?.classList.add('is-clipped')
+}
+
+function backToTop() {
+  router.push('/')
+}
+
+function validateRoomPassword() {
+  if (!requiredPassword.value) return
+  if (!bcrypt.compareSync(roomPassword.value, room.value!.roomPassword!)) {
+    roomPasswordError.value = '正しくありません'
+  } else {
+    roomPasswordError.value = null
   }
 }
 
-const join = function(userId, userName, roomKey, store) {
-  var user = auth.currentUser
-
-  user
-    .updateProfile({
-      displayName: userName
-    })
-    .then(function() {
-      const message = userName + 'さんが参加しました。'
-      store.dispatch(ADD_MEMBER, {
-        userName: userName,
-        userId: userId,
-        roomKey: roomKey,
-        callback: members => {
-          addSystemMessage(roomKey, message, store)
-          const query = {
-            roomKey: roomKey,
-            memberNum: members.length,
-            isChangeCreator: false
-          }
-          if (members.length === 1) {
-            query['isChangeCreator'] = true
-            query['newCreator'] = userId
-          }
-          store.dispatch(CHANGE_ROOM_MEMBER, query)
-        }
-      })
-    })
-    .catch(function() {})
+async function submitPassword() {
+  validateRoomPassword()
+  if (!canView.value) return
+  await initMemberAndMessage()
+  document.querySelector('#password-modal')?.classList.remove('is-active')
+  document.querySelector('html')?.classList.remove('is-clipped')
 }
 
-const leave = async function(userId, userName, roomKey, store, creator) {
+async function initMemberAndMessage() {
+  isPasswordCollect.value = true
+  await membersStore.initMembers(roomKey.value, isComplete.value)
+  if (!isComplete.value) {
+    await votesStore.initVotes(roomKey.value)
+  }
+  await messagesStore.initMessages(roomKey.value, isComplete.value)
+}
+
+// helper functions
+async function join(userId: string, userName: string, key: string) {
+  const currentUser = auth.currentUser
+  if (!currentUser) return
+
+  await updateProfile(currentUser, { displayName: userName })
+  const message = userName + 'さんが参加しました。'
+
+  await membersStore.addMember(userName, userId, key, async (newMembers: Member[]) => {
+    await addSystemMessage(key, message)
+    const query: {
+      roomKey: string
+      memberNum: number
+      isChangeCreator: boolean
+      newCreator?: string
+    } = {
+      roomKey: key,
+      memberNum: newMembers.length,
+      isChangeCreator: false
+    }
+    if (newMembers.length === 1) {
+      query.isChangeCreator = true
+      query.newCreator = userId
+    }
+    await roomsStore.changeRoomMember(query.roomKey, query.memberNum, query.isChangeCreator, query.newCreator)
+  })
+}
+
+async function leave(userId: string, userName: string, key: string, creator: string) {
   const message = userName + 'さんが退出しました。'
-  store.dispatch(REMOVE_MEMBER, {
-    key: userId,
-    callback: members => {
-      addSystemMessage(roomKey, message, store)
-      const isChangeCreator = creator == userId
-      const query = {
-        roomKey: roomKey,
-        memberNum: members.length,
-        isChangeCreator: false
-      }
-      if (isChangeCreator) {
-        query['isChangeCreator'] = true
-        query['newCreator'] = members.length > 0 ? members[0].key : null
-      }
-      store.dispatch(CHANGE_ROOM_MEMBER, query)
-      if (members.length <= 0) {
-        store.dispatch(COMPLETE_ROOM, { roomKey: roomKey })
-      }
+
+  await membersStore.removeMember(userId, async (remainingMembers: Member[]) => {
+    await addSystemMessage(key, message)
+    const isChangeCreator = creator === userId
+    const query: {
+      roomKey: string
+      memberNum: number
+      isChangeCreator: boolean
+      newCreator?: string | null
+    } = {
+      roomKey: key,
+      memberNum: remainingMembers.length,
+      isChangeCreator: false
+    }
+    if (isChangeCreator) {
+      query.isChangeCreator = true
+      query.newCreator = remainingMembers.length > 0 ? remainingMembers[0]!.key : null
+    }
+    await roomsStore.changeRoomMember(query.roomKey, query.memberNum, query.isChangeCreator, query.newCreator || undefined)
+    if (remainingMembers.length <= 0) {
+      await roomsStore.completeRoom(key)
     }
   })
 }
 
-const addSystemMessage = function(roomKey, message, store) {
-  store.dispatch(ADD_MESSAGE, {
-    roomKey: roomKey,
-    name: '',
-    message: message,
-    memberKey: null,
-    color: null,
-    callback: () => {}
-  })
+async function addSystemMessage(key: string, message: string) {
+  await messagesStore.addMessage(key, '', null, message, null)
 }
 </script>
 
-<style lang="css">
+<style>
 .color01 {
   color: #cc0000;
 }

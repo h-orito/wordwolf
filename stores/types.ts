@@ -1,8 +1,10 @@
+import type { Timestamp } from 'firebase/firestore'
+
 export interface Member {
   key: string
   name: string
   roomKey: string
-  createdAt: Date
+  createdAt: Date | Timestamp
   color: string
   ready: boolean
   winNum: number
@@ -15,14 +17,14 @@ export interface Room {
   key: string
   creatorRef: string
   creatorName: string
-  createdAt: Date
+  createdAt: Date | Timestamp
   status: string
   gameMaster: Member | null
   wolfs: Member[]
   villagers: Member[]
   wolfWord: string
   villagersWord: string
-  endingTime: Date | null
+  endingTime: Timestamp | null
   winCamp: string | null
   membersNum: number
   roomPassword: string

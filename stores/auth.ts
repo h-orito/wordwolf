@@ -28,6 +28,14 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
   }
 
+  function loginout(firebaseUser: User | null) {
+    if (firebaseUser) {
+      login(firebaseUser)
+    } else {
+      logout()
+    }
+  }
+
   async function updateUserName(userKey: string, newUserName: string) {
     if (!user.value) return
 
@@ -43,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
     userName,
     login,
     logout,
+    loginout,
     updateUserName
   }
 })

@@ -1,9 +1,9 @@
 <template>
   <div class="panel" id="room-chat">
     <p class="is-size-7 has-text-left panel-heading">
-      {{ this.room != null && this.room.isComplete ? 'ログ' : 'チャット' }}
+      {{ room != null && room.isComplete ? 'ログ' : 'チャット' }}
     </p>
-    <div v-if="this.room != null && !this.room.isComplete" class="panel-block">
+    <div v-if="room != null && !room.isComplete" class="panel-block">
       <div class="control has-icons-right" style="margin-bottom: 5px;">
         <input
           :disabled="!canChat"
@@ -25,138 +25,148 @@
     </div>
     <div
       class="panel-block chatarea"
-      :class="this.room != null && this.room.isComplete ? 'chatlog' : ''"
+      :class="room != null && room.isComplete ? 'chatlog' : ''"
     >
       <div v-for="mes in messages" :key="mes.key" class="chatcontent">
-        <span class="is-size-7 has-text-left chatmessage" :class="mes.color">{{
-          createDispMessage(mes)
-        }}</span>
-        <span class="is-size-7" :class="mes.color">{{
-          messageDatetime(mes)
-        }}</span>
+        <span class="is-size-7 has-text-left chatmessage" :class="mes.color">
+          {{ createDispMessage(mes) }}
+        </span>
+        <span class="is-size-7" :class="mes.color">
+          {{ messageDatetime(mes) }}
+        </span>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  props: ['room', 'members', 'user', 'messages', 'leftTime'],
-  data: function() {
-    return {
-      message: '',
-      errorMessage: '',
-      banCount: 0,
-      beforeMessage: '',
-      canMessageSubmit: false
-    }
-  },
-  computed: {
-    roomStatus() {
-      if (this.room == null) {
-        return ''
-      }
-      return this.room.status
-    },
-    isMember() {
-      return (
-        this.user != null && this.members.some(mem => mem.key === this.user.uid)
-      )
-    },
-    canChat() {
-      if (this.room == null || !this.isMember) {
-        return false
-      }
-      return true
-    }
-  },
-  created: function() {
-    this.banCount = localStorage.banCount ? parseInt(localStorage.banCount) : 0
-  },
-  methods: {
-    setCanMessageSubmit() {
-      // 日本語確定でもkeyup.enterが発火するので、keypressしたら立てておく
-      this.canMessageSubmit = true
-    },
-    createDispMessage: function(mes) {
-      if (mes.name == null || mes.name === '') {
-        return mes.message
-      }
-      return mes.name + ': ' + mes.message
-    },
-    messageDatetime: function(mes) {
-      if (
-        mes == null ||
-        mes.name == null ||
-        mes.name === '' ||
-        mes.createdAt == null
-      ) {
-        return ''
-      }
-      return makeDatetimeStr(mes.createdAt)
-    },
-    say() {
-      this.errorMessage = ''
-      if (this.message.trim() === '') {
-        return
-      }
-      if (this.message.indexOf('http') != -1) {
-        this.errorMessage = '禁止文字列が含まれています'
-        return
-      }
-      if (!this.canMessageSubmit) {
-        // 日本語確定でも発火してしまうので、keypress後でない限りNGにする
-        return
-      }
-      if (!this.canChat) {
-        return
-      }
-      if (this.message.length >= 200) {
-        this.banCount += 4
-      } else if (this.message === this.beforeMessage) {
-        this.errorMessage = '同じ言葉を連投しないでください'
-        this.banCount += 3
-      } else if (this.message.length <= 4) {
-        this.banCount += 1
-      } else {
-        this.banCount -= 1
-        if (this.banCount < 0) {
-          this.banCount = 0
-        }
-      }
-      localStorage.banCount = this.banCount
-      if (this.banCount >= 10) {
-        const member = this.members.find(mem => mem.key === this.user.uid)
-        this.$emit('kick', {
-          memberKey: member.key,
-          memberName: member.name
-        })
-        return
-      }
+<script setup lang="ts">
+import type { Room, Member, Message } from '~/stores/types'
 
-      this.$emit('say', {
-        message:
-          this.message.length > 200
-            ? this.message.substring(0, 200)
-            : this.message
-      })
-      this.beforeMessage = this.message
-      this.message = ''
-      this.canMessageSubmit = false
-    }
-  }
+interface Props {
+  room: Room | null
+  members: Member[]
+  user: { uid: string; displayName: string | null } | null
+  messages: Message[]
+  leftTime: number
 }
 
-const makeDatetimeStr = createdAt => {
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  say: [{ message: string }]
+  kick: [{ memberKey: string; memberName: string }]
+}>()
+
+// data
+const message = ref('')
+const errorMessage = ref('')
+const banCount = ref(0)
+const beforeMessage = ref('')
+const canMessageSubmit = ref(false)
+
+// computed
+const isMember = computed(() => {
+  return props.user != null && props.members.some(mem => mem.key === props.user!.uid)
+})
+
+const canChat = computed(() => {
+  if (props.room == null || !isMember.value) {
+    return false
+  }
+  return true
+})
+
+// lifecycle
+onMounted(() => {
+  if (typeof localStorage !== 'undefined') {
+    banCount.value = localStorage.banCount ? parseInt(localStorage.banCount) : 0
+  }
+})
+
+// methods
+function setCanMessageSubmit() {
+  canMessageSubmit.value = true
+}
+
+function createDispMessage(mes: Message): string {
+  if (mes.name == null || mes.name === '') {
+    return mes.message
+  }
+  return mes.name + ': ' + mes.message
+}
+
+function messageDatetime(mes: Message): string {
+  if (
+    mes == null ||
+    mes.name == null ||
+    mes.name === '' ||
+    mes.createdAt == null
+  ) {
+    return ''
+  }
+  return makeDatetimeStr(mes.createdAt)
+}
+
+function makeDatetimeStr(createdAt: number): string {
   const datetime = new Date(createdAt)
   const hour = rightZeroPad(datetime.getHours())
   const minute = rightZeroPad(datetime.getMinutes())
-
   return hour + ':' + minute
 }
 
-const rightZeroPad = function(str) {
-  return ('0' + str).slice(-2)
+function rightZeroPad(num: number): string {
+  return ('0' + num).slice(-2)
+}
+
+function say() {
+  errorMessage.value = ''
+  if (message.value.trim() === '') {
+    return
+  }
+  if (message.value.indexOf('http') !== -1) {
+    errorMessage.value = '禁止文字列が含まれています'
+    return
+  }
+  if (!canMessageSubmit.value) {
+    return
+  }
+  if (!canChat.value) {
+    return
+  }
+  if (message.value.length >= 200) {
+    banCount.value += 4
+  } else if (message.value === beforeMessage.value) {
+    errorMessage.value = '同じ言葉を連投しないでください'
+    banCount.value += 3
+  } else if (message.value.length <= 4) {
+    banCount.value += 1
+  } else {
+    banCount.value -= 1
+    if (banCount.value < 0) {
+      banCount.value = 0
+    }
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.banCount = banCount.value
+  }
+  if (banCount.value >= 10) {
+    const member = props.members.find(mem => mem.key === props.user?.uid)
+    if (member) {
+      emit('kick', {
+        memberKey: member.key,
+        memberName: member.name
+      })
+    }
+    return
+  }
+
+  emit('say', {
+    message: message.value.length > 200
+      ? message.value.substring(0, 200)
+      : message.value
+  })
+  beforeMessage.value = message.value
+  message.value = ''
+  canMessageSubmit.value = false
 }
 </script>
 

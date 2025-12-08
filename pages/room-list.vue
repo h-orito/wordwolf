@@ -1,8 +1,9 @@
-<template lang="html">
+<template>
   <section class="section">
     <div class="container">
       <h1 class="title is-5">最近終了した部屋</h1>
-      <p class="content" v-if="rooms.length == 0">現在部屋がありません。</p><br>
+      <p class="content" v-if="rooms.length === 0">現在部屋がありません。</p>
+      <br />
       <table v-if="rooms.length > 0" class="table is-striped is-fullwidth is-size-7">
         <thead>
           <tr>
@@ -11,50 +12,42 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="room in rooms" 
-            :key="room['key']">
+          <tr v-for="room in rooms" :key="room.key">
             <td class="has-text-left">
-              <span v-if="room['roomPassword'] != null && room['roomPassword'] !== ''" class="fas fa-key"></span>
-              <span v-if="room['roomRating'] === 'R15' || room['roomRating'] === 'R18'" class="tag reverse-danger">{{ room['roomRating'] }}</span>
-              <nuxt-link :to="{ path: 'room', query: { id: room.key, complete: true }}">{{ room.name }}</nuxt-link>
+              <span
+                v-if="room.roomPassword != null && room.roomPassword !== ''"
+                class="fas fa-key"
+              ></span>
+              <span
+                v-if="room.roomRating === 'R15' || room.roomRating === 'R18'"
+                class="tag reverse-danger"
+              >{{ room.roomRating }}</span>
+              <NuxtLink :to="{ path: '/room', query: { id: room.key, complete: 'true' } }">
+                {{ room.name }}
+              </NuxtLink>
             </td>
-            <td>{{ room['creatorName'] }}</td>
+            <td>{{ room.creatorName }}</td>
           </tr>
         </tbody>
       </table>
-      <!-- <button v-if="!isDispAllRoom" class="button is-primary" @click="fetchAllRoom">全ての部屋を表示する</button> -->
     </div>
   </section>
 </template>
 
-<script>
-import { INIT_OLD_ROOMS, INIT_ALL_OLD_ROOMS } from '../store/action-types'
-export default {
-  head() {
-    return { title: '終了した部屋' }
-  },
-  data() {
-    return {
-      isDispAllRoom: false
-    }
-  },
-  computed: {
-    rooms() {
-      return this.$store.getters.getOldRooms
-    }
-  },
-  async fetch({ store }) {
-    return await store.dispatch(INIT_OLD_ROOMS)
-  },
-  methods: {
-    // 大量の読み込みが発生するため一旦封印
-    // fetchAllRoom() {
-    //   this.$store.dispatch(INIT_ALL_OLD_ROOMS)
-    //   this.isDispAllRoom = true
-    // }
-  }
-}
+<script setup lang="ts">
+import { useRoomsStore } from '~/stores/rooms'
+
+useHead({
+  title: '終了した部屋'
+})
+
+const roomsStore = useRoomsStore()
+
+// computed
+const rooms = computed(() => roomsStore.oldRooms)
+
+// fetch old rooms
+await roomsStore.initOldRooms()
 </script>
 
 <style lang="css">

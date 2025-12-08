@@ -4,14 +4,14 @@
     <div class="panel-block" v-if="roomStatus === 'epilogue'">
       <p class="is-size-7 has-text-left">
         <span class="has-text-weight-bold is-size-6">{{
-          room.winCamp === 'wolfs' ? '人狼' : '村人'
+          room?.winCamp === 'wolfs' ? '人狼' : '村人'
         }}</span>
         の勝利です。 <br />村人のワードは
         <span class="has-text-weight-bold is-size-6">{{
-          room.villagersWord
+          room?.villagersWord
         }}</span>
         でした。 <br />人狼のワードは
-        <span class="has-text-weight-bold is-size-6">{{ room.wolfWord }}</span>
+        <span class="has-text-weight-bold is-size-6">{{ room?.wolfWord }}</span>
         でした。
       </p>
     </div>
@@ -119,7 +119,7 @@
           />
         </div>
         <p class="help is-danger is-size-7 has-text-left" v-if="hasPlayerName">
-          {{ this.playerNameError }}
+          {{ playerNameError }}
         </p>
       </div>
       <div class="field">
@@ -148,186 +148,224 @@
   </div>
 </template>
 
-<script>
-import * as consts from '~/store/consts'
-export default {
-  props: ['room', 'members', 'user', 'isLogin', 'master'],
-  data: function() {
-    return {
-      playerName: '',
-      playerNameError: null,
-      talkMinutes: 3,
-      wolfNum: 1,
-      waitCount: 30,
-      timer: null
+<script setup lang="ts">
+import * as consts from '~/stores/consts'
+import type { Room, Member } from '~/stores/types'
+import { useMasterStore } from '~/stores/master'
+
+interface Props {
+  room: Room | null
+  members: Member[]
+  user: { uid: string; email: string | null; emailVerified: boolean } | null
+  isLogin: boolean
+  master: string | null
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  joinRoom: [string]
+  leaveRoom: []
+  ready: []
+  cancelReady: []
+  gameStart: [{ talkMinutes: number; wolfNum: number }]
+}>()
+
+const masterStore = useMasterStore()
+
+// data
+const playerName = ref('')
+const playerNameError = ref<string | null>(null)
+const talkMinutes = ref(3)
+const wolfNum = ref(1)
+const waitCount = ref(30)
+let timer: ReturnType<typeof setInterval> | null = null
+
+// computed
+const roomStatus = computed(() => {
+  if (props.room == null) {
+    return ''
+  }
+  return props.room.status
+})
+
+const isNotProgress = computed(() => {
+  return (
+    props.room != null &&
+    (roomStatus.value === consts.STATUS_PROLOGUE ||
+      roomStatus.value === consts.STATUS_EPILOGUE)
+  )
+})
+
+const isOwner = computed(() => {
+  return (
+    props.user != null &&
+    props.room != null &&
+    props.room.creatorRef === props.user.uid
+  )
+})
+
+const isMember = computed(() => {
+  return props.user != null && props.members.some(mem => mem.key === props.user!.uid)
+})
+
+const notVerified = computed(() => {
+  return (
+    props.isLogin &&
+    !isMember.value &&
+    props.user?.email &&
+    !props.user.emailVerified &&
+    isNotProgress.value &&
+    props.room != null &&
+    (props.room.ban == null ||
+      !props.room.ban.some(target => target === props.user!.uid))
+  )
+})
+
+const isGlobalBaned = computed(() => {
+  const bans = masterStore.bans
+  const clientToken = typeof localStorage !== 'undefined' ? localStorage.getItem('client-token') : null
+  return bans.some(b => b === clientToken)
+})
+
+const canJoin = computed(() => {
+  return (
+    props.isLogin &&
+    !isMember.value &&
+    (!props.user?.email || props.user.emailVerified) &&
+    isNotProgress.value &&
+    props.room != null &&
+    !isGlobalBaned.value &&
+    (props.room.ban == null ||
+      !props.room.ban.some(target => target === props.user!.uid))
+  )
+})
+
+const canLeave = computed(() => {
+  return props.isLogin && isMember.value && isNotProgress.value
+})
+
+const hasPlayerName = computed(() => {
+  return playerName.value != null && playerName.value !== ''
+})
+
+const hasPlayerNameError = computed(() => {
+  return playerNameError.value != null
+})
+
+const canJoinSubmit = computed(() => {
+  validatePlayerName()
+  return (
+    hasPlayerName.value &&
+    !hasPlayerNameError.value &&
+    props.isLogin &&
+    waitCount.value <= 0
+  )
+})
+
+const canReady = computed(() => {
+  if (!isMember.value || !props.user) return false
+  const member = props.members.find(m => m.key === props.user!.uid)
+  return member && !member.ready
+})
+
+const canCancelReady = computed(() => {
+  if (!isMember.value || !props.user) return false
+  const member = props.members.find(m => m.key === props.user!.uid)
+  return member && member.ready
+})
+
+const canGameStart = computed(() => {
+  return (
+    props.members.length >= 4 &&
+    isNotProgress.value &&
+    isOwner.value &&
+    props.room != null &&
+    props.members
+      .filter(m => m.key !== props.room!.creatorRef)
+      .every(m => m.ready)
+  )
+})
+
+// lifecycle
+onMounted(() => {
+  timer = setInterval(() => {
+    if (props.room == null) {
+      return
     }
-  },
-  computed: {
-    roomStatus() {
-      if (this.room == null) {
-        return ''
-      }
-      return this.room.status
-    },
-    isNotProgress: function() {
-      return (
-        this.room != null &&
-        (this.roomStatus === consts.STATUS_PROLOGUE ||
-          this.roomStatus === consts.STATUS_EPILOGUE)
-      )
-    },
-    isOwner: function() {
-      return (
-        this.user != null &&
-        this.room != null &&
-        this.room.creatorRef === this.user.uid
-      )
-    },
-    isMember() {
-      return (
-        this.user != null && this.members.some(mem => mem.key === this.user.uid)
-      )
-    },
-    notVerified() {
-      return (
-        this.isLogin &&
-        !this.isMember &&
-        this.user.email &&
-        !this.user.emailVerified &&
-        this.isNotProgress &&
-        this.room != null &&
-        (this.room.ban == null ||
-          !this.room.ban.some(target => target === this.user.uid))
-      )
-    },
-    isGlobalBaned() {
-      const bans = this.$store.getters.getBans
-      const clientToken = this.$cookies.get('client-token')
-      return bans.some(b => b === clientToken)
-    },
-    canJoin() {
-      return (
-        this.isLogin &&
-        !this.isMember &&
-        (!this.user.email || this.user.emailVerified) &&
-        this.isNotProgress &&
-        this.room != null &&
-        !this.isGlobalBaned &&
-        (this.room.ban == null ||
-          !this.room.ban.some(target => target === this.user.uid))
-      )
-    },
-    canLeave() {
-      return this.isLogin && this.isMember && this.isNotProgress
-    },
-    hasPlayerName() {
-      return this.playerName != null && this.playerName !== ''
-    },
-    hasPlayerNameError() {
-      return this.playerNameError != null
-    },
-    canJoinSubmit() {
-      this.validatePlayerName()
-      return (
-        this.hasPlayerName &&
-        !this.hasPlayerNameError &&
-        this.isLogin &&
-        this.waitCount <= 0
-      )
-    },
-    canReady() {
-      return (
-        this.isMember &&
-        !this.members.filter(m => m.key === this.user.uid)[0].ready
-      )
-    },
-    canCancelReady() {
-      return (
-        this.isMember &&
-        this.members.filter(m => m.key === this.user.uid)[0].ready
-      )
-    },
-    canGameStart() {
-      return (
-        this.members.length >= 4 &&
-        this.isNotProgress &&
-        this.isOwner &&
-        this.members
-          .filter(m => m.key != this.room.creatorRef)
-          .every(m => m.ready)
-      )
-    }
-  },
-  created: function() {
-    this.timer = setInterval(() => {
-      if (this.room == null) {
-        return
-      }
-      this.countDown()
-    }, 1000)
-  },
-  destroyed: function() {
-    clearInterval(this.timer)
-  },
-  methods: {
-    validatePlayerName() {
-      if (!this.validPlayerName(this.playerName)) {
-        this.playerNameError = '3文字以上10文字以内で入力してください'
-      } else if (
-        this.playerName.trim() === 'ort' &&
-        this.user.uid !== this.master
-      ) {
-        this.playerNameError = 'その名前は使用できません'
-      } else {
-        this.playerNameError = null
-      }
-    },
-    validPlayerName(playerName) {
-      if (playerName.trim().length < 1 || playerName.length > 10) {
-        return false
-      }
-      return true
-    },
-    joinRoom() {
-      this.validatePlayerName()
-      if (!this.canJoinSubmit) {
-        return
-      }
-      this.$emit('joinRoom', this.playerName.trim())
-      this.waitCount = 30
-    },
-    leaveRoom() {
-      if (!this.canLeave) {
-        return
-      }
-      this.$emit('leaveRoom')
-    },
-    ready() {
-      if (!this.canReady) {
-        return
-      }
-      this.$emit('ready')
-    },
-    cancelReady() {
-      if (!this.canCancelReady) {
-        return
-      }
-      this.$emit('cancelReady')
-    },
-    gameStart() {
-      if (!this.canGameStart) {
-        return
-      }
-      this.$emit('gameStart', {
-        talkMinutes: Math.floor(this.talkMinutes),
-        wolfNum: this.wolfNum
-      })
-    },
-    countDown() {
-      if (this.waitCount > 0) {
-        this.waitCount--
-      }
-    }
+    countDown()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
+
+// methods
+function validatePlayerName() {
+  if (!validPlayerName(playerName.value)) {
+    playerNameError.value = '3文字以上10文字以内で入力してください'
+  } else if (
+    playerName.value.trim() === 'ort' &&
+    props.user?.uid !== props.master
+  ) {
+    playerNameError.value = 'その名前は使用できません'
+  } else {
+    playerNameError.value = null
+  }
+}
+
+function validPlayerName(name: string): boolean {
+  if (name.trim().length < 1 || name.length > 10) {
+    return false
+  }
+  return true
+}
+
+function joinRoom() {
+  validatePlayerName()
+  if (!canJoinSubmit.value) {
+    return
+  }
+  emit('joinRoom', playerName.value.trim())
+  waitCount.value = 30
+}
+
+function leaveRoom() {
+  if (!canLeave.value) {
+    return
+  }
+  emit('leaveRoom')
+}
+
+function ready() {
+  if (!canReady.value) {
+    return
+  }
+  emit('ready')
+}
+
+function cancelReady() {
+  if (!canCancelReady.value) {
+    return
+  }
+  emit('cancelReady')
+}
+
+function gameStart() {
+  if (!canGameStart.value) {
+    return
+  }
+  emit('gameStart', {
+    talkMinutes: Math.floor(talkMinutes.value),
+    wolfNum: wolfNum.value
+  })
+}
+
+function countDown() {
+  if (waitCount.value > 0) {
+    waitCount.value--
   }
 }
 </script>
