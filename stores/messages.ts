@@ -1,48 +1,52 @@
-import { defineStore } from 'pinia'
-import { ref as dbRef, push, onChildAdded, onValue, off } from 'firebase/database'
-import type { Message } from './types'
-import type { DatabaseReference } from 'firebase/database'
+import type { DatabaseReference } from "firebase/database";
+import { ref as dbRef, off, onValue, push } from "firebase/database";
+import { defineStore } from "pinia";
+import type { Message } from "./types";
 
-export const useMessagesStore = defineStore('messages', () => {
-  const messages = ref<Message[]>([])
-  let messagesRef: DatabaseReference | null = null
+export const useMessagesStore = defineStore("messages", () => {
+  const messages = ref<Message[]>([]);
+  let messagesRef: DatabaseReference | null = null;
 
   function resetMessages() {
     if (messagesRef) {
-      off(messagesRef)
-      messagesRef = null
+      off(messagesRef);
+      messagesRef = null;
     }
-    messages.value = []
+    messages.value = [];
   }
 
   async function initMessages(roomKey: string, isComplete: boolean) {
     if (messagesRef) {
-      off(messagesRef)
-      messages.value = []
+      off(messagesRef);
+      messages.value = [];
     }
 
-    const database = useDatabase()
-    messagesRef = dbRef(database, `messages/${roomKey}/`)
+    const database = useDatabase();
+    messagesRef = dbRef(database, `messages/${roomKey}/`);
 
     if (isComplete) {
       // 終了している村では全てを1回だけ取得する
       onValue(
         messagesRef,
         (snapshot) => {
-          const newMessages: Message[] = []
+          const newMessages: Message[] = [];
           snapshot.forEach((child) => {
-            newMessages.unshift(child.val() as Message)
-          })
-          messages.value = newMessages
+            newMessages.unshift(child.val() as Message);
+          });
+          messages.value = newMessages;
         },
         { onlyOnce: true }
-      )
+      );
     } else {
-      const localMessages: Message[] = []
-      onChildAdded(messagesRef, (snapshot) => {
-        localMessages.unshift(snapshot.val() as Message)
-        messages.value = [...localMessages]
-      })
+      // リアルタイムで新しいメッセージを監視
+      // onValueで全データを取得し、その後の変更も検知
+      onValue(messagesRef, (snapshot) => {
+        const newMessages: Message[] = [];
+        snapshot.forEach((child) => {
+          newMessages.unshift(child.val() as Message);
+        });
+        messages.value = newMessages;
+      });
     }
   }
 
@@ -53,14 +57,17 @@ export const useMessagesStore = defineStore('messages', () => {
     message: string,
     memberKey: string | null
   ) {
-    const database = useDatabase()
+    const database = useDatabase();
     if (!messagesRef) {
-      messagesRef = dbRef(database, `messages/${roomKey}/`)
+      messagesRef = dbRef(database, `messages/${roomKey}/`);
     }
 
-    const clientToken = typeof localStorage !== 'undefined' ? localStorage.getItem('client-token') : null
+    const clientToken =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("client-token")
+        : null;
 
-    const key = generateKey()
+    const key = generateKey();
     await push(messagesRef, {
       name,
       color,
@@ -68,20 +75,20 @@ export const useMessagesStore = defineStore('messages', () => {
       message,
       memberKey,
       createdAt: Date.now(),
-      clientToken: clientToken || ''
-    })
+      clientToken: clientToken || "",
+    });
 
-    return key
+    return key;
   }
 
   return {
     messages,
     resetMessages,
     initMessages,
-    addMessage
-  }
-})
+    addMessage,
+  };
+});
 
 function generateKey() {
-  return Math.random().toString(36).slice(-8)
+  return Math.random().toString(36).slice(-8);
 }

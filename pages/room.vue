@@ -130,7 +130,8 @@
           </div>
         </section>
         <footer class="modal-card-foot">
-          <button class="button is-small" @click="backToTop">キャンセル</button>
+          <button class="button is-small" @click="backToTop" style="margin-right: 5px;">キャンセル</button
+             />
           <button
             class="button is-success is-small"
             style="right: 0;"
@@ -146,15 +147,15 @@
 </template>
 
 <script setup lang="ts">
-import { onAuthStateChanged, updateProfile } from 'firebase/auth'
 import bcrypt from 'bcryptjs'
+import { onAuthStateChanged, updateProfile } from 'firebase/auth'
 import { useAuthStore } from '~/stores/auth'
-import { useRoomsStore } from '~/stores/rooms'
+import { useMasterStore } from '~/stores/master'
 import { useMembersStore } from '~/stores/members'
 import { useMessagesStore } from '~/stores/messages'
-import { useVotesStore } from '~/stores/votes'
-import { useMasterStore } from '~/stores/master'
+import { useRoomsStore } from '~/stores/rooms'
 import type { Member } from '~/stores/types'
+import { useVotesStore } from '~/stores/votes'
 
 useHead({
   title: 'ワードウルフオンライン'

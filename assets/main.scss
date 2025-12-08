@@ -1,4 +1,91 @@
 // Bulma CSS is imported via nuxt.config.ts
 // This file is kept for any custom overrides
 
-// Custom styles can be added here
+// Bulma 1.0 互換性対応
+
+// ボタンの文字色を白に
+.button.is-primary,
+.button.is-link,
+.button.is-info,
+.button.is-success,
+.button.is-warning,
+.button.is-danger {
+  color: #fff !important;
+
+  &:hover,
+  &:focus {
+    color: #fff !important;
+  }
+}
+
+// Bulma 0.9 互換: section のパディング
+.section {
+  padding: 3rem 1.5rem;
+}
+
+// Bulma 0.9 互換: container の中央揃え
+.container {
+  margin: 0 auto;
+}
+
+// Bulma 0.9 互換: columns のマージン
+.columns {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+  margin-top: -0.75rem;
+
+  &:last-child {
+    margin-bottom: -0.75rem;
+  }
+
+  &:not(:last-child) {
+    margin-bottom: calc(1.5rem - 0.75rem);
+  }
+}
+
+.column {
+  padding: 0.75rem;
+}
+
+// Bulma 0.9 互換: panel のマージン
+.panel:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+// Bulma 0.9 互換: title のマージン
+.title:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+// Bulma 0.9 互換: content のマージン
+.content:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+// Bulma 0.9 互換: notification のマージン
+.notification:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+// Bulma 0.9 互換: field のマージン
+.field:not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+
+// Bulma 0.9 互換: table
+.table {
+  margin-bottom: 1.5rem;
+
+  &:not(:last-child) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.tag {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+input[type="checkbox"] {
+  margin-right: 5px;
+}

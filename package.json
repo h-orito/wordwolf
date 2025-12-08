@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.11.3",
     "bcryptjs": "^2.4.3",
     "bulma": "^1.0.0",
+    "crypto-js": "^4.2.0",
     "firebase": "^10.8.0",
     "nuxt": "^4.0.0",
     "nuxt-vuefire": "^1.1.0",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^0.5.0",
     "@types/bcryptjs": "^3.0.0",
+    "@types/crypto-js": "^4.2.2",
     "sass": "^1.71.0"
   }
 }

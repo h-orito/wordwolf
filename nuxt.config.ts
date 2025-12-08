@@ -3,6 +3,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
 
+  vite: {
+    define: {
+      // bcryptjsのNode.js crypto使用を抑制
+      'process.browser': true
+    }
+  },
+
   app: {
     head: {
       titleTemplate: '%s | ワードウルフオンライン',

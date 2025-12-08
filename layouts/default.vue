@@ -2,7 +2,7 @@
   <div class="site">
     <GoogleAds />
     <NavBar />
-    <div class="siteContent">
+    <div class="siteContent has-text-centered">
       <slot />
     </div>
   </div>
