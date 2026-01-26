@@ -17,14 +17,14 @@
     "bcryptjs": "^2.4.3",
     "bulma": "^1.0.0",
     "crypto-js": "^4.2.0",
-    "firebase": "^10.8.0",
-    "nuxt": "^4.0.0",
+    "firebase": "^10.14.1",
+    "nuxt": "^4.3.0",
     "nuxt-vuefire": "^1.1.0",
     "pinia": "^3.0.4",
     "vuefire": "^3.1.0"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^0.5.0",
+    "@nuxt/eslint": "^0.5.7",
     "@types/bcryptjs": "^3.0.0",
     "@types/crypto-js": "^4.2.2",
     "sass": "^1.71.0"
