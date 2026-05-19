@@ -18,7 +18,7 @@
     "bulma": "^1.0.0",
     "crypto-js": "^4.2.0",
     "firebase": "^10.14.1",
-    "nuxt": "^4.3.0",
+    "nuxt": "^4.4.6",
     "nuxt-vuefire": "^1.1.0",
     "pinia": "^3.0.4",
     "vuefire": "^3.1.0"
