@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "wordwolf-dab65",
+    "dev": "wordwolf-dev"
+  }
+}

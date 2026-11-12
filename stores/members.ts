@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore'
 import type { Member } from './types'
 
-const COLORS = [
+export const COLORS = [
   'color01',
   'color02',
   'color03',
@@ -25,6 +25,11 @@ const COLORS = [
   'color09',
   'color10'
 ]
+
+/** 表示用の色クラス。決められた色以外は付けない */
+export function safeColor(color: string | null | undefined): string {
+  return color && COLORS.includes(color) ? color : ''
+}
 
 export const useMembersStore = defineStore('members', () => {
   const members = ref<Member[]>([])
@@ -128,14 +133,18 @@ export const useMembersStore = defineStore('members', () => {
   }
 
   async function removeMember(key: string, callback?: (members: Member[]) => Promise<void>) {
-    const db = useFirestore()
-    const memberDoc = doc(db, 'members', key)
-    await deleteDoc(memberDoc)
-
-    // 残りのメンバーリストを計算してコールバックを呼び出す
-    if (callback) {
-      const remainingMembers = members.value.filter(m => m.key !== key)
-      await callback(remainingMembers)
+    // ルームの人数・ルームマスターの更新はメンバーのうちに行う必要があるので、
+    // 残りのメンバーリストでコールバックを呼んでからメンバーを削除する
+    // コールバックが失敗してもメンバーは削除する（退出できなくならないように）
+    try {
+      if (callback) {
+        const remainingMembers = members.value.filter(m => m.key !== key)
+        await callback(remainingMembers)
+      }
+    } finally {
+      const db = useFirestore()
+      const memberDoc = doc(db, 'members', key)
+      await deleteDoc(memberDoc)
     }
   }
 
