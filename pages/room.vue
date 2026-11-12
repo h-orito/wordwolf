@@ -111,9 +111,11 @@
                 :class="
                   !hasRoomPassword
                     ? ''
+                    : isPasswordVerified
+                    ? 'is-success'
                     : hasRoomPasswordError
                     ? 'is-danger'
-                    : 'is-success'
+                    : ''
                 "
                 type="text"
                 v-model="roomPassword"
@@ -182,6 +184,7 @@ let timerObj: ReturnType<typeof setInterval> | null = null
 const roomPassword = ref('')
 const roomPasswordError = ref<string | null>(null)
 const isPasswordCollect = ref(false)
+const isPasswordVerified = ref(false)
 
 // computed from stores
 const user = computed(() => authStore.user)
@@ -220,8 +223,7 @@ const canView = computed(() => {
   if (!!user.value && user.value.uid === master.value) {
     return true
   }
-  validateRoomPassword()
-  return hasRoomPassword.value && !hasRoomPasswordError.value && isLogin.value
+  return hasRoomPassword.value && isPasswordVerified.value && isLogin.value
 })
 
 const requiredPassword = computed(() => {
@@ -381,17 +383,25 @@ function backToTop() {
   router.push('/')
 }
 
-function validateRoomPassword() {
+// ルーム作成時と同じ cost 10 の bcrypt ハッシュだけを照合に使う
+const ROOM_PASSWORD_HASH_PATTERN = /^\$2[aby]\$10\$[./A-Za-z0-9]{53}$/
+
+async function validateRoomPassword() {
   if (!requiredPassword.value) return
-  if (!bcrypt.compareSync(roomPassword.value, room.value!.roomPassword!)) {
-    roomPasswordError.value = '正しくありません'
-  } else {
-    roomPasswordError.value = null
+  const input = roomPassword.value
+  const hash = room.value!.roomPassword!
+  let matched = false
+  if (input !== '' && ROOM_PASSWORD_HASH_PATTERN.test(hash)) {
+    matched = await bcrypt.compare(input, hash)
   }
+  // 照合中に入力が変わっていたら古い結果は捨てる
+  if (input !== roomPassword.value) return
+  isPasswordVerified.value = matched
+  roomPasswordError.value = matched ? null : '正しくありません'
 }
 
 async function submitPassword() {
-  validateRoomPassword()
+  await validateRoomPassword()
   if (!canView.value) return
   await initMemberAndMessage()
   document.querySelector('#password-modal')?.classList.remove('is-active')

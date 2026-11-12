@@ -1,0 +1,197 @@
+rules_version = '2';
+
+// ワードウルフオンラインの Firestore ルール
+// 読み取りは公開（ルーム一覧・ログ閲覧はログイン前でも表示する）。書き込みは操作ごとに許可する。
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // 管理用データ（master: 管理者の uid、globalBans: 参加できない端末のトークン）
+    function adminPath() {
+      return /databases/$(database)/documents/users/f3hRhU3eBPPAhZcIPVCE;
+    }
+
+    function isMaster() {
+      return signedIn() && get(adminPath()).data.master == uid();
+    }
+
+    function roomPath(roomKey) {
+      return /databases/$(database)/documents/rooms/$(roomKey);
+    }
+
+    function memberPath(memberKey) {
+      return /databases/$(database)/documents/members/$(memberKey);
+    }
+
+    // ログイン中のユーザーが指定ルームのメンバーか
+    function isMemberOf(roomKey) {
+      return exists(memberPath(uid()))
+        && get(memberPath(uid())).data.roomKey == roomKey;
+    }
+
+    function isColor(c) {
+      return c in ['color01', 'color02', 'color03', 'color04', 'color05',
+                   'color06', 'color07', 'color08', 'color09', 'color10'];
+    }
+
+    function isShortString(s, maxLen) {
+      return s is string && s.size() <= maxLen;
+    }
+
+    // bcrypt（cost 10）の形式。空文字はパスワードなし
+    function isValidRoomPassword(p) {
+      return p == '' || (p is string && p.matches('^\\$2[aby]\\$10\\$[./A-Za-z0-9]{53}$'));
+    }
+
+    // ---------- 管理用データ（コンソールからのみ更新） ----------
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---------- 使われたお題ワードの記録 ----------
+    match /words/{wordId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['villagersWord', 'wolfWord'])
+        && isShortString(request.resource.data.villagersWord, 20)
+        && isShortString(request.resource.data.wolfWord, 20);
+      allow update, delete: if false;
+    }
+
+    // ---------- ルーム ----------
+    match /rooms/{roomKey} {
+      allow read: if true;
+
+      allow create: if signedIn()
+        && request.resource.data.key == roomKey
+        && request.resource.data.creatorRef == uid()
+        && request.resource.data.isComplete == false
+        && request.resource.data.status == 'prologue'
+        && request.resource.data.membersNum == 1
+        && request.resource.data.ban == []
+        && request.resource.data.gameMaster == null
+        && request.resource.data.wolfs == []
+        && request.resource.data.villagers == []
+        && request.resource.data.wolfWord == ''
+        && request.resource.data.villagersWord == ''
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 20
+        && isShortString(request.resource.data.creatorName, 20)
+        && request.resource.data.roomRating in ['', 'R15', 'R18']
+        && isValidRoomPassword(request.resource.data.roomPassword);
+
+      allow update: if signedIn()
+        && resource.data.isComplete == false
+        && !(uid() in resource.data.get('ban', []))
+        && (isMaster() || resource.data.creatorRef == uid() || isMemberOf(roomKey))
+        && unchangedImmutableFields()
+        && validBanChange()
+        && validCreatorChange()
+        && validCompleteChange()
+        && validTextFields();
+
+      allow delete: if false;
+
+      function changed() {
+        return request.resource.data.diff(resource.data).affectedKeys();
+      }
+
+      function isCreator() {
+        return resource.data.creatorRef == uid();
+      }
+
+      // ルーム名・パスワード・レーティングなどは作成後に変えない
+      function unchangedImmutableFields() {
+        return !changed().hasAny(['key', 'name', 'roomPassword', 'roomRating', 'creatorName']);
+      }
+
+      // BAN はルームマスター・管理者が追加するか、本人が自分を追加する（連投による自動退出）
+      function validBanChange() {
+        return !changed().hasAny(['ban'])
+          || isMaster()
+          || isCreator()
+          || request.resource.data.ban == resource.data.get('ban', []).concat([uid()]);
+      }
+
+      // ルームマスターの交代は本人・管理者、またはルームマスターがルームにいないとき
+      function validCreatorChange() {
+        return !changed().hasAny(['creatorRef'])
+          || isMaster()
+          || isCreator()
+          || !exists(memberPath(resource.data.creatorRef))
+          || get(memberPath(resource.data.creatorRef)).data.roomKey != roomKey;
+      }
+
+      // 終了はルームマスター・管理者のみ。終了したルームは戻さない
+      function validCompleteChange() {
+        return !changed().hasAny(['isComplete'])
+          || (request.resource.data.isComplete == true && (isMaster() || isCreator()));
+      }
+
+      function validTextFields() {
+        return isShortString(request.resource.data.wolfWord, 20)
+          && isShortString(request.resource.data.villagersWord, 20);
+      }
+    }
+
+    // ---------- メンバー（ユーザーごとに 1 ドキュメント） ----------
+    match /members/{memberKey} {
+      allow read: if true;
+
+      // 本人による参加・更新
+      allow create: if signedIn() && memberKey == uid() && validOwnMember(true);
+      allow update: if signedIn() && memberKey == uid()
+        && validOwnMember(request.resource.data.roomKey != resource.data.roomKey);
+
+      // 同じルームのメンバーによる更新（準備完了の解除、勝利数の加算）
+      allow update: if signedIn() && memberKey != uid()
+        && (isMaster() || isMemberOf(resource.data.roomKey))
+        && (
+          (changedKeys().hasOnly(['ready']) && request.resource.data.ready == false)
+          || (changedKeys().hasOnly(['winNum']) && request.resource.data.winNum == resource.data.get('winNum', 0) + 1)
+        );
+
+      // 退出（本人）・強制退出（ルームマスター）・管理者
+      allow delete: if signedIn()
+        && (memberKey == uid() || isMaster() || roomCreatorOfMember() == uid());
+
+      function changedKeys() {
+        return request.resource.data.diff(resource.data).affectedKeys();
+      }
+
+      function roomCreatorOfMember() {
+        return exists(roomPath(resource.data.roomKey))
+          ? get(roomPath(resource.data.roomKey)).data.creatorRef
+          : null;
+      }
+
+      function validOwnMember(joiningRoom) {
+        let d = request.resource.data;
+        return d.key == uid()
+          && d.roomKey is string
+          && d.name is string && d.name.size() >= 1 && d.name.size() <= 20
+          && isColor(d.color)
+          && d.ready is bool
+          && d.get('winNum', 0) is int
+          && (!('clientToken' in d) || isShortString(d.clientToken, 100))
+          && (!joiningRoom || canJoin(d.roomKey));
+      }
+
+      // 参加先のルームが開いていて、BAN されていない
+      function canJoin(roomKey) {
+        return exists(roomPath(roomKey))
+          && get(roomPath(roomKey)).data.isComplete == false
+          && !(uid() in get(roomPath(roomKey)).data.get('ban', []));
+      }
+    }
+  }
+}

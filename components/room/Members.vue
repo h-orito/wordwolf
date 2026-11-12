@@ -15,9 +15,9 @@
     >
       <span
         class="membername"
-        :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + member.color"
+        :class="(isMe(member) ? 'has-text-weight-bold' : '') + ' ' + safeColor(member.color)"
       >{{ member.name }}</span>
-      <span v-if="member.winNum != null" :class="member.color">
+      <span v-if="member.winNum != null" :class="safeColor(member.color)">
         {{ `（${member.winNum}勝）` }}
       </span>
       <button
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import * as consts from '~/stores/consts'
+import { safeColor } from '~/stores/members'
 import type { Room, Member, Vote } from '~/stores/types'
 
 interface Props {

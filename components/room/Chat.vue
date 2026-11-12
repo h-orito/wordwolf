@@ -28,10 +28,10 @@
       :class="room != null && room.isComplete ? 'chatlog' : ''"
     >
       <div v-for="mes in messages" :key="mes.key" class="chatcontent">
-        <span class="is-size-7 has-text-left chatmessage" :class="mes.color">
+        <span class="is-size-7 has-text-left chatmessage" :class="safeColor(mes.color)">
           {{ createDispMessage(mes) }}
         </span>
-        <span class="is-size-7" :class="mes.color">
+        <span class="is-size-7" :class="safeColor(mes.color)">
           {{ messageDatetime(mes) }}
         </span>
       </div>
@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import type { Room, Member, Message } from '~/stores/types'
+import { safeColor } from '~/stores/members'
 
 interface Props {
   room: Room | null

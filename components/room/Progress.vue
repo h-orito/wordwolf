@@ -43,7 +43,7 @@
           v-for="mem in gameMember"
           :key="mem.key"
           class="button is-default is-small has-text-weight-bold"
-          :class="mem.color"
+          :class="safeColor(mem.color)"
           @click="emit('vote', mem.key)"
         >{{ mem.name }}</button>
       </div>
@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import * as consts from '~/stores/consts'
+import { safeColor } from '~/stores/members'
 import type { Room, Member, Vote } from '~/stores/types'
 
 interface Props {
