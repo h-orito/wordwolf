@@ -93,6 +93,9 @@ service cloud.firestore {
         && resource.data.isComplete == false
         && !(uid() in resource.data.get('ban', []))
         && (isMaster() || resource.data.creatorRef == uid() || isMemberOf(roomKey))
+        && changed().hasOnly(['isComplete', 'creatorRef', 'createdAt', 'status', 'gameMaster',
+                               'wolfs', 'villagers', 'wolfWord', 'villagersWord', 'endingTime',
+                               'winCamp', 'membersNum', 'ban', 'counterPerson', 'talkMinutes'])
         && unchangedImmutableFields()
         && validBanChange()
         && validCreatorChange()
@@ -122,19 +125,24 @@ service cloud.firestore {
           || request.resource.data.ban == resource.data.get('ban', []).concat([uid()]);
       }
 
+      // ルームマスターが（退出せずに別のルームへ移るなどして）このルームにいない
+      function creatorAbsent() {
+        return !exists(memberPath(resource.data.creatorRef))
+          || get(memberPath(resource.data.creatorRef)).data.roomKey != roomKey;
+      }
+
       // ルームマスターの交代は本人・管理者、またはルームマスターがルームにいないとき
       function validCreatorChange() {
         return !changed().hasAny(['creatorRef'])
           || isMaster()
           || isCreator()
-          || !exists(memberPath(resource.data.creatorRef))
-          || get(memberPath(resource.data.creatorRef)).data.roomKey != roomKey;
+          || creatorAbsent();
       }
 
-      // 終了はルームマスター・管理者のみ。終了したルームは戻さない
+      // 終了はルームマスター・管理者、またはルームマスターがルームにいないとき。終了したルームは戻さない
       function validCompleteChange() {
         return !changed().hasAny(['isComplete'])
-          || (request.resource.data.isComplete == true && (isMaster() || isCreator()));
+          || (request.resource.data.isComplete == true && (isMaster() || isCreator() || creatorAbsent()));
       }
 
       function validTextFields() {
@@ -181,9 +189,17 @@ service cloud.firestore {
           && d.name is string && d.name.size() >= 1 && d.name.size() <= 20
           && isColor(d.color)
           && d.ready is bool
-          && d.get('winNum', 0) is int
+          && validOwnWinNum(joiningRoom)
           && (!('clientToken' in d) || isShortString(d.clientToken, 100))
           && (!joiningRoom || canJoin(d.roomKey));
+      }
+
+      // 勝利数は参加時に 0、それ以外は据え置きか +1（自分が勝者側のときは自分のクライアントが加算する）
+      function validOwnWinNum(joiningRoom) {
+        let n = request.resource.data.get('winNum', 0);
+        let before = resource == null ? 0 : resource.data.get('winNum', 0);
+        return n is int
+          && (joiningRoom ? n == 0 : (n == before || n == before + 1));
       }
 
       // 参加先のルームが開いていて、BAN されていない

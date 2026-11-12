@@ -18,3 +18,5 @@ dist
 
 # backup files
 *.bak
+# Firebase エミュレータ用にローカルでコピーする設定（firebase/ が正本）
+/firebase.json

@@ -298,9 +298,17 @@ function confirmToKick({ memberKey, memberName }: { memberKey: string; memberNam
   kick({ memberKey, memberName })
 }
 
-function kick({ memberKey, memberName }: { memberKey: string; memberName: string }) {
-  roomsStore.banRoomMember(room.value!.key, memberKey)
-  leave(memberKey, memberName, room.value!.key, room.value!.creatorRef)
+async function kick({ memberKey, memberName }: { memberKey: string; memberName: string }) {
+  const key = room.value!.key
+  if (memberKey === user.value?.uid) {
+    // 連投による自動退出: BAN されるとルームを更新できなくなるので、退出の更新を済ませてから自分を BAN する
+    await leave(memberKey, memberName, key, room.value!.creatorRef, () =>
+      roomsStore.banRoomMember(key, memberKey)
+    )
+    return
+  }
+  await roomsStore.banRoomMember(key, memberKey)
+  await leave(memberKey, memberName, key, room.value!.creatorRef)
 }
 
 function submitRoomReset() {
@@ -445,7 +453,13 @@ async function join(userId: string, userName: string, key: string) {
   })
 }
 
-async function leave(userId: string, userName: string, key: string, creator: string) {
+async function leave(
+  userId: string,
+  userName: string,
+  key: string,
+  creator: string,
+  beforeRemove?: () => Promise<void>
+) {
   const message = userName + 'さんが退出しました。'
 
   await membersStore.removeMember(userId, async (remainingMembers: Member[]) => {
@@ -468,6 +482,9 @@ async function leave(userId: string, userName: string, key: string, creator: str
     await roomsStore.changeRoomMember(query.roomKey, query.memberNum, query.isChangeCreator, query.newCreator || undefined)
     if (remainingMembers.length <= 0) {
       await roomsStore.completeRoom(key)
+    }
+    if (beforeRemove) {
+      await beforeRemove()
     }
   })
 }

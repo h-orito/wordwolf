@@ -135,14 +135,17 @@ export const useMembersStore = defineStore('members', () => {
   async function removeMember(key: string, callback?: (members: Member[]) => Promise<void>) {
     // ルームの人数・ルームマスターの更新はメンバーのうちに行う必要があるので、
     // 残りのメンバーリストでコールバックを呼んでからメンバーを削除する
-    if (callback) {
-      const remainingMembers = members.value.filter(m => m.key !== key)
-      await callback(remainingMembers)
+    // コールバックが失敗してもメンバーは削除する（退出できなくならないように）
+    try {
+      if (callback) {
+        const remainingMembers = members.value.filter(m => m.key !== key)
+        await callback(remainingMembers)
+      }
+    } finally {
+      const db = useFirestore()
+      const memberDoc = doc(db, 'members', key)
+      await deleteDoc(memberDoc)
     }
-
-    const db = useFirestore()
-    const memberDoc = doc(db, 'members', key)
-    await deleteDoc(memberDoc)
   }
 
   async function addWinNum(keys: string[]) {

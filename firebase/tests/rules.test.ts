@@ -193,10 +193,23 @@ describe('通常の遊び方ができる', () => {
     await assertSucceeds(deleteDoc(doc(fs('alice'), 'members', 'bob')))
   })
 
-  it('連投した本人が自分を BAN して退出できる', async () => {
+  it('連投した本人が退出の更新をしてから自分を BAN して退出できる', async () => {
     await seedRoom('alice', ['alice', 'bob'])
+    await assertSucceeds(updateDoc(doc(fs('bob'), 'rooms', ROOM), { membersNum: 1 }))
     await assertSucceeds(updateDoc(doc(fs('bob'), 'rooms', ROOM), { ban: ['bob'] }))
     await assertSucceeds(deleteDoc(doc(fs('bob'), 'members', 'bob')))
+  })
+
+  it('ルームマスターがいないルームでは最後のメンバーが退出してルームを終了できる', async () => {
+    await seedRoom('alice', ['bob'])
+    await assertSucceeds(updateDoc(doc(fs('bob'), 'rooms', ROOM), { membersNum: 0 }))
+    await assertSucceeds(updateDoc(doc(fs('bob'), 'rooms', ROOM), { isComplete: true }))
+    await assertSucceeds(deleteDoc(doc(fs('bob'), 'members', 'bob')))
+  })
+
+  it('勝者側の本人が自分の勝利数を 1 増やせる', async () => {
+    await seedRoom('alice', ['alice', 'bob'])
+    await assertSucceeds(updateDoc(doc(fs('bob'), 'members', 'bob'), { winNum: increment(1) }))
   })
 
   it('ルームマスターがいなくなったルームに参加した人がルームマスターになれる', async () => {
@@ -294,6 +307,27 @@ describe('許可されていない操作はできない', () => {
 
   it('存在しないルームには参加できない', async () => {
     await assertFails(setDoc(doc(fs('bob'), 'members', 'bob'), memberTemplate('bob', { roomKey: 'nothing' })))
+  })
+
+  it('自分の勝利数を任意の値にはできない', async () => {
+    await seedRoom('alice', ['alice'])
+    await assertFails(updateDoc(doc(fs('alice'), 'members', 'alice'), { winNum: 100 }))
+    await assertFails(setDoc(doc(fs('bob'), 'members', 'bob'), memberTemplate('bob', { winNum: 100 })))
+  })
+
+  it('ルームに決められたフィールド以外は追加できない', async () => {
+    await seedRoom('alice', ['alice'])
+    await assertFails(updateDoc(doc(fs('alice'), 'rooms', ROOM), { extra: 'x' }))
+  })
+
+  it('ルームマスターがいるルームでは他のメンバーが終了できない', async () => {
+    await seedRoom('alice', ['alice', 'bob'])
+    await assertFails(updateDoc(doc(fs('bob'), 'rooms', ROOM), { isComplete: true }))
+  })
+
+  it('BAN された本人はルームを更新できない', async () => {
+    await seedRoom('alice', ['alice', 'bob'], { ban: ['bob'] })
+    await assertFails(updateDoc(doc(fs('bob'), 'rooms', ROOM), { membersNum: 1 }))
   })
 
   it('メンバーの色は決められたものしか使えない', async () => {
