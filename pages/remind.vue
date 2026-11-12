@@ -9,19 +9,19 @@
               <label class="label">メールアドレス</label>
               <div class="control has-icons-left has-icons-right">
                 <input
+                  v-model="email"
                   class="input"
                   :class="!hasEmailInput ? '' : hasEmailError ? 'is-danger' : 'is-success'"
                   type="email"
                   placeholder="Email"
-                  v-model="email"
                   @keyup="validateEmail"
-                />
+                >
                 <span class="icon is-small is-left">
-                  <i class="fas fa-envelope"></i>
+                  <i class="fas fa-envelope"/>
                 </span>
                 <span v-if="hasEmailInput" class="icon is-small is-right">
-                  <i v-if="hasEmailError" class="fas fa-exclamation-triangle"></i>
-                  <i v-if="!hasEmailError" class="fas fa-check"></i>
+                  <i v-if="hasEmailError" class="fas fa-exclamation-triangle"/>
+                  <i v-if="!hasEmailError" class="fas fa-check"/>
                 </span>
               </div>
               <p class="help is-danger">{{ emailError }}</p>

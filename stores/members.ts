@@ -43,7 +43,7 @@ export const useMembersStore = defineStore('members', () => {
     members.value = []
   }
 
-  async function initMembers(roomKey: string, isComplete = false) {
+  async function initMembers(roomKey: string) {
     if (unsubscribe) {
       unsubscribe()
       members.value = []

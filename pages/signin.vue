@@ -10,7 +10,7 @@
         <div class="field">
           <div class="control has-text-centered">
             <label class="checkbox">
-              <input type="checkbox" v-model="termsandpolicy" />
+              <input v-model="termsandpolicy" type="checkbox" >
               <a href="javascript:void(0);" @click="openTermsModal">利用規約</a>
               および<a href="javascript:void(0);" @click="openPolicyModal"
                 >プライバシーポリシー</a
@@ -30,7 +30,7 @@
           </div>
           <p class="help is-danger">{{ annonymouslyError }}</p>
         </div>
-        <hr />
+        <hr >
         <h2 class="title is-6">
           メールアドレスでログイン（メール認証で登録した方向け）
         </h2>
@@ -41,21 +41,21 @@
           <label class="label">メールアドレス</label>
           <div class="control has-icons-left has-icons-right">
             <input
+              v-model="email"
               class="input"
               :class="
                 !hasEmailInput ? '' : hasEmailError ? 'is-danger' : 'is-success'
               "
               type="email"
               placeholder="Email"
-              v-model="email"
               @keyup="validateEmail"
-            />
+            >
             <span class="icon is-small is-left">
-              <i class="fas fa-envelope"></i>
+              <i class="fas fa-envelope"/>
             </span>
             <span v-if="hasEmailInput" class="icon is-small is-right">
-              <i v-if="hasEmailError" class="fas fa-exclamation-triangle"></i>
-              <i v-if="!hasEmailError" class="fas fa-check"></i>
+              <i v-if="hasEmailError" class="fas fa-exclamation-triangle"/>
+              <i v-if="!hasEmailError" class="fas fa-check"/>
             </span>
           </div>
           <p class="help is-danger">{{ emailError }}</p>
@@ -64,6 +64,7 @@
           <label class="label">パスワード</label>
           <div class="control has-icons-left has-icons-right">
             <input
+              v-model="password"
               class="input"
               :class="
                 !hasPasswordInput
@@ -74,18 +75,17 @@
               "
               type="password"
               placeholder="Password"
-              v-model="password"
               @keyup="validatePassword"
-            />
+            >
             <span class="icon is-small is-left">
-              <i class="fas fa-key"></i>
+              <i class="fas fa-key"/>
             </span>
             <span v-if="hasPasswordInput" class="icon is-small is-right">
               <i
                 v-if="hasPasswordError"
                 class="fas fa-exclamation-triangle"
-              ></i>
-              <i v-if="!hasPasswordError" class="fas fa-check"></i>
+              />
+              <i v-if="!hasPasswordError" class="fas fa-check"/>
             </span>
           </div>
           <p class="help is-danger">{{ passwordError }}</p>
@@ -106,24 +106,24 @@
         </div>
       </div>
     </section>
-    <div class="modal" id="terms-modal">
-      <div class="modal-background" @click="closeTermsModal"></div>
+    <div id="terms-modal" class="modal">
+      <div class="modal-background" @click="closeTermsModal"/>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">利用規約</h4>
           <div class="content">
-            <Terms />
+            <TermsOfService />
           </div>
         </div>
       </div>
     </div>
-    <div class="modal" id="policy-modal">
-      <div class="modal-background" @click="closePolicyModal"></div>
+    <div id="policy-modal" class="modal">
+      <div class="modal-background" @click="closePolicyModal"/>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">プライバシーポリシー</h4>
           <div class="content">
-            <Policy />
+            <PrivacyPolicy />
           </div>
         </div>
       </div>
@@ -204,8 +204,8 @@ async function signin() {
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value)
     router.replace({ path: '/' })
-  } catch (error: any) {
-    const errorCode = error.code
+  } catch (error) {
+    const errorCode = (error as { code?: string }).code
     if (errorCode === 'auth/user-disabled') {
       emailError.value = 'このアカウントは無効にされています。'
     } else if (errorCode === 'auth/invalid-email') {

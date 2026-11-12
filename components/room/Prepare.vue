@@ -1,16 +1,16 @@
 <template>
-  <div class="panel" v-if="isPrepare">
+  <div v-if="isPrepare" class="panel">
     <p class="is-size-7 has-text-left panel-heading">ゲーム準備中</p>
-    <div class="panel-block is-size-7 has-text-left" v-if="!canSetWord">
+    <div v-if="!canSetWord" class="panel-block is-size-7 has-text-left">
       ゲームマスターがワードを決めています。
     </div>
-    <div class="panel-block" v-if="canSetWord">
+    <div v-if="canSetWord" class="panel-block">
       <div class="field">
         <div class="control">
           <p class="is-size-7">
             あなたはゲームマスターです。
-            <br />ワードをそれぞれ20文字以内で設定してください。
-            <br />ワードに設定できる文字はひらがなと半角数字のみです。
+            <br >ワードをそれぞれ20文字以内で設定してください。
+            <br >ワードに設定できる文字はひらがなと半角数字のみです。
           </p>
         </div>
       </div>
@@ -28,10 +28,10 @@
                 ? 'is-danger'
                 : 'is-success'
             "
-            @keyup="validateWord"
             placeholder="村人（多数派）のワード"
-          />
-          <br />
+            @keyup="validateWord"
+          >
+          <br >
         </div>
         <p class="help is-danger has-text-left">
           {{ villagersWordError }}
@@ -51,10 +51,10 @@
                 ? 'is-danger'
                 : 'is-success'
             "
-            @keyup="validateWord"
             placeholder="人狼（少数派）のワード"
-          />
-          <br />
+            @keyup="validateWord"
+          >
+          <br >
         </div>
         <p class="help is-danger has-text-left">{{ wolfWordError }}</p>
       </div>
@@ -65,7 +65,7 @@
       >
         決定
       </button>
-      <br />
+      <br >
     </div>
   </div>
 </template>

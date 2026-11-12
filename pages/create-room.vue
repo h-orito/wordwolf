@@ -18,6 +18,7 @@
             <label class="label">部屋名</label>
             <div class="control has-icons-left has-icons-right">
               <input
+                v-model="roomName"
                 class="input"
                 :class="
                   !hasRoomName
@@ -28,21 +29,20 @@
                 "
                 type="text"
                 placeholder="部屋名"
-                v-model="roomName"
                 @keyup="validateRoomName"
-              />
+              >
               <span class="icon is-small is-left">
-                <i class="fas fa-comments"></i>
+                <i class="fas fa-comments"/>
               </span>
               <span v-if="hasRoomName" class="icon is-small is-right">
                 <i
                   v-if="hasRoomNameError"
                   class="fas fa-exclamation-triangle"
-                ></i>
-                <i v-if="!hasRoomNameError" class="fas fa-check"></i>
+                />
+                <i v-if="!hasRoomNameError" class="fas fa-check"/>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasRoomName">
+            <p v-if="hasRoomName" class="help is-danger">
               {{ roomNameError }}
             </p>
           </div>
@@ -50,6 +50,7 @@
             <label class="label">自分のニックネーム</label>
             <div class="control has-icons-left has-icons-right">
               <input
+                v-model="playerName"
                 class="input"
                 :class="
                   !hasPlayerName
@@ -60,21 +61,20 @@
                 "
                 type="text"
                 placeholder="ニックネーム"
-                v-model="playerName"
                 @keyup="validatePlayerName"
-              />
+              >
               <span class="icon is-small is-left">
-                <i class="fas fa-user-circle"></i>
+                <i class="fas fa-user-circle"/>
               </span>
               <span v-if="hasPlayerName" class="icon is-small is-right">
                 <i
                   v-if="hasPlayerNameError"
                   class="fas fa-exclamation-triangle"
-                ></i>
-                <i v-if="!hasPlayerNameError" class="fas fa-check"></i>
+                />
+                <i v-if="!hasPlayerNameError" class="fas fa-check"/>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasPlayerName">
+            <p v-if="hasPlayerName" class="help is-danger">
               {{ playerNameError }}
             </p>
           </div>
@@ -82,6 +82,7 @@
             <label class="label">部屋パスワード（任意）</label>
             <div class="control has-icons-left has-icons-right">
               <input
+                v-model="roomPassword"
                 class="input"
                 :class="
                   !hasRoomPassword
@@ -92,21 +93,20 @@
                 "
                 type="text"
                 placeholder="パスワード"
-                v-model="roomPassword"
                 @keyup="validateRoomPassword"
-              />
+              >
               <span class="icon is-small is-left">
-                <i class="fas fa-key"></i>
+                <i class="fas fa-key"/>
               </span>
               <span v-if="hasRoomPassword" class="icon is-small is-right">
                 <i
                   v-if="hasRoomPasswordError"
                   class="fas fa-exclamation-triangle"
-                ></i>
-                <i v-if="!hasRoomPasswordError" class="fas fa-check"></i>
+                />
+                <i v-if="!hasRoomPasswordError" class="fas fa-check"/>
               </span>
             </div>
-            <p class="help is-danger" v-if="hasRoomPassword">
+            <p v-if="hasRoomPassword" class="help is-danger">
               {{ roomPasswordError }}
             </p>
           </div>

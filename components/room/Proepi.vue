@@ -1,42 +1,42 @@
 <template>
-  <div class="panel" v-if="isNotProgress">
+  <div v-if="isNotProgress" class="panel">
     <p class="is-size-7 has-text-left panel-heading">ゲーム開始前</p>
-    <div class="panel-block" v-if="roomStatus === 'epilogue'">
+    <div v-if="roomStatus === 'epilogue'" class="panel-block">
       <p class="is-size-7 has-text-left">
         <span class="has-text-weight-bold is-size-6">{{
           room?.winCamp === 'wolfs' ? '人狼' : '村人'
         }}</span>
-        の勝利です。 <br />村人のワードは
+        の勝利です。 <br >村人のワードは
         <span class="has-text-weight-bold is-size-6">{{
           room?.villagersWord
         }}</span>
-        でした。 <br />人狼のワードは
+        でした。 <br >人狼のワードは
         <span class="has-text-weight-bold is-size-6">{{ room?.wolfWord }}</span>
         でした。
       </p>
     </div>
     <div class="panel-block">
       <p
-        class="is-size-7 has-text-left"
         v-if="!isOwner"
+        class="is-size-7 has-text-left"
         style="margin-bottom: 10px;"
       >
         現在ゲーム開始前です。
-        <br />4人以上集まり、全員が準備完了すればルームオーナーがゲームを開始することができます。
+        <br >4人以上集まり、全員が準備完了すればルームオーナーがゲームを開始することができます。
       </p>
-      <div class="has-text-left is-size-7" v-if="!isOwner && isMember">
+      <div v-if="!isOwner && isMember" class="has-text-left is-size-7">
         <div class="field">
           <div class="control">
             <button
-              class="button is-primary is-small"
               v-if="canReady"
+              class="button is-primary is-small"
               @click="ready"
             >
               準備完了状態にする
             </button>
             <button
-              class="button is-default is-small"
               v-if="canCancelReady"
+              class="button is-default is-small"
               @click="cancelReady"
             >
               準備中に戻す
@@ -44,35 +44,35 @@
           </div>
         </div>
       </div>
-      <div class="has-text-left is-size-7" v-if="isOwner">
+      <div v-if="isOwner" class="has-text-left is-size-7">
         <p style="margin-bottom: 10px;">
           あなたはルームオーナーです。
-          <br />4人以上集まり、ルームオーナー以外の全員が準備完了すればゲームを開始することができます。
+          <br >4人以上集まり、ルームオーナー以外の全員が準備完了すればゲームを開始することができます。
         </p>
         <div class="field">
           <label class="label is-size-7 has-text-left">議論時間（分）</label>
           <div class="control">
             <input
+              v-model="talkMinutes"
               class="input is-small"
               type="number"
               min="1"
               max="10"
               step="1"
-              v-model="talkMinutes"
-            />
+            >
           </div>
         </div>
         <div class="field">
           <label class="label is-size-7 has-text-left">人狼の人数</label>
           <div class="control">
             <input
+              v-model="wolfNum"
               class="input is-small"
               type="number"
               min="1"
               max="3"
               step="1"
-              v-model="wolfNum"
-            />
+            >
           </div>
         </div>
         <div class="field">
@@ -88,25 +88,25 @@
         </div>
       </div>
     </div>
-    <div class="panel-block" v-if="!canJoin && !isLogin">
+    <div v-if="!canJoin && !isLogin" class="panel-block">
       <p class="has-text-left is-size-7">
         参加するにはログインが必要です。トップページよりログインしてください。
       </p>
     </div>
-    <div class="panel-block" v-if="!canJoin && notVerified">
+    <div v-if="!canJoin && notVerified" class="panel-block">
       <p class="has-text-left is-size-7">
         参加するにはメール認証が必要です。メールをご確認ください。
-        <br />送信されていない場合は「ユーザ情報編集」から再送してください。
+        <br >送信されていない場合は「ユーザ情報編集」から再送してください。
       </p>
     </div>
-    <div class="panel-block" v-if="canJoin">
+    <div v-if="canJoin" class="panel-block">
       <div class="field">
         <label class="label is-size-7 has-text-left">自分のニックネーム</label>
         <div class="control">
           <input
+            v-model="playerName"
             class="input is-small"
             type="text"
-            v-model="playerName"
             placeholder="ニックネーム"
             :class="
               !hasPlayerName
@@ -116,9 +116,9 @@
                 : 'is-success'
             "
             @keyup="validatePlayerName"
-          />
+          >
         </div>
-        <p class="help is-danger is-size-7 has-text-left" v-if="hasPlayerName">
+        <p v-if="hasPlayerName" class="help is-danger is-size-7 has-text-left">
           {{ playerNameError }}
         </p>
       </div>
@@ -134,12 +134,12 @@
         </div>
       </div>
     </div>
-    <div class="panel-block" v-if="canLeave">
+    <div v-if="canLeave" class="panel-block">
       <div class="has-text-left">
         <button
           class="button is-danger is-small"
-          @click="leaveRoom"
           :disabled="waitCount > 0"
+          @click="leaveRoom"
         >
           退出する{{ waitCount > 0 ? `（残${waitCount}秒）` : '' }}
         </button>

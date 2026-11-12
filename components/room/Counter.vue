@@ -1,7 +1,7 @@
 <template>
-  <div class="panel" v-if="isCounter">
+  <div v-if="isCounter" class="panel">
     <p class="is-size-7 has-text-left panel-heading">ゲーム進行中</p>
-    <div class="panel-block is-size-7 has-text-left" v-if="isGameMaster">
+    <div v-if="isGameMaster" class="panel-block is-size-7 has-text-left">
       <p>
         村人のワードは
         <span class="has-text-weight-bold is-size-6">{{ room?.villagersWord }}</span> です。
@@ -10,7 +10,7 @@
         <br>
       </p>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isMember && !isGameMaster">
+    <div v-if="isMember && !isGameMaster" class="panel-block is-size-7 has-text-left">
       <div class="content">
         <p>
           あなたのワードは
@@ -21,20 +21,20 @@
         </p>
       </div>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isCounterPerson">
+    <div v-if="isCounterPerson" class="panel-block is-size-7 has-text-left">
       <p>あなたが最多票になりました。
         <br>村人のワードを当てられればあなたの勝利、当てられなければ村人の勝利となります。
         <br>村人のワードを予想してください。
       </p>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isCounterPerson">
+    <div v-if="isCounterPerson" class="panel-block is-size-7 has-text-left">
       <label class="label is-size-7 has-text-left">村人（多数派）のワード</label>
       <div class="field">
         <div class="control">
           <input
+            v-model="counterWord"
             class="input is-small"
             :class="counterWord === '' ? '' : counterWordError != null ? 'is-danger': 'is-success'"
-            v-model="counterWord"
             placeholder="村人（多数派）のワード"
             type="text"
             @keyup="validateCounterWord"
@@ -42,10 +42,10 @@
         </div>
         <p class="help is-danger has-text-left">{{ counterWordError }}</p>
       </div>
-      <button class="button is-primary is-small" @click="submit" :disabled="!canSubmitCounterWord">決定</button>
+      <button class="button is-primary is-small" :disabled="!canSubmitCounterWord" @click="submit">決定</button>
       <br>
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="!isCounterPerson">
+    <div v-if="!isCounterPerson" class="panel-block is-size-7 has-text-left">
       <p>人狼が最多票になりました。
         <br>人狼が村人のワードを予想しています。
         <br>人狼が村人のワードを当てられれば人狼の勝利、当てられなければ村人の勝利となります。

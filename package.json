@@ -27,6 +27,7 @@
     "@nuxt/eslint": "^0.5.7",
     "@types/bcryptjs": "^3.0.0",
     "@types/crypto-js": "^4.2.2",
-    "sass": "^1.71.0"
+    "sass": "^1.71.0",
+    "typescript": "5.9.3"
   }
 }

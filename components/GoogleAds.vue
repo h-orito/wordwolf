@@ -1,15 +1,21 @@
 <template>
-  <div></div>
+  <div/>
 </template>
 
 <script setup lang="ts">
+type AdsWindow = Window & {
+  __adsLoaded?: boolean
+  adsbygoogle?: Record<string, unknown>[]
+}
+
 onMounted(() => {
   if (import.meta.client) {
+    const w = window as AdsWindow
     // 既に読み込み済みならスキップ
-    if ((window as any).__adsLoaded) {
+    if (w.__adsLoaded) {
       return
     }
-    (window as any).__adsLoaded = true
+    w.__adsLoaded = true
 
     const script = document.createElement('script')
     script.async = true
@@ -17,8 +23,8 @@ onMounted(() => {
     document.head.appendChild(script)
 
     script.onload = () => {
-      ;(window as any).adsbygoogle = (window as any).adsbygoogle || []
-      ;(window as any).adsbygoogle.push({
+      w.adsbygoogle = w.adsbygoogle || []
+      w.adsbygoogle.push({
         google_ad_client: 'ca-pub-0917187897820609',
         enable_page_level_ads: true
       })

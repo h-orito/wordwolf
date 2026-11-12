@@ -1,20 +1,20 @@
 <template>
-  <div class="panel" id="room-chat">
+  <div id="room-chat" class="panel">
     <p class="is-size-7 has-text-left panel-heading">
       {{ room != null && room.isComplete ? 'ログ' : 'チャット' }}
     </p>
     <div v-if="room != null && !room.isComplete" class="panel-block">
       <div class="control has-icons-right" style="margin-bottom: 5px;">
         <input
-          :disabled="!canChat"
           v-model="message"
+          :disabled="!canChat"
           type="text"
           class="input is-small"
           @keyup.enter="say"
           @keypress.enter="setCanMessageSubmit()"
-        />
+        >
         <span class="icon is-small is-right">
-          <i class="fas fa-comment"></i>
+          <i class="fas fa-comment"/>
         </span>
       </div>
       <div v-if="errorMessage">
