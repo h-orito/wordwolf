@@ -1,16 +1,16 @@
 <template>
-  <div class="panel" id="room-member">
+  <div id="room-member" class="panel">
     <p class="panel-heading is-size-7 has-text-left">参加者</p>
     <div
-      class="panel-block is-size-7 has-text-left"
       v-if="members == null || members.length === 0"
+      class="panel-block is-size-7 has-text-left"
     >
       参加者がいません
     </div>
     <div
-      class="panel-block is-size-7 has-text-left"
       v-for="member in members"
       :key="member.key"
+      class="panel-block is-size-7 has-text-left"
       style="height: 36px;"
     >
       <span

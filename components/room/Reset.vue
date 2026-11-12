@@ -1,5 +1,5 @@
 <template>
-  <div class="panel" v-if="isOwner">
+  <div v-if="isOwner" class="panel">
     <p class="is-size-7 has-text-left panel-heading">強制リセット</p>
     <div class="panel-block has-text-left">
       <p class="is-size-7 has-text-left">ゲームが進行不可能になった場合に開始前の状態に戻すことができます。</p>

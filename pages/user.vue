@@ -6,7 +6,7 @@
         <div class="columns">
           <div class="column">
             <div>
-              <hr />
+              <hr >
               <h2 class="title is-6">パスワード変更</h2>
               <div class="notification is-size-7">
                 メールアドレス / パスワードの組み合わせは他サービスで利用していないものにしてください。
@@ -15,19 +15,19 @@
                 <label class="label">旧パスワード</label>
                 <div class="control has-icons-left has-icons-right">
                   <input
+                    v-model="oldPassword"
                     class="input"
                     :class="!hasOldPasswordInput ? '' : hasOldPasswordError ? 'is-danger' : 'is-success'"
                     type="password"
                     placeholder="Old Password"
-                    v-model="oldPassword"
                     @keyup="validatePassword"
-                  />
+                  >
                   <span class="icon is-small is-left">
-                    <i class="fas fa-key"></i>
+                    <i class="fas fa-key"/>
                   </span>
                   <span v-if="hasOldPasswordInput" class="icon is-small is-right">
-                    <i v-if="hasOldPasswordError" class="fas fa-exclamation-triangle"></i>
-                    <i v-if="!hasOldPasswordError" class="fas fa-check"></i>
+                    <i v-if="hasOldPasswordError" class="fas fa-exclamation-triangle"/>
+                    <i v-if="!hasOldPasswordError" class="fas fa-check"/>
                   </span>
                 </div>
                 <p class="help is-danger">{{ oldPasswordError }}</p>
@@ -36,19 +36,19 @@
                 <label class="label">新パスワード</label>
                 <div class="control has-icons-left has-icons-right">
                   <input
+                    v-model="password"
                     class="input"
                     :class="!hasPasswordInput ? '' : hasPasswordError ? 'is-danger' : 'is-success'"
                     type="password"
                     placeholder="New Password"
-                    v-model="password"
                     @keyup="validatePassword"
-                  />
+                  >
                   <span class="icon is-small is-left">
-                    <i class="fas fa-key"></i>
+                    <i class="fas fa-key"/>
                   </span>
                   <span v-if="hasPasswordInput" class="icon is-small is-right">
-                    <i v-if="hasPasswordError" class="fas fa-exclamation-triangle"></i>
-                    <i v-if="!hasPasswordError" class="fas fa-check"></i>
+                    <i v-if="hasPasswordError" class="fas fa-exclamation-triangle"/>
+                    <i v-if="!hasPasswordError" class="fas fa-check"/>
                   </span>
                 </div>
                 <p class="help is-danger">{{ passwordError }}</p>
@@ -57,19 +57,19 @@
                 <label class="label">新パスワード（確認）</label>
                 <div class="control has-icons-left has-icons-right">
                   <input
+                    v-model="confirmPassword"
                     class="input"
                     :class="!hasConfirmPasswordInput ? '' : hasConfirmPasswordError ? 'is-danger' : 'is-success'"
                     type="password"
                     placeholder="New Password"
-                    v-model="confirmPassword"
                     @keyup="validatePassword"
-                  />
+                  >
                   <span class="icon is-small is-left">
-                    <i class="fas fa-key"></i>
+                    <i class="fas fa-key"/>
                   </span>
                   <span v-if="hasConfirmPasswordInput" class="icon is-small is-right">
-                    <i v-if="hasConfirmPasswordError" class="fas fa-exclamation-triangle"></i>
-                    <i v-if="!hasConfirmPasswordError" class="fas fa-check"></i>
+                    <i v-if="hasConfirmPasswordError" class="fas fa-exclamation-triangle"/>
+                    <i v-if="!hasConfirmPasswordError" class="fas fa-check"/>
                   </span>
                 </div>
                 <p class="help is-danger">{{ confirmPasswordError }}</p>
@@ -87,7 +87,7 @@
               </div>
             </div>
             <div>
-              <hr />
+              <hr >
               <h2 class="title is-6">退会</h2>
               <div class="field">
                 <div class="control has-text-centered">
@@ -96,8 +96,8 @@
               </div>
             </div>
           </div>
-          <div class="column" v-if="isUserNotVerified">
-            <hr />
+          <div v-if="isUserNotVerified" class="column">
+            <hr >
             <h2 class="title is-6">確認メール再送</h2>
             <div class="notification is-size-7">
               ユーザ新規登録時の確認メールを再送します。
@@ -138,7 +138,6 @@ const confirmPasswordError = ref<string | null>(null)
 
 // computed
 const user = computed(() => authStore.user)
-const isLogin = computed(() => authStore.isLogin)
 
 const hasOldPasswordInput = computed(() => oldPassword.value != null && oldPassword.value !== '')
 const hasOldPasswordError = computed(() => oldPasswordError.value != null)
@@ -200,8 +199,9 @@ async function changePassword() {
     await reauthenticateWithCredential(currentUser, credential)
     await updatePassword(currentUser, password.value)
     router.replace({ path: '/' })
-  } catch (error: any) {
-    if (error.code === 'auth/wrong-password') {
+  } catch (error) {
+    const errorCode = (error as { code?: string }).code
+    if (errorCode === 'auth/wrong-password') {
       oldPasswordError.value = '旧パスワードが正しくありません。'
     } else {
       passwordError.value = 'エラーが発生しました。'

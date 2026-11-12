@@ -12,7 +12,7 @@ import {
   limit,
   onSnapshot
 } from 'firebase/firestore'
-import { ref as dbRef, push, get, orderByChild } from 'firebase/database'
+import { ref as dbRef, push, get } from 'firebase/database'
 import type { Room, Member, Vote } from './types'
 import * as consts from './consts'
 import { useMembersStore } from './members'
@@ -110,7 +110,7 @@ export const useRoomsStore = defineStore('rooms', () => {
     const wnum =
       wolfNum == null || wolfNum <= 0 || members.length - 1 <= wolfNum ? 1 : wolfNum
 
-    let mems = members.slice().filter((m) => m.key !== gm.key)
+    const mems = members.slice().filter((m) => m.key !== gm.key)
     shuffle(mems)
     const wolfs = mems.slice(0, wnum)
     const villagers = mems.slice(wnum)
@@ -167,7 +167,6 @@ export const useRoomsStore = defineStore('rooms', () => {
     })
 
     // 投票後の投票状態
-    const votesQuery = orderByChild('createdAt')
     const snapshot = await get(votesRef)
     const votes: Vote[] = []
     snapshot.forEach((vs) => {
@@ -233,7 +232,7 @@ export const useRoomsStore = defineStore('rooms', () => {
   ) {
     const db = useFirestore()
     const roomDoc = doc(db, 'rooms', roomKey)
-    const updateData: Record<string, any> = { membersNum: memberNum }
+    const updateData: { membersNum: number; creatorRef?: string } = { membersNum: memberNum }
     if (isChangeCreator && newCreator) {
       updateData.creatorRef = newCreator
     }
@@ -434,7 +433,7 @@ function getCounterPerson(
     return [true, null]
   }
 
-  let maxVoteWolfs = voteCounts.filter((vc) => vc.isWolf && vc.count === maxVoteCount)
+  const maxVoteWolfs = voteCounts.filter((vc) => vc.isWolf && vc.count === maxVoteCount)
   shuffle(maxVoteWolfs)
   return [false, maxVoteWolfs[0]?.key || null]
 }

@@ -1,7 +1,7 @@
 <template>
-  <div class="panel" v-if="isProgress">
+  <div v-if="isProgress" class="panel">
     <p class="is-size-7 has-text-left panel-heading">ゲーム進行中</p>
-    <div class="panel-block is-size-7 has-text-left" v-if="isGameMaster">
+    <div v-if="isGameMaster" class="panel-block is-size-7 has-text-left">
       <p>
         村人のワードは
         <span class="has-text-weight-bold is-size-6">{{ room?.villagersWord }}</span> です。
@@ -10,7 +10,7 @@
         <br>
       </p>
     </div>
-    <div class="panel-block is-size-7 has-text-left sp-fixed-second-bottom" v-if="!isGameMaster">
+    <div v-if="!isGameMaster" class="panel-block is-size-7 has-text-left sp-fixed-second-bottom">
       <div class="content">
         <p v-if="isMember && !isGameMaster" style="margin-bottom: 10px;">
           あなたのワードは
@@ -30,15 +30,15 @@
         :value="leftTime"
         :max="(room?.talkMinutes || 2) * 60"
         style="margin-bottom: 0.5rem;"
-      ></progress>
+      />
     </div>
-    <div class="panel-block is-size-7 has-text-left" v-if="isMember && !isGameMaster">
+    <div v-if="isMember && !isGameMaster" class="panel-block is-size-7 has-text-left">
       <div v-if="doneVote">他の人が投票するまでお待ちください。</div>
       <div v-if="!doneVote">
-        <p class="is-size-7" v-if="leftTime > 0">ワードについて話して人狼（少数派）を探し、</p>
-        <p class="is-size-7" v-if="leftTime <= 0">投票の時間になりました。</p>
+        <p v-if="leftTime > 0" class="is-size-7">ワードについて話して人狼（少数派）を探し、</p>
+        <p v-if="leftTime <= 0" class="is-size-7">投票の時間になりました。</p>
         <p style="margin-bottom: 5px;">人狼（少数派）だと思う人に投票してください。（変更不可）</p>
-        <p class="is-size-7" v-if="isMember && !isGameMaster && leftTime > 0">議論時間終了後に投票することもできます。</p>
+        <p v-if="isMember && !isGameMaster && leftTime > 0" class="is-size-7">議論時間終了後に投票することもできます。</p>
         <button
           v-for="mem in gameMember"
           :key="mem.key"
@@ -49,8 +49,8 @@
       </div>
     </div>
     <div
-      class="panel-block is-size-7 has-text-left"
       v-if="isMember && isGameMaster && leftTime <= 0"
+      class="panel-block is-size-7 has-text-left"
     >
       <p style="margin-bottom: 5px;">投票の時間になりました。
         <br>全員が投票するまでお待ちください。

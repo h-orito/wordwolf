@@ -1,21 +1,21 @@
 <template>
   <section class="section" style="padding: 1rem 1rem;">
     <div class="container">
-      <span v-if="requiredPassword" class="fas fa-key"></span>
+      <span v-if="requiredPassword" class="fas fa-key"/>
       <span v-if="isRatingRoom" class="has-text-danger">{{
         room?.roomRating
       }}</span>
       <h1 class="title is-6">{{ room?.name ?? '' }}</h1>
-      <div class="columns is-tablet" v-if="isPasswordCollect">
+      <div v-if="isPasswordCollect" class="columns is-tablet">
         <!-- left tab -->
         <div
-          class="column is-one-thirds-tablet"
           v-if="room && !room.isComplete"
+          class="column is-one-thirds-tablet"
         >
           <RoomMembers
             :room="room"
             :members="members"
-            :voteKeys="votes"
+            :vote-keys="votes"
             :user="user"
             @kick="confirmToKick"
           />
@@ -23,26 +23,26 @@
             :room="room"
             :members="members"
             :user="user"
-            :isLogin="isLogin"
+            :is-login="isLogin"
             :master="master"
-            @joinRoom="joinRoom"
-            @leaveRoom="leaveRoom"
+            @join-room="joinRoom"
+            @leave-room="leaveRoom"
             @ready="ready"
-            @cancelReady="cancelReady"
-            @gameStart="gameStart"
+            @cancel-ready="cancelReady"
+            @game-start="gameStart"
           />
           <RoomPrepare
             :room="room"
             :members="members"
             :user="user"
-            @setWord="setWord"
+            @set-word="setWord"
           />
           <RoomProgress
             :room="room"
             :members="members"
-            :voteKeys="votes"
+            :vote-keys="votes"
             :user="user"
-            :leftTime="leftTime"
+            :left-time="leftTime"
             @vote="vote"
             @end-vote="endVote"
           />
@@ -50,12 +50,12 @@
             :room="room"
             :members="members"
             :user="user"
-            @submitCounterWord="submitCounterWord"
+            @submit-counter-word="submitCounterWord"
           />
           <RoomReset
             :room="room"
             :user="user"
-            @submitRoomReset="submitRoomReset"
+            @submit-room-reset="submitRoomReset"
           />
         </div>
         <!-- end left tab -->
@@ -69,7 +69,7 @@
             :members="members"
             :user="user"
             :messages="messages"
-            :leftTime="leftTime"
+            :left-time="leftTime"
             @say="say"
             @kick="kick"
           />
@@ -83,8 +83,8 @@
       </div>
       <GoogleAds />
     </div>
-    <div class="modal" id="password-modal">
-      <div class="modal-background is-cli"></div>
+    <div id="password-modal" class="modal">
+      <div class="modal-background is-cli"/>
       <div class="modal-card" style="width: 95vw; height: 95vh;">
         <header class="modal-card-head">
           <p class="modal-card-title is-size-5">パスワード入力</p>
@@ -99,14 +99,15 @@
               'この部屋は暴力表現' +
                 (room?.roomRating === 'R18' ? '、性的表現' : '') +
                 'が投稿される可能性があります。'
-            }}<br />
+            }}<br >
           </div>
           <p class="has-text-left">
             この部屋に入室するにはパスワードが必要です。
           </p>
-          <div class="field" v-if="requiredPassword">
+          <div v-if="requiredPassword" class="field">
             <div class="control">
               <input
+                v-model="roomPassword"
                 class="input is-small"
                 :class="
                   !hasRoomPassword
@@ -116,22 +117,20 @@
                     : 'is-success'
                 "
                 type="text"
-                v-model="roomPassword"
                 placeholder="パスワード"
                 @keyup="validateRoomPassword"
-              />
+              >
             </div>
             <p
-              class="help is-danger has-text-left is-size-7"
               v-if="hasRoomPassword"
+              class="help is-danger has-text-left is-size-7"
             >
               {{ roomPasswordError }}
             </p>
           </div>
         </section>
         <footer class="modal-card-foot">
-          <button class="button is-small" @click="backToTop" style="margin-right: 5px;">キャンセル</button
-             />
+          <button class="button is-small" style="margin-right: 5px;" @click="backToTop">キャンセル</button>
           <button
             class="button is-success is-small"
             style="right: 0;"
@@ -400,7 +399,7 @@ async function submitPassword() {
 
 async function initMemberAndMessage() {
   isPasswordCollect.value = true
-  await membersStore.initMembers(roomKey.value, isComplete.value)
+  await membersStore.initMembers(roomKey.value)
   if (!isComplete.value) {
     await votesStore.initVotes(roomKey.value)
   }

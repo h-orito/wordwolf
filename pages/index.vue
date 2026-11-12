@@ -40,7 +40,7 @@
             class="notification is-warning is-size-7"
             style="margin-top: 1.5rem"
           >
-            部屋の作成やゲームへの参加にはメール認証が必要です。メールをご確認ください。送信されていない場合は「ユーザ情報編集」から再送してください。<br />
+            部屋の作成やゲームへの参加にはメール認証が必要です。メールをご確認ください。送信されていない場合は「ユーザ情報編集」から再送してください。<br >
           </div>
         </div>
       </div>
@@ -48,8 +48,8 @@
     <section class="section">
       <div class="container">
         <h1 class="title is-5">部屋一覧</h1>
-        <p class="content" v-if="rooms.length === 0">現在部屋がありません。</p>
-        <br />
+        <p v-if="rooms.length === 0" class="content">現在部屋がありません。</p>
+        <br >
         <table
           v-if="rooms.length > 0"
           class="table is-striped is-fullwidth is-size-7"
@@ -67,7 +67,7 @@
                 <span
                   v-if="room.roomPassword != null && room.roomPassword !== ''"
                   class="fas fa-key"
-                ></span>
+                />
                 <span
                   v-if="room.roomRating === 'R15' || room.roomRating === 'R18'"
                   class="tag reverse-danger"
@@ -83,8 +83,8 @@
           </tbody>
         </table>
         <NuxtLink
-          class="button is-primary"
           v-if="canCreateRoom"
+          class="button is-primary"
           to="/create-room"
         >
           部屋を作成
@@ -167,8 +167,8 @@
             </ul>
           </div>
         </div>
-        <div class="modal" id="kampa-modal">
-          <div class="modal-background" @click="closeKampaModal"></div>
+        <div id="kampa-modal" class="modal">
+          <div class="modal-background" @click="closeKampaModal"/>
           <div class="modal-content">
             <div class="box">
               <h4 class="is-size-5">投げ銭について</h4>
@@ -195,24 +195,24 @@
         </div>
       </div>
     </section>
-    <div class="modal" id="terms-modal">
-      <div class="modal-background" @click="closeTermsModal"></div>
+    <div id="terms-modal" class="modal">
+      <div class="modal-background" @click="closeTermsModal"/>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">利用規約</h4>
           <div class="content">
-            <Terms />
+            <TermsOfService />
           </div>
         </div>
       </div>
     </div>
-    <div class="modal" id="policy-modal">
-      <div class="modal-background" @click="closePolicyModal"></div>
+    <div id="policy-modal" class="modal">
+      <div class="modal-background" @click="closePolicyModal"/>
       <div class="modal-content">
         <div class="box">
           <h4 class="is-size-5">プライバシーポリシー</h4>
           <div class="content">
-            <Policy />
+            <PrivacyPolicy />
           </div>
         </div>
       </div>
